@@ -4,9 +4,10 @@ import { Observable } from 'rxjs';
 
 import { User } from '../models/user';
 
+import * as Constant from '../constants';
+
 @Injectable()
 export class AuthService {
-  private BASE_URL = 'http://localhost:1337';
 
   constructor(private http: HttpClient) {}
 
@@ -15,12 +16,12 @@ export class AuthService {
   }
 
   login(payload: any): Observable<any> {
-    const url = `${this.BASE_URL}/login`;
+    const url = `${Constant.API_ENDPOINT}/user/login`;
     return this.http.post<User>(url, payload);
   }
 
   register(payload: any): Observable<User> {
-    const url = `${this.BASE_URL}/register`;
+    const url = `${Constant.API_ENDPOINT}/user/register`;
     return this.http.post<User>(url, payload);
   }
 }

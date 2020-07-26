@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   };
 
   getState: Observable<any>;
-  errorMessage: string | null;
+  response: any | null;
   isLoading = false;
 
   constructor(
@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.getState.subscribe((state) => {
-      this.errorMessage = state.errorMessage;
+      this.response = state.response;
       this.isLoading = state.isLoading;
     });
   }

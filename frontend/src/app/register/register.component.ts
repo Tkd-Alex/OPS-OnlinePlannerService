@@ -20,7 +20,7 @@ export class RegisterComponent implements OnInit {
   };
 
   getState: Observable<any>;
-  errorMessage: string | null;
+  response: any | null;
   isLoading = false;
 
   constructor(
@@ -31,15 +31,18 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.getState.subscribe((state) => {
-      this.errorMessage = state.errorMessage;
+      this.response = state.response;
       this.isLoading = state.isLoading;
     });
   }
 
   onSubmit(): void {
-    if (this.form.password1 !== this.form.password2) { this.errorMessage = 'Le due password inserite non coincidono'; }
+    if (this.form.password1 !== this.form.password2) {
+      this.response.error = true;
+      this.response.message = 'Le due password inserite non coincidono';
+    }
     else {
-      this.errorMessage = null;
+      this.response = null;
       this.store.dispatch(new Register(this.form));
     }
   }

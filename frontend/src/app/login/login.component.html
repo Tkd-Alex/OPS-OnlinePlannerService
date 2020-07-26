@@ -41,9 +41,9 @@
                                 </form>
                                 <button [routerLink]="'/register'" type="button" class="btn btn-primary btn-block text-uppercase mb-2 ">Registrati</button>
                                 <br>
-                                <div *ngIf="errorMessage">
-                                    <div class="alert alert-danger" role="alert">
-                                        {{errorMessage}}
+                                <div *ngIf="response?.message">
+                                    <div class="alert {{ response?.error == true ? 'alert-danger' : 'alert-success' }}" role="alert">
+                                        {{response?.message}}
                                     </div>
                                 </div>
                             </div>

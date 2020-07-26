@@ -6,7 +6,7 @@ export interface State {
     isAuthenticated: boolean;
     token: string | null;
     user: User | null;
-    errorMessage: string | null;
+    response: any | null;
 }
 
 export const initialState: State = {
@@ -14,7 +14,7 @@ export const initialState: State = {
     isAuthenticated: false,
     user: null,
     token: null,
-    errorMessage: null
+    response: null
 };
 
 export function reducer(state = initialState, action: All): State {
@@ -23,11 +23,19 @@ export function reducer(state = initialState, action: All): State {
         case AuthActionTypes.LOGIN_START: {
             return {
                 ...state,
-                isLoading: true,
-                errorMessage: null
+                isLoading: true
             };
         }
-        case AuthActionTypes.REGISTER_SUCCESS:
+        case AuthActionTypes.REGISTER_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                response: {
+                    error: false,
+                    message: action.payload.message
+                }
+            };
+        }
         case AuthActionTypes.LOGIN_SUCCESS: {
             return {
                 ...state,
@@ -35,7 +43,10 @@ export function reducer(state = initialState, action: All): State {
                 isAuthenticated: true,
                 user: action.payload.user,
                 token: action.payload.token,
-                errorMessage: null
+                response: {
+                    error: false,
+                    message: action.payload.message
+                }
             };
         }
         case AuthActionTypes.REGISTER_FAILED:
@@ -43,7 +54,10 @@ export function reducer(state = initialState, action: All): State {
             return {
                 ...state,
                 isLoading: false,
-                errorMessage: action.payload
+                response: {
+                    error: true,
+                    message: action.payload.error.message
+                }
             };
         }
         default: {
