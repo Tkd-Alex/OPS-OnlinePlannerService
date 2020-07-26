@@ -58,13 +58,13 @@ class UserRegistration(Resource):
 
         args["username"] = args["username"].lower().strip()
         args["email"] = args["email"].lower().strip()
-        args["fullname"] = [word.title().strip() for word in args["fullname"].split(" ")]
+        args["fullname"] = " ".join([word.title().strip() for word in args["fullname"].split(" ")])
 
         if args['password1'] != args['password2']:
             return {"message": "Le password inserite non coincidono"}, 400
 
         regex_passw = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$'
-        regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        regex_email = '[\w\.-]+@[\w\.-]+(\.[\w]+)+'
 
         """
         - Should have at least one number.
@@ -72,10 +72,10 @@ class UserRegistration(Resource):
         - Should have at least one special symbol.
         - Should be between 6 to 20 characters long.
         """
-        if re.search(regex_passw, args["password1"]):
+        if re.search(regex_passw, args["password1"]) is None:
             return {"message": "La password deve contenere almeno un numero, un carattere speciale, caratteri misti (upper, lower) e deve comprendere tra i 6 e i 20 caratteri"}, 400
 
-        if re.search(regex_email, args["email"]):
+        if re.search(regex_email, args["email"]) is None:
             return {"message": "La mail inserita non sembra essere valida"}, 400
 
         if User.get_or_none(User.username == args["username"]) is not None:
