@@ -7,6 +7,9 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { StoreModule } from '@ngrx/store';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
@@ -22,6 +25,8 @@ import { HomeComponent } from './home/home.component';
     BrowserModule,
     AppRoutingModule,
     NgbModule,
+    FormsModule,
+    ReactiveFormsModule,
     StoreModule.forRoot({}, {}),
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory })
   ],

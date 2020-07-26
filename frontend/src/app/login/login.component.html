@@ -1,1 +1,47 @@
-<p>login works!</p>
+<!doctype html>
+<html lang="it">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Login page | OPS</title>
+  </head>
+  <body>
+    <div class="container-fluid">
+        <div class="row no-gutter">
+            <div class="col-md-6 d-none d-md-flex bg-image"></div>
+            <div class="col-md-6 bg-light">
+                <div class="main-div d-flex align-items-center py-5">
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-10 col-xl-7 mx-auto">
+                                <h3 class="display-4">Bentornato </h3>
+                                <!-- <p class="text-muted mb-4">Create a login split page using Bootstrap 4.</p> -->
+                                <form [formGroup]="form" (ngSubmit)="onSubmit(form.value)">
+                                    <div class="form-group mb-3">
+                                        <input formControlName="username" type="text" placeholder="Username" required autofocus class="form-control px-4">
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <input formControlName="password" type="password" placeholder="Password" required class="form-control px-4">
+                                    </div>
+                                    <!--
+                                    <div class="custom-control custom-checkbox mb-3">
+                                        <input id="customCheck1" type="checkbox" checked class="custom-control-input">
+                                        <label for="customCheck1" class="custom-control-label">Remember password</label>
+                                    </div>
+                                    -->
+                                    <button type="submit" class="btn btn-primary btn-block text-uppercase mb-2 ">Accedi</button>
+                                </form>
+                                <button [routerLink]="'/register'" type="button" class="btn btn-primary btn-block text-uppercase mb-2 ">Registrati</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  </body>
+</html>
