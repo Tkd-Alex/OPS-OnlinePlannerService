@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { AppState, selectAuthState } from '../store/app.states';
+import { Login } from '../store/actions/auth.actions';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -8,17 +11,30 @@ import { FormBuilder } from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
 
-  form: any;
+  form: any = {
+    username: '',
+    password: '',
+  };
 
-  constructor(private formBuilder: FormBuilder) {
-    this.form = this.formBuilder.group({username: '', password: ''});
+  getState: Observable<any>;
+  errorMessage: string | null;
+  isLoading = false;
+
+  constructor(
+    private store: Store<AppState>
+  ) {
+    this.getState = this.store.select(selectAuthState);
   }
 
   ngOnInit(): void {
+    this.getState.subscribe((state) => {
+      this.errorMessage = state.errorMessage;
+      this.isLoading = state.isLoading;
+    });
   }
 
-  onSubmit(customerData: any): void {
-    console.log('Your order has been submitted', customerData);
+  onSubmit(): void {
+    this.store.dispatch(new Login(this.form));
   }
 
 }
