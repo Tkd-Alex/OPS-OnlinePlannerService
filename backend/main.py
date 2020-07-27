@@ -15,7 +15,7 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token, ge
 
 from werkzeug.security import safe_str_cmp
 
-from database import db, User
+from database import db, User, Business, Service, OwnerBusiness, Reservation, ReservationService
 
 app = Flask(__name__)
 CORS(app)
@@ -130,6 +130,6 @@ api.add_resource(UserIdentity, '/user')
 
 if __name__ == '__main__':
     db.connect()
-    db.create_tables([User])
+    db.create_tables([User, Business, Service, OwnerBusiness, Reservation, ReservationService])
 
     app.run(host="0.0.0.0", port=123456, threaded=True, debug=True)
