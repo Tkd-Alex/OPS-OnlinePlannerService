@@ -22,7 +22,7 @@ export class AuthEffects {
 
     @Effect()
     Login: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.AuthActionTypes.LOGIN_START),
+        ofType(AuthActions.LOGIN_START),
         map((action: AuthActions.Login) => action.payload),
         switchMap((payload =>
             this.authService.login(payload).pipe(
@@ -34,7 +34,7 @@ export class AuthEffects {
 
     @Effect()
     Register: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.AuthActionTypes.REGISTER_START),
+        ofType(AuthActions.REGISTER_START),
         map((action: AuthActions.Register) => action.payload),
         switchMap((payload =>
             this.authService.register(payload).pipe(
@@ -46,7 +46,7 @@ export class AuthEffects {
 
     @Effect({ dispatch: false })
     LoginSuccess: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.AuthActionTypes.LOGIN_SUCCESS),
+        ofType(AuthActions.LOGIN_SUCCESS),
         tap((payload) => {
             localStorage.setItem('token', payload.payload.token);
             this.router.navigateByUrl('/dashboard');
@@ -55,12 +55,12 @@ export class AuthEffects {
 
     @Effect({ dispatch: false })
     RegisterSuccess: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.AuthActionTypes.REGISTER_SUCCESS)
+        ofType(AuthActions.REGISTER_SUCCESS)
     );
 
     @Effect({ dispatch: false })
     Failed: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.AuthActionTypes.LOGIN_FAILED, AuthActions.AuthActionTypes.REGISTER_FAILED)
+        ofType(AuthActions.LOGIN_FAILED, AuthActions.REGISTER_FAILED)
     );
 
 }

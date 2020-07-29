@@ -17,9 +17,14 @@ import { HomeComponent } from './home/home.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
 import { AuthService } from './services/auth.service';
-import { TokenInterceptor } from './services/token.service'
+import { BusinessService } from './services/business.service';
+import { ServicesService } from './services/services.service';
+
+import { TokenInterceptor, ErrorInterceptor } from './services/token.service';
 
 import { AuthEffects } from './store/effects/auth.effects';
+import { BusinessEffects } from './store/effects/business.effects';
+import { ServicesEffects } from './store/effects/services.effects';
 
 import { reducers } from './store/app.states';
 
@@ -32,6 +37,7 @@ import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { LoadingBarModule } from '@ngx-loading-bar/core';
+import { AdminComponent } from './admin/admin.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +45,8 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
     LoginComponent,
     RegisterComponent,
     HomeComponent,
-    DashboardComponent
+    DashboardComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,
@@ -51,14 +58,17 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
     LoadingBarRouterModule,
     LoadingBarModule,
     StoreModule.forRoot(reducers, {}),
-    EffectsModule.forRoot([AuthEffects]),
+    EffectsModule.forRoot([AuthEffects, BusinessEffects, ServicesEffects]),
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
   providers: [
     AuthService,
+    BusinessService,
+    ServicesService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

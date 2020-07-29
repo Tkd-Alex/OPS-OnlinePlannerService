@@ -19,18 +19,18 @@ export class RegisterComponent implements OnInit {
     password2: ''
   };
 
-  getState: Observable<any>;
+  currentState$: Observable<any>;
   response: any | null;
   isLoading = false;
 
   constructor(
     private store: Store<AppState>
   ) {
-    this.getState = this.store.select(selectAuthState);
+    this.currentState$ = this.store.select(selectAuthState);
   }
 
   ngOnInit(): void {
-    this.getState.subscribe((state) => {
+    this.currentState$.subscribe((state) => {
       this.response = state.response;
       this.isLoading = state.isLoading;
     });

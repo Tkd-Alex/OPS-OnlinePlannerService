@@ -1,5 +1,5 @@
 import { User } from '../../models/user';
-import { AuthActionTypes, All } from '../actions/auth.actions';
+import * as AuthAction from '../actions/auth.actions';
 
 export interface State {
     isLoading: boolean;
@@ -17,16 +17,16 @@ export const initialState: State = {
     response: null
 };
 
-export function reducer(state = initialState, action: All): State {
+export function reducer(state = initialState, action: AuthAction.All): State {
     switch (action.type) {
-        case AuthActionTypes.REGISTER_START:
-        case AuthActionTypes.LOGIN_START: {
+        case AuthAction.REGISTER_START:
+        case AuthAction.LOGIN_START: {
             return {
                 ...state,
                 isLoading: true
             };
         }
-        case AuthActionTypes.REGISTER_SUCCESS: {
+        case AuthAction.REGISTER_SUCCESS: {
             return {
                 ...state,
                 isLoading: false,
@@ -36,7 +36,7 @@ export function reducer(state = initialState, action: All): State {
                 }
             };
         }
-        case AuthActionTypes.LOGIN_SUCCESS: {
+        case AuthAction.LOGIN_SUCCESS: {
             return {
                 ...state,
                 isLoading: false,
@@ -49,8 +49,8 @@ export function reducer(state = initialState, action: All): State {
                 }
             };
         }
-        case AuthActionTypes.REGISTER_FAILED:
-        case AuthActionTypes.LOGIN_FAILED: {
+        case AuthAction.REGISTER_FAILED:
+        case AuthAction.LOGIN_FAILED: {
             return {
                 ...state,
                 isLoading: false,
