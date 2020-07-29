@@ -29,6 +29,10 @@ import { EffectsModule } from '@ngrx/effects';
 
 import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
 
+import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
+import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
+import { LoadingBarModule } from '@ngx-loading-bar/core';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -43,6 +47,9 @@ import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
     NgbModule,
     FormsModule,
     HttpClientModule,
+    LoadingBarHttpClientModule,
+    LoadingBarRouterModule,
+    LoadingBarModule,
     StoreModule.forRoot(reducers, {}),
     EffectsModule.forRoot([AuthEffects]),
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
