@@ -8,7 +8,7 @@ import bcrypt
 
 import utils
 
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
@@ -28,9 +28,9 @@ jwt = JWTManager(app)
 SALT = b'$2b$10$UikBBmN7A0dv7WFcxD.8uO'
 
 
-@app.errorhandler(Exception)
-def handle_error(e):
-    return {"message": "Exception raised: {}".format(e)}, 500
+# @app.errorhandler(Exception)
+# def handle_error(e):
+#     return {"message": "Exception raised: {}".format(e)}, 500
 
 
 @api.representation('application/json')
@@ -123,9 +123,99 @@ class UserIdentity(Resource):
         return utils.peewee_to_dict(user), 200
 
 
+class BusinessIdentity(Resource):
+    @jwt_required
+    def get(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+        business = Business.select().join(OwnerBusiness).where(OwnerBusiness.user_id == current_user["user_id"]).get()
+        if business is not None:
+            business = utils.peewee_to_dict(business)
+            business['time_table'] = json.loads(business['time_table'])
+        return business, 200
+
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("id", type=str, required=True)
+        argsname = ["name", "description", "address"]
+        for name in argsname:
+            parser.add_argument(name, type=str, required=False)
+        args = parser.parse_args()
+
+        args["timeTable"] = [] if "timeTable" not in request.get_json() else request.get_json()["timeTable"]
+
+        for day in args["timeTable"]:
+            for amorpm in ["morning", "afternoon"]:
+                if day[amorpm]["open"] is None and day[amorpm]["close"] is None:
+                    continue
+
+                if (day[amorpm]["open"] is None and day[amorpm]["close"] is not None) or (day[amorpm]["open"] is not None and day[amorpm]["close"] is None):
+                    return {'message': 'Ad ogni orario di chiusura deve corrispondere un orario di apertura e vice versa'}, 400
+
+                # Too much keyword in code, user _ :)
+
+                _today = datetime.datetime.now().strftime("%Y-%m-%d")
+                _open_ = datetime.datetime.strptime("{} {}".format(_today, day[amorpm]["open"]), '%Y-%m-%d %H:%M')
+                _close = datetime.datetime.strptime("{} {}".format(_today, day[amorpm]["close"]), '%Y-%m-%d %H:%M')
+
+                if _open_ >= _close:
+                    return {'message': 'L\'orario di apertura non puo\' avvenire dopo la chiusura'}, 400
+
+                """
+                if amorpm == "morning":
+                    _min = datetime.datetime.strptime("{} {}".format(_today, "00:00"), '%Y-%m-%d %H:%M')
+                    _max = datetime.datetime.strptime("{} {}".format(_today, "13:59"), '%Y-%m-%d %H:%M')
+                else:
+                    _min = datetime.datetime.strptime("{} {}".format(_today, "12:00"), '%Y-%m-%d %H:%M')
+                    _max = datetime.datetime.strptime("{} {}".format(_today, "22:59"), '%Y-%m-%d %H:%M')
+
+                if (not (_min <= _open_ <= _max)) or (not (_min <= _close <= _max)):
+                    return {'message': 'Assicurati che gli orari orari inseriti per mattino e pomeriggio rispettino tale indicazione'}, 400
+                """
+
+        relationship = OwnerBusiness.get_or_none(OwnerBusiness.business == args["id"] and OwnerBusiness.user_id == current_user["user_id"])
+        if relationship is not None:
+            update = {}
+            for name in argsname:
+                if args[name] is not None:
+                    update[name] = args[name]
+            if args["timeTable"] != []:
+                update["time_table"] = json.dumps(args["timeTable"])
+
+            query = Business.update(update).where(Business.business_id == args["id"])
+        else:
+            return {'message': "Impossibile aggiornare, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+
+        if query.execute() != 0:
+            business = Business.get_or_none(Business.business_id == args["id"])
+            business = utils.peewee_to_dict(business)
+            business['time_table'] = json.loads(business['time_table'])
+            return business, 200
+
+        return {'message': "Non c'e' nulla da aggiornare"}, 400
+
+
+class ServiceIdentity(Resource):
+    @jwt_required
+    def get(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+        query = (Service.select(User.fullname.alias('created_by'), Service)
+                 .join(User, on=(Service.created_by_id == User.user_id))
+                 .join(OwnerBusiness, on=(OwnerBusiness.user_id == current_user["user_id"]))).where(OwnerBusiness.user_id == current_user["user_id"])
+        services = [service for service in query.dicts()]
+        return services, 200
+
+
 api.add_resource(UserRegistration, '/user/register')
 api.add_resource(UserLogin, '/user/login')
 api.add_resource(UserIdentity, '/user')
+api.add_resource(BusinessIdentity, '/business')
+api.add_resource(ServiceIdentity, '/services')
 
 
 if __name__ == '__main__':
