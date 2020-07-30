@@ -31,4 +31,17 @@ export class BusinessEffects {
                 catchError( error => of( new BusinessActions.GetFailed(error) ) )
             ))
         );
+
+    @Effect()
+    Update: Observable<any> = this.actions$.pipe(
+        ofType(BusinessActions.UPDATE_START),
+        map((action: BusinessActions.Update) => action.payload),
+        switchMap((payload =>
+            this.businessService.update(payload).pipe(
+                map( (result: any) => new BusinessActions.UpdateSuccess(result) ),
+                catchError( error => of( new BusinessActions.UpdateFailed(error) ) )
+            ))
+        )
+    );
+
 }

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import * as Constant from '../constants';
+import { Business } from '../models/business';
 
 @Injectable()
 export class BusinessService {
@@ -12,5 +13,10 @@ export class BusinessService {
   get(): Observable<any> {
     const url = `${Constant.API_ENDPOINT}/business`;
     return this.http.get(url);
+  }
+
+  update(payload: Business): Observable<any> {
+    const url = `${Constant.API_ENDPOINT}/business`;
+    return this.http.post<Business>(url, payload);
   }
 }

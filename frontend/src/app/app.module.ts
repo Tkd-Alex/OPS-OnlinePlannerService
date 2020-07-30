@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -38,6 +38,12 @@ import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { LoadingBarModule } from '@ngx-loading-bar/core';
 import { AdminComponent } from './admin/admin.component';
+import { CalendarHeaderComponent } from './calendar-header/calendar-header.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { registerLocaleData } from '@angular/common';
+import localeIta from '@angular/common/locales/it';
+registerLocaleData(localeIta);
 
 @NgModule({
   declarations: [
@@ -46,10 +52,12 @@ import { AdminComponent } from './admin/admin.component';
     RegisterComponent,
     HomeComponent,
     DashboardComponent,
-    AdminComponent
+    AdminComponent,
+    CalendarHeaderComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     NgbModule,
     FormsModule,
@@ -68,7 +76,8 @@ import { AdminComponent } from './admin/admin.component';
     ServicesService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: LOCALE_ID, useValue: 'it-IT'}
   ],
   bootstrap: [AppComponent]
 })

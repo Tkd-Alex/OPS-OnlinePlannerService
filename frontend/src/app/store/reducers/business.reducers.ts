@@ -72,7 +72,7 @@ export function reducer(state = initialState, action: Action): State {
                         price: service.price,
                         description: service.description,
                         createdDate: service.created_date
-                    }
+                    };
                 })
             };
         }
