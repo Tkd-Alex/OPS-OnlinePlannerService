@@ -45,6 +45,10 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { registerLocaleData } from '@angular/common';
 import localeIta from '@angular/common/locales/it';
+
+import { AdminPlansComponent } from './admin-plans/admin-plans.component';
+import { AdminBusinessComponent } from './admin-business/admin-business.component';
+import { AdminServicesComponent } from './admin-services/admin-services.component';
 registerLocaleData(localeIta);
 
 @NgModule({
@@ -55,7 +59,10 @@ registerLocaleData(localeIta);
     HomeComponent,
     DashboardComponent,
     AdminComponent,
-    CalendarHeaderComponent
+    CalendarHeaderComponent,
+    AdminPlansComponent,
+    AdminBusinessComponent,
+    AdminServicesComponent
   ],
   imports: [
     BrowserModule,

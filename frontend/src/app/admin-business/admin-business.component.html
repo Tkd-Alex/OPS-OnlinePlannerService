@@ -1,0 +1,48 @@
+<div class="row pt-5">
+  <div class="col-md-6">
+
+    <div class="form-group mb-3">
+      <label for="name">Nome dell'attivita' commerciale</label>
+      <input [(ngModel)]="business.name" name="name" type="text" class="form-control">
+    </div>
+    <div class="form-group mb-3">
+      <label for="address">Indirizzo del locale</label>
+      <textarea [(ngModel)]="business.address" name="address" type="text" class="form-control"></textarea>
+    </div>
+    <div class="form-group mb-3">
+      <label for="description">Descrizione dell'attivitia' commericale</label>
+      <textarea rows="3" [(ngModel)]="business.description" name="description" type="text"
+        class="form-control"></textarea>
+    </div>
+
+    <button (click)="saveBusiness()" class="btn btn-block btn-info">Super salva</button>
+
+  </div>
+  <div class="col-md-6">
+
+    <table class="table table-stripe">
+      <thead>
+        <tr>
+          <th>Giorno</th>
+          <th>Mattina</th>
+          <th>Pomeriggio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let day of timeTable">
+          <td>{{ day.name }}</td>
+          <td>
+            <!-- https://vispad.blogspot.com/2019/01/html5-input-type-time-without-am-pm-and.html -->
+            <input [(ngModel)]="day.morning.open" type="time">
+            <input [(ngModel)]="day.morning.close" type="time">
+          </td>
+          <td>
+            <input [(ngModel)]="day.afternoon.open" type="time">
+            <input [(ngModel)]="day.afternoon.close" type="time">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>

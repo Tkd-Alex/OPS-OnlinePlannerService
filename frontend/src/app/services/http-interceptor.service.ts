@@ -16,6 +16,7 @@ export class TokenInterceptor implements HttpInterceptor {
   private authService: AuthService;
   constructor(private injector: Injector) {}
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // console.log(request.url); // register // login Please skip this in the next :/
     this.authService = this.injector.get(AuthService);
     const token: string = this.authService.getToken();
     request = request.clone({

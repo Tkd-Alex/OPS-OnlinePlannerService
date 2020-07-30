@@ -1,154 +1,18 @@
-<div class="container-fluid" *ngIf="(currentState$ | async)?.business !== null">
-    <div class="row pt-5">
-        <div class="col-md-3">
-
-            <div class="form-group mb-3">
-                <label for="name">Nome dell'attivita' commerciale</label>
-                <input [(ngModel)]="business.name" name="name" type="text" class="form-control">
-            </div>
-            <div class="form-group mb-3">
-                <label for="address">Indirizzo del locale</label>
-                <textarea [(ngModel)]="business.address" name="address" type="text" class="form-control"></textarea>
-            </div>
-            <div class="form-group mb-3">
-                <label for="description">Descrizione dell'attivitia' commericale</label>
-                <textarea rows="3" [(ngModel)]="business.description" name="description" type="text" class="form-control"></textarea>
-            </div>
-
-            <button (click)="saveBusiness()" class="btn btn-block btn-info">Super salva</button>
-
-        </div>
-        <div class="col-md-3">
-
-            <table class="table table-stripe">
-            <thead>
-                <tr>
-                <th>Giorno</th>
-                <th>Mattina</th>
-                <th>Pomeriggio</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let day of timeTable">
-                <td>{{ day.name }}</td>
-                <td>
-                    <!-- https://vispad.blogspot.com/2019/01/html5-input-type-time-without-am-pm-and.html -->
-                    <input min='00:00' max= '11:59' [(ngModel)]="day.morning.open" type="time">
-                    <input min='00:00' max= '11:59' [(ngModel)]="day.morning.close" type="time">
-                </td>
-                <td>
-                    <input min='12:00' max= '23:59' [(ngModel)]="day.afternoon.open" type="time">
-                    <input min='12:00' max= '23:59' [(ngModel)]="day.afternoon.close" type="time">
-                </td>
-                </tr>
-            </tbody>
-            </table>
-
-        </div>
-        <div class="col-md-6">
-            <div *ngFor="let service of services; index as i">
-                <div class="row">
-                    <div class="form-group col-md-12">
-                        <label for="name">Nome</label>
-                        <input [(ngModel)]="service.name" name="name" type="text" class="form-control">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-7">
-                        <div class="form-group">
-                            <label for="description">Descrizione</label>
-                            <textarea rows="4" [(ngModel)]="service.description" name="description" type="text" class="form-control"></textarea>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="row">
-                            <div class="form-group col-md-12">
-                                <label for="price">Prezzo</label>
-                                <input [(ngModel)]="service.price" name="price" step=".01" type="number" class="form-control">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1">{{ service.createdBy ?  service.createdBy : 'Nessun dato disponibile' }}</p>
-                                <p class="mb-1">{{ service.createdDate ?  service.createdDate : 'Nessun dato disponibile' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <button (click)="saveService(i)" type="button" class="text-justify btn btn-block btn-primary btn-sm"><i class="fa fa-save"></i> Salva</button>
-                                <button (click)="deleteService(i)" type="button" class="text-justify btn btn-block btn-danger btn-sm"><i class="fa fa-trash"></i> Cancella</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <br><br><br><br>
-
-    <app-calendar-header [(view)]="view" [(viewDate)]="viewDate"></app-calendar-header>
-    <hr>
-    <br>
-
-    <ng-template
-            #weekViewHourSegmentTemplate
-            let-segment="segment"
-            let-locale="locale"
-            let-segmentHeight="segmentHeight"
-            let-isTimeLabel="isTimeLabel"
-            >
-            <div
-                #segmentElement
-                class="cal-hour-segment"
-                [style.height.px]="segmentHeight"
-                [class.cal-hour-start]="segment.isStart"
-                [class.cal-after-hour-start]="!segment.isStart"
-                [ngClass]="segment.cssClass"
-                (mousedown)="startDragToCreate(segment, $event, segmentElement)"
-            >
-        <div class="cal-time" *ngIf="isTimeLabel">
-        {{ segment.date | calendarDate:'weekViewHour':locale }}
-        </div>
-    </div>
-    </ng-template>
-
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-2 pt-5">
+            <button type="button" (click)="view = 'business'" class="btn btn-block btn-primary">Gestione attivita'</button>
+            <button type="button" (click)="view = 'services'" class="btn btn-block btn-primary">Gestione servizi</button>
+            <button type="button" (click)="view = 'plans'" class="btn btn-block btn-primary">Appuntamenti</button>
+        </div>
+        <div class="col-md-10">
             <div [ngSwitch]="view">
-                <mwl-calendar-month-view
-                  *ngSwitchCase="'month'"
-                  [viewDate]="viewDate"
-                  [events]="events"
-                  [refresh]="refresh"
-                  [activeDayIsOpen]="activeDayIsOpen"
-                  (dayClicked)="dayClicked($event.day)"
-                  (eventClicked)="handleEvent('Clicked', $event.event)"
-                  (eventTimesChanged)="eventTimesChanged($event)"
-                >
-                </mwl-calendar-month-view>
-                <mwl-calendar-week-view
-                  *ngSwitchCase="'week'"
-                  [events]="events"
-                  [viewDate]="viewDate"
-                  [refresh]="refresh"
-                  (eventClicked)="handleEvent('Clicked', $event.event)"
-                  (eventTimesChanged)="eventTimesChanged($event)"
-                  [hourSegmentTemplate]="weekViewHourSegmentTemplate"
-                  [weekStartsOn]="weekStartsOn"
-                >
-                </mwl-calendar-week-view>
-                <mwl-calendar-day-view
-                  *ngSwitchCase="'day'"
-                  [events]="events"
-                  [viewDate]="viewDate"
-                  [refresh]="refresh"
-                  (eventClicked)="handleEvent('Clicked', $event.event)"
-                  (eventTimesChanged)="eventTimesChanged($event)"
-                >
-                </mwl-calendar-day-view>
-              </div>
+                <app-admin-business *ngSwitchCase="'business'" ></app-admin-business>
+                <app-admin-services *ngSwitchCase="'services'" ></app-admin-services>
+                <app-admin-plans *ngSwitchCase="'plans'" ></app-admin-plans>
+            </div>
         </div>
     </div>
 
-    <br><br><br><br>
 </div>
 
