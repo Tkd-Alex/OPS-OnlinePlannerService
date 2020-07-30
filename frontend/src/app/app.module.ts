@@ -20,7 +20,7 @@ import { AuthService } from './services/auth.service';
 import { BusinessService } from './services/business.service';
 import { ServicesService } from './services/services.service';
 
-import { TokenInterceptor, ErrorInterceptor } from './services/token.service';
+import { TokenInterceptor, ErrorInterceptor } from './services/http-interceptor.service';
 
 import { AuthEffects } from './store/effects/auth.effects';
 import { BusinessEffects } from './store/effects/business.effects';
@@ -40,6 +40,8 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
 import { AdminComponent } from './admin/admin.component';
 import { CalendarHeaderComponent } from './calendar-header/calendar-header.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { ToastrModule } from 'ngx-toastr';
 
 import { registerLocaleData } from '@angular/common';
 import localeIta from '@angular/common/locales/it';
@@ -65,6 +67,7 @@ registerLocaleData(localeIta);
     LoadingBarHttpClientModule,
     LoadingBarRouterModule,
     LoadingBarModule,
+    ToastrModule.forRoot(),
     StoreModule.forRoot(reducers, {}),
     EffectsModule.forRoot([AuthEffects, BusinessEffects, ServicesEffects]),
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),

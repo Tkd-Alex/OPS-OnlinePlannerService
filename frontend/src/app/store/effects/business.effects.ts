@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { BusinessService } from '../../services/business.service';
 
 import * as BusinessActions from '../actions/business.actions';
+import { ToastrService } from 'ngx-toastr';
 
 
 @Injectable()
@@ -20,6 +21,7 @@ export class BusinessEffects {
         private authService: AuthService,
         private businessService: BusinessService,
         private router: Router,
+        private toastr: ToastrService
     ) {}
 
     @Effect()
@@ -38,7 +40,10 @@ export class BusinessEffects {
         map((action: BusinessActions.Update) => action.payload),
         switchMap((payload =>
             this.businessService.update(payload).pipe(
-                map( (result: any) => new BusinessActions.UpdateSuccess(result) ),
+                map( (result: any) => {
+                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!');
+                    return new BusinessActions.UpdateSuccess(result);
+                } ),
                 catchError( error => of( new BusinessActions.UpdateFailed(error) ) )
             ))
         )

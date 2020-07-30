@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 
 @Injectable()
@@ -29,17 +30,23 @@ export class TokenInterceptor implements HttpInterceptor {
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private toastr: ToastrService) {}
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request)
       .pipe(
         catchError((response: HttpErrorResponse) => {
-          if (response instanceof HttpErrorResponse && response.status === 403) {
-            localStorage.removeItem('token');
-            this.router.navigateByUrl('/login');
+          if (response instanceof HttpErrorResponse){
+            if (response.status === 403) {
+              localStorage.removeItem('token');
+              this.router.navigateByUrl('/login');
+            }
+            else if (response.status === 400 || response.status === 500) {
+              const message = (response.error && response.error.message) ? response.error.message : 'Si e\' verificato un errore generico';
+              this.toastr.error(message, 'Ops!');
+            }
           }
           return throwError(response);
         })
-      )
+      );
   }
 }
