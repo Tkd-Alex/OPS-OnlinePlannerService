@@ -5,6 +5,8 @@ import datetime
 import json
 import re
 import bcrypt
+import time
+import code
 
 import utils
 
@@ -15,6 +17,7 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token, ge
 
 from werkzeug.security import safe_str_cmp
 
+from playhouse.shortcuts import model_to_dict
 from database import db, User, Business, Service, OwnerBusiness, Reservation, ReservationService
 
 app = Flask(__name__)
@@ -34,8 +37,8 @@ SALT = b'$2b$10$UikBBmN7A0dv7WFcxD.8uO'
 
 
 @api.representation('application/json')
-def output_json(data, code, headers=None):
-    resp = make_response(json.dumps(data, cls=utils.JSONEncoder), code)
+def output_json(data, status_code, headers=None):
+    resp = make_response(json.dumps(data, cls=utils.JSONEncoder), status_code)
     resp.headers.extend(headers or {})
     return resp
 
@@ -109,28 +112,28 @@ class UserLogin(Resource):
                 "username": user.username,
                 "user_id": user.user_id
             }), expires_delta=datetime.timedelta(days=60))
-            return {'message': 'Login effettuato con successo!', 'user': utils.peewee_to_dict(user), 'token': access_token}, 200
+            return {'message': 'Login effettuato con successo!', 'user': model_to_dict(user, recurse=False, backrefs=False, exclude=["password"]), 'token': access_token}, 200
         else:
             return {'message': 'Credenziali errata. Assicurati che username e password siano corretti'}, 400
 
 
-class UserIdentity(Resource):
+class UserEndpoint(Resource):
     @jwt_required
     def get(self):
         current_user = get_jwt_identity()
         current_user = json.loads(current_user)
         user = User.get_or_none(User.username == current_user["username"] and User.user_id == current_user["user_id"])
-        return utils.peewee_to_dict(user), 200
+        return model_to_dict(user, recurse=False, backrefs=False, exclude=["password"]), 200
 
 
-class BusinessIdentity(Resource):
+class BusinessEndpoint(Resource):
     @jwt_required
     def get(self):
         current_user = get_jwt_identity()
         current_user = json.loads(current_user)
         business = Business.select().join(OwnerBusiness).where(OwnerBusiness.user_id == current_user["user_id"]).get()
         if business is not None:
-            business = utils.peewee_to_dict(business)
+            business = model_to_dict(business, recurse=False, backrefs=False)
             business['time_table'] = json.loads(business['time_table'])
         return business, 200
 
@@ -177,8 +180,7 @@ class BusinessIdentity(Resource):
                     return {'message': 'Assicurati che gli orari orari inseriti per mattino e pomeriggio rispettino tale indicazione'}, 400
                 """
 
-        relationship = OwnerBusiness.get_or_none(OwnerBusiness.business == args["id"] and OwnerBusiness.user_id == current_user["user_id"])
-        if relationship is not None:
+        if OwnerBusiness.get_or_none(OwnerBusiness.business == args["id"] and OwnerBusiness.user_id == current_user["user_id"]) is not None:
             update = {}
             for name in argsname:
                 if args[name] is not None:
@@ -192,30 +194,124 @@ class BusinessIdentity(Resource):
 
         if query.execute() != 0:
             business = Business.get_or_none(Business.business_id == args["id"])
-            business = utils.peewee_to_dict(business)
+            business = model_to_dict(business, recurse=False, backrefs=False)
             business['time_table'] = json.loads(business['time_table'])
             return business, 200
 
         return {'message': "Non c'e' nulla da aggiornare"}, 400
 
 
-class ServiceIdentity(Resource):
+class ServiceEndpoint(Resource):
     @jwt_required
     def get(self):
         current_user = get_jwt_identity()
         current_user = json.loads(current_user)
-        query = (Service.select(User.fullname.alias('created_by'), Service)
-                 .join(User, on=(Service.created_by_id == User.user_id))
-                 .join(OwnerBusiness, on=(OwnerBusiness.user_id == current_user["user_id"]))).where(OwnerBusiness.user_id == current_user["user_id"])
+        query = (Service
+                 .select(Service)
+                 .join(OwnerBusiness, on=(OwnerBusiness.user_id == current_user["user_id"]))
+                 .order_by(Service.created_date.desc())
+                 .where(OwnerBusiness.user_id == current_user["user_id"]))
+        services = []
+        for item in query:
+            item = model_to_dict(item, recurse=True, backrefs=False)
+            item["created_by"] = item["created_by"]["fullname"]
+            item["updated_by"] = item["updated_by"]["fullname"]
+            item["business"] = item["business"]["business_id"]
+            services.append(item)
+        return services, 200
+
+    @jwt_required
+    def put(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("id", type=int, required=True)
+        parser.add_argument("business_id", type=int, required=True)
+        parser.add_argument("name", type=str, required=True)
+        parser.add_argument("price", type=float, required=True)
+        parser.add_argument("duration_m", type=float, required=False)
+        parser.add_argument("description", type=str, required=False)
+        args = parser.parse_args()
+
+        return utils.services_upsert(args, current_user, OwnerBusiness, Service, action="update")
+
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("business_id", type=int, required=True)
+        parser.add_argument("name", type=str, required=True)
+        parser.add_argument("price", type=float, required=True)
+        parser.add_argument("duration_m", type=float, required=False)
+        parser.add_argument("description", type=str, required=False)
+        args = parser.parse_args()
+
+        return utils.services_upsert(args, current_user, OwnerBusiness, Service, action="insert")
+
+    @jwt_required
+    def delete(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        args = {}
+        for name in ["id", "business_id"]:
+            arg = request.args.get(name)
+            if arg in [None, ""] or arg.isdigit() is False:
+                return {'message': "Argomento {} non valido".format(name)}, 400
+            args[name] = arg
+
+        if OwnerBusiness.get_or_none(OwnerBusiness.user_id == current_user["user_id"] and OwnerBusiness.business_id == args["business_id"]) is not None:
+            if Service.delete().where(Service.service_id == args["id"] and Service.business == args["business_id"]).execute() == 0:
+                return {'message': "Spiacenti, il servizio non e' stato trovato"}, 400
+            else:
+                return {'message': "Servizio cancellato con successo"}, 200
+        else:
+            return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+
+
+class ReservationEndpoint(Resource):
+    @jwt_required
+    def get(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("timestamp", type=int, required=False)
+        parser.add_argument("business", type=int, required=True)
+        args = parser.parse_args()
+
+        timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
+        in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
+        # print(in___date)
+
+        """
+        query = (Reservation
+                 .select()
+                 .where(Reservation.business == args["business"] and Reservation.created_date >= in___date))
+        """
+
+        query = (ReservationService
+                 .select(ReservationService, Reservation, Service)
+                 .join(Service)
+                 .switch(ReservationService)
+                 .join(Reservation)
+                 .where(Reservation.business == args["business"] and Reservation.created_date >= in___date))
+        # code.interact(local=locals())
+
         services = [service for service in query.dicts()]
+
         return services, 200
 
 
 api.add_resource(UserRegistration, '/user/register')
 api.add_resource(UserLogin, '/user/login')
-api.add_resource(UserIdentity, '/user')
-api.add_resource(BusinessIdentity, '/business')
-api.add_resource(ServiceIdentity, '/services')
+api.add_resource(UserEndpoint, '/user')
+api.add_resource(BusinessEndpoint, '/business')
+api.add_resource(ServiceEndpoint, '/services')
+api.add_resource(ReservationEndpoint, '/reservation')
 
 
 if __name__ == '__main__':

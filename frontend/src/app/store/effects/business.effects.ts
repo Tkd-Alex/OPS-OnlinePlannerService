@@ -49,4 +49,14 @@ export class BusinessEffects {
         )
     );
 
+    @Effect({ dispatch: false })
+    Success: Observable<any> = this.actions$.pipe(
+        ofType(BusinessActions.GET_SUCCESS, BusinessActions.UPDATE_SUCCESS)
+    );
+
+    @Effect({ dispatch: false })
+    Failed: Observable<any> = this.actions$.pipe(
+        ofType(BusinessActions.GET_FAILED, BusinessActions.UPDATE_FAILED)
+    );
+
 }

@@ -24,16 +24,19 @@ class Business(BaseModel):
     name = CharField(unique=True)
     description = TextField(null=True)
     address = TextField()
-    time_table = TextField()  # Will be a JSON string :)
+    time_table = TextField()  # JSON string :)
 
 
 class Service(BaseModel):
     service_id = AutoField()
     name = CharField()
-    price = DoubleField()
+    duration_m = DoubleField(default=0)
+    price = DoubleField(default=0)
     description = TextField(null=True)
     created_date = DateTimeField(default=datetime.datetime.now)
     created_by = ForeignKeyField(User, backref='user')
+    updated_date = DateTimeField(default=datetime.datetime.now)
+    updated_by = ForeignKeyField(User, null=True, backref='user')
     business = ForeignKeyField(Business, backref='business')
 
 
@@ -60,7 +63,8 @@ class Reservation(BaseModel):
 
 class ReservationService(BaseModel):
     reservation = ForeignKeyField(Reservation)
-    service = ForeignKeyField(Service)
-
-    class Meta:
-        primary_key = CompositeKey('reservation', 'service')
+    # Little copy of Reservation
+    name = CharField()
+    duration_m = DoubleField()
+    price = DoubleField()
+    description = TextField(null=True)

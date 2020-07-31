@@ -1,42 +1,71 @@
 <div class="row pt-5">
   <div class="col-md-12">
 
+    <button class="btn btn-block btn-success" (click)="newService()">Crea nuovo servizio</button>
+    <br><br><br>
 
     <div *ngFor="let service of services; index as i">
+
       <div class="row">
-        <div class="form-group col-md-12">
-          <label for="name">Nome</label>
-          <input [(ngModel)]="service.name" name="name" type="text" class="form-control">
+        <div class="form-group input-group col-md-12">
+          <input type="text" class="form-control" name="name" [(ngModel)]="service.name" placeholder="Inserisci il nome del servizio che offri">
+          <div class="input-group-append">
+            <button (click)="saveService(i)" type="button" class="btn btn-primary"><i class="fa {{ service.id === null ? 'fa-plus' : 'fa-pencil' }}"></i> {{ service.id === null ? 'Crea' : 'Modifica' }}</button>
+            <button (click)="deleteService(i)" type="button" class="btn btn-danger"><i class="fa fa-trash"></i> Cancella</button>
+          </div>
         </div>
+
       </div>
+
       <div class="row">
-        <div class="col-md-7">
+        <div class="col-md-4">
           <div class="form-group">
             <label for="description">Descrizione</label>
-            <textarea rows="4" [(ngModel)]="service.description" name="description" type="text"
+            <textarea rows="4" [(ngModel)]="service.description" placeholder="Inserisci una breve descrizione per il servizio" name="description" type="text"
               class="form-control"></textarea>
           </div>
         </div>
-        <div class="col-md-5">
+
+        <div class="col-md-4">
           <div class="row">
             <div class="form-group col-md-12">
               <label for="price">Prezzo</label>
-              <input [(ngModel)]="service.price" name="price" step=".01" type="number" class="form-control">
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <p class="mb-1">{{ service.createdBy ?  service.createdBy : 'Nessun dato disponibile' }}</p>
-              <p class="mb-1">{{ service.createdDate ?  service.createdDate : 'Nessun dato disponibile' }}</p>
-            </div>
-            <div class="col-md-6">
-              <button (click)="saveService(i)" type="button" class="text-justify btn btn-block btn-primary btn-sm"><i
-                  class="fa fa-save"></i> Salva</button>
-              <button (click)="deleteService(i)" type="button" class="text-justify btn btn-block btn-danger btn-sm"><i
-                  class="fa fa-trash"></i> Cancella</button>
+              <input [(ngModel)]="service.price" min="0" name="price" step=".01" type="number" class="form-control">
+              <label for="price">Durata (m)</label>
+              <input [(ngModel)]="service.durationM" min="0" name="price" type="number" class="form-control">
             </div>
           </div>
         </div>
+
+        <div class="col-md-4">
+          <div class="row">
+            <div class="form-group col-md-12">
+                <table class="table table-stripe">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Nome</th>
+                      <th>Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Creato</td>
+                      <td>{{ service.createdBy ?  service.createdBy : 'Nessun dato disponibile' }}</td>
+                      <td>{{ service.createdDate ?  (service.createdDate | date:'medium') : 'Nessun dato disponibile' }}</td>
+                    </tr>
+                    <tr>
+                      <td>Aggiornato</td>
+                      <td>{{ service.updatedBy ?  service.updatedBy : 'Nessun dato disponibile' }}</td>
+                      <td>{{ service.updatedDate ?  (service.updatedDate | date:'medium') : 'Nessun dato disponibile' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 

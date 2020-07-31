@@ -189,7 +189,7 @@ export class AdminPlansComponent implements OnInit {
   }
 
   private anotherRefresh(): any {
-    console.log(this.events)
+    console.log(this.events);
     this.events = [...this.events];
     this.cdr.detectChanges();
   }
