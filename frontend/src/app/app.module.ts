@@ -45,12 +45,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ToastrModule } from 'ngx-toastr';
 
-import { registerLocaleData } from '@angular/common';
-import localeIta from '@angular/common/locales/it';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 import { AdminPlansComponent } from './admin-plans/admin-plans.component';
 import { AdminBusinessComponent } from './admin-business/admin-business.component';
 import { AdminServicesComponent } from './admin-services/admin-services.component';
+
+import { ModalReservationComponent } from './modal-reservation/modal-reservation.component';
+
+import { registerLocaleData } from '@angular/common';
+import localeIta from '@angular/common/locales/it';
+
 registerLocaleData(localeIta);
 
 @NgModule({
@@ -64,7 +69,8 @@ registerLocaleData(localeIta);
     CalendarHeaderComponent,
     AdminPlansComponent,
     AdminBusinessComponent,
-    AdminServicesComponent
+    AdminServicesComponent,
+    ModalReservationComponent
   ],
   imports: [
     BrowserModule,
@@ -72,6 +78,7 @@ registerLocaleData(localeIta);
     AppRoutingModule,
     NgbModule,
     FormsModule,
+    NgSelectModule,
     HttpClientModule,
     LoadingBarHttpClientModule,
     LoadingBarRouterModule,

@@ -42,6 +42,10 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { Get as GetReservations } from '../store/actions/reservations.actions';
 import { Reservation } from '../models/reservation';
 import { Service } from '../models/service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalReservationComponent } from '../modal-reservation/modal-reservation.component';
+
+import { customDateParser, isValidDate } from '../utils';
 
 const colors: any = {
   red: {
@@ -57,14 +61,6 @@ const colors: any = {
     secondary: '#deff8b',
   },
 };
-
-function floorToNearest(amount: number, precision: number): number {
-  return Math.floor(amount / precision) * precision;
-}
-
-function ceilToNearest(amount: number, precision: number): number {
-  return Math.ceil(amount / precision) * precision;
-}
 
 @Component({
   selector: 'app-admin-plans',
@@ -105,6 +101,7 @@ export class AdminPlansComponent implements OnInit {
   dayEndHour = 22; // Math.min(23, getHours(new Date()) + 2);
 
   timeTable: any[] = [];
+  services: Service[];
 
   dragToCreateActive = false;
   weekStartsOn = 1;
@@ -114,7 +111,7 @@ export class AdminPlansComponent implements OnInit {
 
   constructor(
     private store: Store<AppState>,
-    private cdr: ChangeDetectorRef
+    private modalService: NgbModal
   ) {
     this.currentState$ = this.store.select(selectBusinessState);
   }
@@ -125,6 +122,7 @@ export class AdminPlansComponent implements OnInit {
     this.currentState$.subscribe((state) => {
       this.isLoading = state.isLoading;
       if (state.business.timeTable){ this.timeTable = JSON.parse(JSON.stringify(state.business.timeTable)) ; }
+      if (state.services) { this.services = state.services; }
 
       if (state.reservations){
         this.events = state.reservations?.map((reservation: Reservation) => {
@@ -159,13 +157,22 @@ export class AdminPlansComponent implements OnInit {
       if (
         (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
         events.length === 0
-      ) {
-        this.activeDayIsOpen = false;
-      } else {
-        this.activeDayIsOpen = true;
-      }
+      ) { this.activeDayIsOpen = false; } else { this.activeDayIsOpen = true; }
       this.viewDate = date;
     }
+    if (this.activeDayIsOpen === false){ this.view = CalendarView.Day; }
+  }
+
+  newReservation(date: Date): void {
+    const modalRef = this.modalService.open(ModalReservationComponent, { size: 'lg', centered: false });
+    modalRef.componentInstance.date = date;
+    modalRef.componentInstance.services = this.services;
+    modalRef.componentInstance.timeTable = this.timeTable;
+    modalRef.result.then((result) => {
+        if (result instanceof Reservation) {
+          console.log(result);
+        }
+      });
   }
 
   eventTimesChanged({
@@ -192,10 +199,6 @@ export class AdminPlansComponent implements OnInit {
 
   deleteEvent(eventToDelete: CalendarEvent): any {
     this.events = this.events.filter((event) => event !== eventToDelete);
-  }
-
-  closeOpenMonthViewDay(): any {
-    this.activeDayIsOpen = false;
   }
 
   fetchReservation(): void{
@@ -236,8 +239,8 @@ export class AdminPlansComponent implements OnInit {
 
                 if (value[type].open !== null && value[type].close !== null){
 
-                  const open = this.customDateParser(segment.date, value[type].open);
-                  const close = this.customDateParser(segment.date, value[type].close);
+                  const open = customDateParser(segment.date, value[type].open);
+                  const close = customDateParser(segment.date, value[type].close);
 
                   if (!isWithinRange( segment.date, { start: open, end: close } )){
                     if (processed.indexOf(segment.date) === -1){ segment.cssClass = 'cal-disabled'; }
@@ -256,24 +259,7 @@ export class AdminPlansComponent implements OnInit {
   }
 
   handleHourClick(date: Date): void{
-    const day = this.timeTable[date.getDay() !== 0 ? date.getDay() - 1 : 6];
-    ['morning', 'afternoon'].some((type: string) => {
-      if (day[type].open !== null && day[type].close !== null){
-        const open = this.customDateParser(date, day[type].open);
-        const close = this.customDateParser(date, day[type].close);
-        if (isWithinRange( date, { start: open, end: close } )) {
-          console.log('Click valido', date);
-          return true;
-        }
-      }
-    });
-  }
-
-  customDateParser(date: any, time: string): any {
-    const hours = parseInt(time.split(':')[0], 0);
-    const minutes = parseInt(time.split(':')[1], 0);
-
-    return set(date, { hours, minutes });
+    if (isValidDate(date, this.timeTable) === true) { this.newReservation(date); }
   }
 
   beforeWeekViewRender(renderEvent: CalendarWeekViewBeforeRenderEvent): void {

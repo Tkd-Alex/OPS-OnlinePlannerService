@@ -1,0 +1,59 @@
+<div class="modal-header">
+    <h4 class="modal-title">Appuntamento ... </h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div class="row">
+      <div class="col-md-9 align-self-center">
+        <div class="input-group">
+          <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="dateForBootstrap" ngbDatepicker #d="ngbDatepicker">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <ngb-timepicker size="small" [(ngModel)]="timeForBootstrap"></ngb-timepicker>
+      </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group mb-3">
+          <label for="services">Servizi</label>
+          <ng-select name="services" [items]="services" bindLabel="name" [multiple]="true" [(ngModel)]="reservation.services" (change)="updateTotal()">
+            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                <div><span [ngOptionHighlight]="search">{{item.name}} <small *ngIf="item.description"><i>{{ item.description }}</i></small> </span></div>
+                <div><small><b>Durata (stimata):</b> {{ item.durationM + 'm'}} | <b>Preventivo:</b> {{ item.price + ' Eur' }}</small></div>
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="note">Lascia una nota</label>
+          <textarea rows="3" [(ngModel)]="reservation.note" placeholder="..." name="note" type="text" class="form-control"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6"><p class="pt-2">Durata complessiva: {{ totalDuration + 'm' }}</p></div>
+      <div class="col-md-6"><p class="pt-2">Preventivo complessivo: {{ totalPrice + ' Eur' }}</p></div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" [disabled]="reservation.services.length === 0" (click)="save()">Salva appuntamento</button>
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
+  </div>

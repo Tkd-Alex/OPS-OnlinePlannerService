@@ -20,6 +20,7 @@
       </div>
 
       <div class="row">
+
         <div class="col-md-4">
           <div class="form-group">
             <label for="description">Descrizione</label>
@@ -28,7 +29,7 @@
           </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-2">
           <div class="row">
             <div class="form-group col-md-12">
               <label for="price">Prezzo</label>
@@ -39,7 +40,7 @@
           </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div class="row">
             <div class="form-group col-md-12">
                 <table class="table table-stripe">
@@ -53,13 +54,13 @@
                   <tbody>
                     <tr>
                       <td>Creato</td>
-                      <td>{{ service.createdBy ?  service.createdBy.fullName : 'Nessun dato disponibile' }}</td>
-                      <td>{{ service.createdDate ?  (service.createdDate | date:'medium') : 'Nessun dato disponibile' }}</td>
+                      <td>{{ service.createdBy ?  service.createdBy.fullName : '. . .' }}</td>
+                      <td>{{ service.createdDate ?  (service.createdDate | date:'medium') : '. . .' }}</td>
                     </tr>
                     <tr>
                       <td>Aggiornato</td>
-                      <td>{{ service.updatedBy ?  service.updatedBy.fullName : 'Nessun dato disponibile' }}</td>
-                      <td>{{ service.updatedDate ?  (service.updatedDate | date:'medium') : 'Nessun dato disponibile' }}</td>
+                      <td>{{ service.updatedBy ?  service.updatedBy.fullName : '. . .' }}</td>
+                      <td>{{ service.updatedDate ?  (service.updatedDate | date:'medium') : '. . .' }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -68,7 +69,10 @@
           </div>
         </div>
 
+        <div class="col-md-12 py-2" *ngIf="i < services.length - 1"><hr></div>
+
       </div>
+
     </div>
 
     <br><br><br><br><br>
