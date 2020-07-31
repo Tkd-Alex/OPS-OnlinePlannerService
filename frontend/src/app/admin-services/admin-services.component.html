@@ -1,8 +1,10 @@
 <div class="row pt-5">
   <div class="col-md-12">
 
+    <!--
     <button class="btn btn-block btn-success" (click)="newService()">Crea nuovo servizio</button>
     <br><br><br>
+    -->
 
     <div *ngFor="let service of services; index as i">
 
@@ -51,12 +53,12 @@
                   <tbody>
                     <tr>
                       <td>Creato</td>
-                      <td>{{ service.createdBy ?  service.createdBy : 'Nessun dato disponibile' }}</td>
+                      <td>{{ service.createdBy ?  service.createdBy.fullName : 'Nessun dato disponibile' }}</td>
                       <td>{{ service.createdDate ?  (service.createdDate | date:'medium') : 'Nessun dato disponibile' }}</td>
                     </tr>
                     <tr>
                       <td>Aggiornato</td>
-                      <td>{{ service.updatedBy ?  service.updatedBy : 'Nessun dato disponibile' }}</td>
+                      <td>{{ service.updatedBy ?  service.updatedBy.fullName : 'Nessun dato disponibile' }}</td>
                       <td>{{ service.updatedDate ?  (service.updatedDate | date:'medium') : 'Nessun dato disponibile' }}</td>
                     </tr>
                   </tbody>

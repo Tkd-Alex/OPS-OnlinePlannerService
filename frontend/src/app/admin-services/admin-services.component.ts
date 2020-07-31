@@ -25,7 +25,6 @@ export class AdminServicesComponent implements OnInit {
 
   constructor(
     private store: Store<AppState>,
-    private cdr: ChangeDetectorRef
   ) {
     this.currentState$ = this.store.select(selectBusinessState);
   }
@@ -34,7 +33,10 @@ export class AdminServicesComponent implements OnInit {
     this.store.dispatch(new GetServices());
 
     this.currentState$.subscribe((state) => {
-      if (state.services){ this.services = JSON.parse(JSON.stringify(state.services)) ; }
+      if (state.services){
+        this.services = JSON.parse(JSON.stringify(state.services)) ;
+        this.newService();
+      }
     });
   }
 

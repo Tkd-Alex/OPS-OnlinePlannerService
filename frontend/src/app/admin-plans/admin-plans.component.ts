@@ -10,6 +10,9 @@ import {
   CalendarEventAction,
   CalendarEventTimesChangedEvent,
   CalendarView,
+  CalendarMonthViewBeforeRenderEvent,
+  CalendarWeekViewBeforeRenderEvent,
+  CalendarDayViewBeforeRenderEvent,
 } from 'angular-calendar';
 
 import {
@@ -23,7 +26,11 @@ import {
   addHours,
   endOfWeek,
   addMinutes,
+  getHours,
+  set
 } from 'date-fns';
+
+import isWithinRange from 'date-fns/isWithinInterval';
 
 import { Subject } from 'rxjs';
 
@@ -31,18 +38,22 @@ import { WeekViewHourSegment } from 'calendar-utils';
 import { fromEvent } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
+import { Get as GetReservations } from '../store/actions/reservations.actions';
+import { Reservation } from '../models/reservation';
+import { Service } from '../models/service';
+
 const colors: any = {
   red: {
-    primary: '#ad2121',
-    secondary: '#FAE3E3',
+    primary: '#cf1b1b',
+    secondary: '#900d0d',
   },
   blue: {
-    primary: '#1e90ff',
-    secondary: '#D1E8FF',
+    primary: '#0f4c75',
+    secondary: '#3282b8',
   },
-  yellow: {
-    primary: '#e3bc08',
-    secondary: '#FDF1BA',
+  green: {
+    primary: '#8cba51',
+    secondary: '#deff8b',
   },
 };
 
@@ -64,24 +75,21 @@ export class AdminPlansComponent implements OnInit {
   view: CalendarView = CalendarView.Month;
   viewDate: Date = new Date();
 
-  refresh: Subject<any> = new Subject();
-  activeDayIsOpen = true;
+  clickedDate: Date;
+  clickedColumn: number;
 
-  modalData: {
-    action: string;
-    event: CalendarEvent;
-  };
+  activeDayIsOpen = false;
 
   actions: CalendarEventAction[] = [
     {
-      label: '<i class="pl-2 pr-2 fa fa-pencil"></i>',
+      label: '<i class="pl-1 fa fa-pencil"></i>',
       a11yLabel: 'Edit',
       onClick: ({ event }: { event: CalendarEvent }): void => {
         this.handleEvent('Edited', event);
       },
     },
     {
-      label: '<i class="pl-2 pr-2 fa fa-trash"></i>',
+      label: '<i class="pl-1 fa fa-trash"></i>',
       a11yLabel: 'Delete',
       onClick: ({ event }: { event: CalendarEvent }): void => {
         this.events = this.events.filter((iEvent) => iEvent !== event);
@@ -90,54 +98,58 @@ export class AdminPlansComponent implements OnInit {
     },
   ];
 
-  events: CalendarEvent[] = [
-    {
-      start: subDays(startOfDay(new Date()), 1),
-      end: addDays(new Date(), 1),
-      title: 'A 3 day event',
-      color: colors.red,
-      actions: this.actions,
-      allDay: false,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true,
-    },
-    {
-      start: startOfDay(new Date()),
-      title: 'An event with no end date',
-      color: colors.yellow,
-      actions: this.actions,
-    },
-    {
-      start: subDays(endOfMonth(new Date()), 3),
-      end: addDays(endOfMonth(new Date()), 3),
-      title: 'A long event that spans 2 months',
-      color: colors.blue,
-      allDay: false,
-    },
-    {
-      start: addHours(startOfDay(new Date()), 2),
-      end: addHours(new Date(), 2),
-      title: 'A draggable and resizable event',
-      color: colors.yellow,
-      actions: this.actions,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true,
-    },
-  ];
+  events: CalendarEvent[] = [];
+
+  dayStartHour = 6; // Math.max(0, getHours(new Date()) - 2);
+  dayEndHour = 22; // Math.min(23, getHours(new Date()) + 2);
+
+  timeTable: any[] = [];
 
   dragToCreateActive = false;
-  weekStartsOn: 0 = 0;
+  weekStartsOn = 1;
 
+  currentState$: Observable<any>;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private store: Store<AppState>,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.currentState$ = this.store.select(selectBusinessState);
+  }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.store.dispatch(new GetReservations());
+
+    this.currentState$.subscribe((state) => {
+      if (state.business.timeTable){ this.timeTable = JSON.parse(JSON.stringify(state.business.timeTable)) ; }
+
+      if (state.reservations){
+        this.events = state.reservations?.map((reservation: Reservation) => {
+            return {
+              start: new Date(reservation.planned),
+              end: addMinutes(
+                new Date(reservation.planned),
+                reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0)
+              ),
+              title: reservation.services.map((service: Service) => service.name).join() +
+                ' Cliente: ' + reservation.customer.fullName +
+                ( reservation.note ? ' Note: ' + reservation.note : ''),
+              // color: reservation.isApproved === true ? colors.green : colors.blue,
+              actions: this.actions,
+              allDay: false,
+              resizable: {
+                beforeStart: true,
+                afterEnd: false,
+              },
+              draggable: true,
+              meta: reservation
+            };
+        });
+     }
+
+      // if (this.events.length !== 0) { this.anotherRefresh(); }
+    });
+  }
 
   dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
@@ -173,7 +185,6 @@ export class AdminPlansComponent implements OnInit {
 
   handleEvent(action: string, event: CalendarEvent): void {
     console.log(action, event);
-    // this.modal.open(this.modalContent, { size: 'lg' });
   }
 
   deleteEvent(eventToDelete: CalendarEvent): any {
@@ -188,62 +199,83 @@ export class AdminPlansComponent implements OnInit {
     this.activeDayIsOpen = false;
   }
 
+
+  // https://stackblitz.com/edit/angular-7zsn3h?file=demo%2Fcomponent.ts
+
+  /*
   private anotherRefresh(): any {
-    console.log(this.events);
     this.events = [...this.events];
     this.cdr.detectChanges();
   }
 
-  // https://stackblitz.com/edit/angular-7zsn3h?file=demo%2Fcomponent.ts
-
-  startDragToCreate(
-    segment: WeekViewHourSegment,
-    mouseDownEvent: MouseEvent,
-    segmentElement: HTMLElement
-  ): any {
-    const dragToSelectEvent: CalendarEvent = {
-      id: this.events.length,
-      title: 'New event',
-      start: segment.date,
-      meta: {
-        tmpEvent: true,
-      },
-    };
-    this.events = [...this.events, dragToSelectEvent];  // ehy
-    const segmentPosition = segmentElement.getBoundingClientRect();
-    this.dragToCreateActive = true;
-    const endOfView = endOfWeek(this.viewDate, {
-      weekStartsOn: this.weekStartsOn,
+  beforeMonthViewRender(renderEvent: CalendarMonthViewBeforeRenderEvent): void {
+    renderEvent.body.forEach(day => {
+      const dayOfMonth = day.date.getDate();
+      if (dayOfMonth > 5 && dayOfMonth < 10 && day.inMonth) {
+        day.cssClass = 'bg-disabled';
+      }
     });
+  }
+  */
 
-    fromEvent(document, 'mousemove')
-      .pipe(
-        finalize(() => {
-          delete dragToSelectEvent.meta.tmpEvent;
-          this.dragToCreateActive = false;
-          this.anotherRefresh();
-          console.log('Ho finito di fare il drag')
-        }),
-        takeUntil(fromEvent(document, 'mouseup'))
-      )
-      .subscribe((mouseMoveEvent: MouseEvent) => {
-        const minutesDiff = ceilToNearest(
-          mouseMoveEvent.clientY - segmentPosition.top,
-          30
-        );
+  disableDayHours(renderEvent: CalendarWeekViewBeforeRenderEvent): void {
+    renderEvent.hourColumns.forEach(hourColumn => {
+      hourColumn.hours.forEach(hour => {
+        hour.segments.forEach(segment => {
+          const processed: any = [];
+          this.timeTable.map((value: any, index: number) => {
+            if ((index + 1) % 7 === segment.date.getDay()){
 
-        const daysDiff =
-          floorToNearest(
-            mouseMoveEvent.clientX - segmentPosition.left,
-            segmentPosition.width
-          ) / segmentPosition.width;
+              ['morning', 'afternoon'].map((type: string) => {
 
-        const newEnd = addDays(addMinutes(segment.date, minutesDiff), daysDiff);
-        if (newEnd > segment.date && newEnd < endOfView) {
-          dragToSelectEvent.end = newEnd;
-        }
-        this.anotherRefresh();
+                if (value[type].open !== null && value[type].close !== null){
+
+                  const open = this.customDateParser(segment.date, value[type].open);
+                  const close = this.customDateParser(segment.date, value[type].close);
+
+                  if (!isWithinRange( segment.date, { start: open, end: close } )){
+                    if (processed.indexOf(segment.date) === -1){ segment.cssClass = 'cal-disabled'; }
+                  } else {
+                    processed.push(segment.date);
+                    segment.cssClass = undefined;
+                  }
+                }
+                else { if (processed.indexOf(segment.date) === -1) { segment.cssClass = 'cal-disabled'; } }
+              });
+            }
+          });
+        });
       });
+    });
+  }
+
+  handleHourClick(date: Date): void{
+    const day = this.timeTable[date.getDay() !== 0 ? date.getDay() - 1 : 6];
+    ['morning', 'afternoon'].some((type: string) => {
+      if (day[type].open !== null && day[type].close !== null){
+        const open = this.customDateParser(date, day[type].open);
+        const close = this.customDateParser(date, day[type].close);
+        if (isWithinRange( date, { start: open, end: close } )) {
+          console.log('Click valido', date);
+          return true;
+        }
+      }
+    });
+  }
+
+  customDateParser(date: any, time: string): any {
+    const hours = parseInt(time.split(':')[0], 0);
+    const minutes = parseInt(time.split(':')[1], 0);
+
+    return set(date, { hours, minutes });
+  }
+
+  beforeWeekViewRender(renderEvent: CalendarWeekViewBeforeRenderEvent): void {
+    this.disableDayHours(renderEvent);
+  }
+
+  beforeDayViewRender(renderEvent: CalendarDayViewBeforeRenderEvent): void {
+    this.disableDayHours(renderEvent);
   }
 
 }
