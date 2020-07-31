@@ -19,12 +19,9 @@ export class TokenInterceptor implements HttpInterceptor {
     // console.log(request.url); // register // login Please skip this in the next :/
     this.authService = this.injector.get(AuthService);
     const token: string = this.authService.getToken();
-    request = request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const headers = { Authorization: `Bearer ${token}` };
+    if (request.method !== 'GET') { headers['Content-Type'] = 'application/json'; }
+    request = request.clone({ setHeaders: headers });
     return next.handle(request);
   }
 }
