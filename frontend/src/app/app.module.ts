@@ -19,12 +19,14 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthService } from './services/auth.service';
 import { BusinessService } from './services/business.service';
 import { ServicesService } from './services/services.service';
+import { ReservationsService } from './services/reservations.service';
 
 import { TokenInterceptor, ErrorInterceptor } from './services/http-interceptor.service';
 
 import { AuthEffects } from './store/effects/auth.effects';
 import { BusinessEffects } from './store/effects/business.effects';
 import { ServicesEffects } from './store/effects/services.effects';
+import { ReservationsEffects } from './store/effects/reservations.effects';
 
 import { reducers } from './store/app.states';
 
@@ -76,7 +78,7 @@ registerLocaleData(localeIta);
     LoadingBarModule,
     ToastrModule.forRoot(),
     StoreModule.forRoot(reducers, {}),
-    EffectsModule.forRoot([AuthEffects, BusinessEffects, ServicesEffects]),
+    EffectsModule.forRoot([AuthEffects, BusinessEffects, ServicesEffects, ReservationsEffects]),
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
@@ -84,6 +86,7 @@ registerLocaleData(localeIta);
     AuthService,
     BusinessService,
     ServicesService,
+    ReservationsService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

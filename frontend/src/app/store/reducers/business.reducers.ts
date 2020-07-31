@@ -1,15 +1,26 @@
 import { Business } from '../../models/business';
 import { Service } from '../../models/service';
+import { User } from '../../models/user';
+import { Reservation } from '../../models/reservation';
+
+import {
+    buildUser,
+    buildService,
+    buildBusiness,
+    buildReservation
+} from './builder';
 
 import * as BusinessAction from '../actions/business.actions';
 import * as ServicesAction from '../actions/services.actions';
+import * as ReservationsAction from '../actions/reservations.actions';
 
-export type Action = BusinessAction.All | ServicesAction.All;
+export type Action = BusinessAction.All | ServicesAction.All | ReservationsAction.All;
 
 export interface State {
     isLoading: boolean;
     business: Business | null;
     services: Service[] | null;
+    reservations: Reservation[] | null;
     response: any | null;
 }
 
@@ -17,25 +28,13 @@ export const initialState: State = {
     isLoading: false,
     business: null,
     services: null,
+    reservations: null,
     response: null
 };
 
-function buildService(payload: any): Service{
-    const service = new Service();
-    service.id = payload.service_id;
-    service.name = payload.name;
-    service.price = payload.price;
-    service.durationM = payload.duration_m;
-    service.description = payload.description;
-    service.createdBy = payload.created_by;
-    service.createdDate = payload.created_date;
-    service.updatedDate = payload.updated_date;
-    service.updatedBy = payload.updated_by;
-    return service;
-}
-
 export function reducer(state = initialState, action: Action): State {
     switch (action.type) {
+        case ReservationsAction.GET_START:
         case ServicesAction.GET_START:
         case ServicesAction.UPDATE_START:
         case ServicesAction.INSERT_START:
@@ -47,18 +46,20 @@ export function reducer(state = initialState, action: Action): State {
                 isLoading: true
             };
         }
+        case ReservationsAction.GET_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                response: { error: false, message: null },
+                reservations: action.payload.map((reservation: any) => buildReservation(reservation))
+            };
+        }
         case BusinessAction.GET_SUCCESS: {
             return {
                 ...state,
                 isLoading: false,
                 response: { error: false, message: null },
-                business: {
-                    id: action.payload.business_id,
-                    name: action.payload.name,
-                    description: action.payload.description,
-                    address: action.payload.address,
-                    timeTable: action.payload.time_table
-                }
+                business: buildBusiness(action.payload)
             };
         }
         case BusinessAction.UPDATE_SUCCESS: {
@@ -80,7 +81,7 @@ export function reducer(state = initialState, action: Action): State {
                 ...state,
                 isLoading: false,
                 response: { error: false, message: null },
-                services: action.payload.map(service => buildService(service))
+                services: action.payload.map((service: any) => buildService(service))
             };
         }
         case ServicesAction.UPDATE_SUCCESS: {
@@ -106,6 +107,7 @@ export function reducer(state = initialState, action: Action): State {
                 services: [buildService(action.payload)].concat(state.services)
             };
         }
+        case ReservationsAction.GET_FAILED:
         case ServicesAction.GET_FAILED:
         case ServicesAction.UPDATE_FAILED:
         case ServicesAction.INSERT_FAILED:
