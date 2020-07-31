@@ -18,7 +18,7 @@ export const DELETE_FAILED       = '[Reservations] Delete Failed';
 
 export class Get implements Action {
     readonly type = GET_START;
-    constructor() {}
+    constructor(public payload: any = null) {}
 }
 
 export class GetSuccess implements Action {

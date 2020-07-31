@@ -30,6 +30,7 @@ import {
   set
 } from 'date-fns';
 
+import getUnixTime from 'date-fns/getUnixTime';
 import isWithinRange from 'date-fns/isWithinInterval';
 
 import { Subject } from 'rxjs';
@@ -109,6 +110,7 @@ export class AdminPlansComponent implements OnInit {
   weekStartsOn = 1;
 
   currentState$: Observable<any>;
+  isLoading: boolean;
 
   constructor(
     private store: Store<AppState>,
@@ -121,6 +123,7 @@ export class AdminPlansComponent implements OnInit {
     this.store.dispatch(new GetReservations());
 
     this.currentState$.subscribe((state) => {
+      this.isLoading = state.isLoading;
       if (state.business.timeTable){ this.timeTable = JSON.parse(JSON.stringify(state.business.timeTable)) ; }
 
       if (state.reservations){
@@ -191,12 +194,15 @@ export class AdminPlansComponent implements OnInit {
     this.events = this.events.filter((event) => event !== eventToDelete);
   }
 
-  setView(view: CalendarView): any {
-    this.view = view;
-  }
-
   closeOpenMonthViewDay(): any {
     this.activeDayIsOpen = false;
+  }
+
+  fetchReservation(): void{
+    // console.log(this.viewDate, this.view);
+    // const theLast = this.events.length !== 0 ? this.events[this.events.length - 1].start : null;
+    const timestamp = getUnixTime(new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1));
+    this.store.dispatch(new GetReservations(timestamp));
   }
 
 

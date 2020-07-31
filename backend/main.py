@@ -283,7 +283,11 @@ class ReservationEndpoint(Resource):
         timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
         in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
 
-        query = (Reservation.select().where((Reservation.business == args["business_id"]) & (Reservation.created_date >= in___date)))
+        query = (Reservation
+                 .select()
+                 .where((Reservation.business == args["business_id"]) & (Reservation.created_date >= in___date))
+                 .order_by(Reservation.planned)
+                )
 
         reservations = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
         return reservations, 200

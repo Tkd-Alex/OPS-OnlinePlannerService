@@ -13,6 +13,8 @@ import {
 import * as BusinessAction from '../actions/business.actions';
 import * as ServicesAction from '../actions/services.actions';
 import * as ReservationsAction from '../actions/reservations.actions';
+import { CalendarEvent } from 'angular-calendar';
+import { addMinutes } from 'date-fns';
 
 export type Action = BusinessAction.All | ServicesAction.All | ReservationsAction.All;
 
@@ -21,6 +23,7 @@ export interface State {
     business: Business | null;
     services: Service[] | null;
     reservations: Reservation[] | null;
+    events: CalendarEvent[];
     response: any | null;
 }
 
@@ -29,6 +32,7 @@ export const initialState: State = {
     business: null,
     services: null,
     reservations: null,
+    events: [],
     response: null
 };
 
@@ -51,7 +55,28 @@ export function reducer(state = initialState, action: Action): State {
                 ...state,
                 isLoading: false,
                 response: { error: false, message: null },
-                reservations: action.payload.map((reservation: any) => buildReservation(reservation))
+                reservations: action.payload.map((reservation: any) => buildReservation(reservation)) /* ,
+                events: action.payload.map((reservation: any) => buildReservation(reservation)).map((reservation: Reservation) => {
+                    return {
+                      start: new Date(reservation.planned),
+                      end: addMinutes(
+                        new Date(reservation.planned),
+                        reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0)
+                      ),
+                      title: reservation.services.map((service: Service) => service.name).join() +
+                        ' Cliente: ' + reservation.customer.fullName +
+                        ( reservation.note ? ' Note: ' + reservation.note : ''),
+                      // color: reservation.isApproved === true ? colors.green : colors.blue,
+                      actions: [], // this.actions,
+                      allDay: false,
+                      resizable: {
+                        beforeStart: true,
+                        afterEnd: false,
+                      },
+                      draggable: true,
+                      meta: reservation
+                    };
+                }) */
             };
         }
         case BusinessAction.GET_SUCCESS: {

@@ -1,7 +1,12 @@
 <div class="row pt-5">
   <div class="col-md-12">
 
-    <app-calendar-header [(view)]="view" [(viewDate)]="viewDate"></app-calendar-header>
+    <app-calendar-header
+      [(view)]="view"
+      [(viewDate)]="viewDate"
+      (viewDateChange)="fetchReservation()"
+      (viewChange)="fetchReservation()"
+    ></app-calendar-header>
     <hr>
     <br>
 
@@ -19,56 +24,58 @@
 
     <div class="row">
       <div class="col-md-12">
-        <div [ngSwitch]="view">
+        <div *ngIf="isLoading === false && this.events !== []; else loading">
+          <div [ngSwitch]="view">
 
-          <mwl-calendar-month-view
-            *ngSwitchCase="'month'"
-            [viewDate]="viewDate"
-            [events]="events"
-            [activeDayIsOpen]="activeDayIsOpen"
-            (dayClicked)="dayClicked($event.day)"
-            (eventClicked)="handleEvent('Clicked', $event.event)"
-            (eventTimesChanged)="eventTimesChanged($event)"
-          >
-          </mwl-calendar-month-view>
+            <mwl-calendar-month-view
+              *ngSwitchCase="'month'"
+              [viewDate]="viewDate"
+              [events]="events"
+              [activeDayIsOpen]="activeDayIsOpen"
+              (dayClicked)="dayClicked($event.day)"
+              (eventClicked)="handleEvent('Clicked', $event.event)"
+              (eventTimesChanged)="eventTimesChanged($event)"
+            >
+            </mwl-calendar-month-view>
 
-          <mwl-calendar-week-view
-            *ngSwitchCase="'week'"
-            [events]="events"
-            [viewDate]="viewDate"
-            [weekStartsOn]="weekStartsOn"
-            (eventClicked)="handleEvent('Clicked', $event.event)"
-            (eventTimesChanged)="eventTimesChanged($event)"
-            (hourSegmentClicked)="handleHourClick($event.date)"
+            <mwl-calendar-week-view
+              *ngSwitchCase="'week'"
+              [events]="events"
+              [viewDate]="viewDate"
+              [weekStartsOn]="weekStartsOn"
+              (eventClicked)="handleEvent('Clicked', $event.event)"
+              (eventTimesChanged)="eventTimesChanged($event)"
+              (hourSegmentClicked)="handleHourClick($event.date)"
 
-            (beforeViewRender)="beforeWeekViewRender($event)"
-            [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+              (beforeViewRender)="beforeWeekViewRender($event)"
+              [hourSegmentTemplate]="weekViewHourSegmentTemplate"
 
-            [currentTimeMarkerTemplate]="currentTimeMarkerTemplate"
-            [dayStartHour]="dayStartHour"
-            [dayEndHour]="dayEndHour"
-            [hourSegments]="4"
-          >
-          </mwl-calendar-week-view>
+              [currentTimeMarkerTemplate]="currentTimeMarkerTemplate"
+              [dayStartHour]="dayStartHour"
+              [dayEndHour]="dayEndHour"
+              [hourSegments]="4"
+            >
+            </mwl-calendar-week-view>
 
-          <mwl-calendar-day-view
-            *ngSwitchCase="'day'"
-            [events]="events"
-            [viewDate]="viewDate"
-            (eventClicked)="handleEvent('Clicked', $event.event)"
-            (eventTimesChanged)="eventTimesChanged($event)"
-            (hourSegmentClicked)="handleHourClick($event.date)"
+            <mwl-calendar-day-view
+              *ngSwitchCase="'day'"
+              [events]="events"
+              [viewDate]="viewDate"
+              (eventClicked)="handleEvent('Clicked', $event.event)"
+              (eventTimesChanged)="eventTimesChanged($event)"
+              (hourSegmentClicked)="handleHourClick($event.date)"
 
-            (beforeViewRender)="beforeDayViewRender($event)"
-            [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+              (beforeViewRender)="beforeDayViewRender($event)"
+              [hourSegmentTemplate]="weekViewHourSegmentTemplate"
 
-            [currentTimeMarkerTemplate]="currentTimeMarkerTemplate"
-            [dayStartHour]="dayStartHour"
-            [dayEndHour]="dayEndHour"
-            [hourSegments]="4"
-          >
-          </mwl-calendar-day-view>
+              [currentTimeMarkerTemplate]="currentTimeMarkerTemplate"
+              [dayStartHour]="dayStartHour"
+              [dayEndHour]="dayEndHour"
+              [hourSegments]="4"
+            >
+            </mwl-calendar-day-view>
 
+          </div>
         </div>
       </div>
     </div>
@@ -101,5 +108,12 @@
     <div class="cal-time" *ngIf="isTimeLabel">
       {{ segment.date | calendarDate:'weekViewHour':locale }}
     </div>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="text-center">
+    <i class="fa fa-spin fa-spinner fa-5x"></i> <br />
+    Caricamento in corso...
   </div>
 </ng-template>
