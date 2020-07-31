@@ -112,7 +112,7 @@ class UserLogin(Resource):
                 "username": user.username,
                 "user_id": user.user_id
             }), expires_delta=datetime.timedelta(days=60))
-            return {'message': 'Login effettuato con successo!', 'user': model_to_dict(user, recurse=False, backrefs=False, exclude=["password"]), 'token': access_token}, 200
+            return {'message': 'Login effettuato con successo!', 'user': model_to_dict(user, recurse=False, backrefs=False, exclude=[User.password]), 'token': access_token}, 200
         else:
             return {'message': 'Credenziali errata. Assicurati che username e password siano corretti'}, 400
 
@@ -122,8 +122,8 @@ class UserEndpoint(Resource):
     def get(self):
         current_user = get_jwt_identity()
         current_user = json.loads(current_user)
-        user = User.get_or_none(User.username == current_user["username"] and User.user_id == current_user["user_id"])
-        return model_to_dict(user, recurse=False, backrefs=False, exclude=["password"]), 200
+        user = User.get_or_none(User.username == current_user["username"] and User.user_id == int(current_user["user_id"]))
+        return model_to_dict(user, recurse=False, backrefs=False, exclude=[User.password]), 200
 
 
 class BusinessEndpoint(Resource):
@@ -131,7 +131,7 @@ class BusinessEndpoint(Resource):
     def get(self):
         current_user = get_jwt_identity()
         current_user = json.loads(current_user)
-        business = Business.select().join(OwnerBusiness).where(OwnerBusiness.user_id == current_user["user_id"]).get()
+        business = Business.select().join(OwnerBusiness).where(OwnerBusiness.user_id == int(current_user["user_id"])).get()
         if business is not None:
             business = model_to_dict(business, recurse=False, backrefs=False)
             business['time_table'] = json.loads(business['time_table'])
@@ -180,7 +180,7 @@ class BusinessEndpoint(Resource):
                     return {'message': 'Assicurati che gli orari orari inseriti per mattino e pomeriggio rispettino tale indicazione'}, 400
                 """
 
-        if OwnerBusiness.get_or_none(OwnerBusiness.business == args["id"] and OwnerBusiness.user_id == current_user["user_id"]) is not None:
+        if OwnerBusiness.get_or_none(OwnerBusiness.business == int(args["id"]) and OwnerBusiness.user_id == int(current_user["user_id"])) is not None:
             update = {}
             for name in argsname:
                 if args[name] is not None:
@@ -188,12 +188,12 @@ class BusinessEndpoint(Resource):
             if args["timeTable"] != []:
                 update["time_table"] = json.dumps(args["timeTable"])
 
-            query = Business.update(update).where(Business.business_id == args["id"])
+            query = Business.update(update).where(Business.business_id == int(args["id"]))
         else:
             return {'message': "Impossibile aggiornare, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
 
         if query.execute() != 0:
-            business = Business.get_or_none(Business.business_id == args["id"])
+            business = Business.get_or_none(Business.business_id == int(args["id"]))
             business = model_to_dict(business, recurse=False, backrefs=False)
             business['time_table'] = json.loads(business['time_table'])
             return business, 200
@@ -208,16 +208,11 @@ class ServiceEndpoint(Resource):
         current_user = json.loads(current_user)
         query = (Service
                  .select(Service)
-                 .join(OwnerBusiness, on=(OwnerBusiness.user_id == current_user["user_id"]))
+                 .join(OwnerBusiness, on=(OwnerBusiness.user_id == int(current_user["user_id"])))
                  .order_by(Service.created_date.desc())
-                 .where(OwnerBusiness.user_id == current_user["user_id"]))
-        services = []
-        for item in query:
-            item = model_to_dict(item, recurse=True, backrefs=False)
-            item["created_by"] = item["created_by"]["fullname"]
-            item["updated_by"] = item["updated_by"]["fullname"]
-            item["business"] = item["business"]["business_id"]
-            services.append(item)
+                 .where(OwnerBusiness.user_id == int(current_user["user_id"])))
+
+        services = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
         return services, 200
 
     @jwt_required
@@ -234,7 +229,7 @@ class ServiceEndpoint(Resource):
         parser.add_argument("description", type=str, required=False)
         args = parser.parse_args()
 
-        return utils.services_upsert(args, current_user, OwnerBusiness, Service, action="update")
+        return utils.services_upsert(args, current_user, action="update")
 
     @jwt_required
     def post(self):
@@ -249,7 +244,7 @@ class ServiceEndpoint(Resource):
         parser.add_argument("description", type=str, required=False)
         args = parser.parse_args()
 
-        return utils.services_upsert(args, current_user, OwnerBusiness, Service, action="insert")
+        return utils.services_upsert(args, current_user, action="insert")
 
     @jwt_required
     def delete(self):
@@ -263,8 +258,10 @@ class ServiceEndpoint(Resource):
                 return {'message': "Argomento {} non valido".format(name)}, 400
             args[name] = arg
 
-        if OwnerBusiness.get_or_none(OwnerBusiness.user_id == current_user["user_id"] and OwnerBusiness.business_id == args["business_id"]) is not None:
-            if Service.delete().where(Service.service_id == args["id"] and Service.business == args["business_id"]).execute() == 0:
+        if OwnerBusiness.get_or_none((OwnerBusiness.user_id == int(current_user["user_id"])) & (OwnerBusiness.business_id == int(args["business_id"]))) is not None:
+            query = Service.delete().where((Service.service_id == int(args["id"])) & (Service.business == int(args["business_id"])))
+            print(query.sql())
+            if query.execute() == 0:
                 return {'message': "Spiacenti, il servizio non e' stato trovato"}, 400
             else:
                 return {'message': "Servizio cancellato con successo"}, 200
@@ -280,30 +277,16 @@ class ReservationEndpoint(Resource):
 
         parser = reqparse.RequestParser(bundle_errors=True)
         parser.add_argument("timestamp", type=int, required=False)
-        parser.add_argument("business", type=int, required=True)
+        parser.add_argument("business_id", type=int, required=True)
         args = parser.parse_args()
 
         timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
         in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
-        # print(in___date)
 
-        """
-        query = (Reservation
-                 .select()
-                 .where(Reservation.business == args["business"] and Reservation.created_date >= in___date))
-        """
+        query = (Reservation.select().where((Reservation.business == args["business_id"]) & (Reservation.created_date >= in___date)))
 
-        query = (ReservationService
-                 .select(ReservationService, Reservation, Service)
-                 .join(Service)
-                 .switch(ReservationService)
-                 .join(Reservation)
-                 .where(Reservation.business == args["business"] and Reservation.created_date >= in___date))
-        # code.interact(local=locals())
-
-        services = [service for service in query.dicts()]
-
-        return services, 200
+        reservations = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
+        return reservations, 200
 
 
 api.add_resource(UserRegistration, '/user/register')
@@ -311,7 +294,7 @@ api.add_resource(UserLogin, '/user/login')
 api.add_resource(UserEndpoint, '/user')
 api.add_resource(BusinessEndpoint, '/business')
 api.add_resource(ServiceEndpoint, '/services')
-api.add_resource(ReservationEndpoint, '/reservation')
+api.add_resource(ReservationEndpoint, '/reservations')
 
 
 if __name__ == '__main__':

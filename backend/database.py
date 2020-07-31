@@ -39,6 +39,12 @@ class Service(BaseModel):
     updated_by = ForeignKeyField(User, null=True, backref='user')
     business = ForeignKeyField(Business, backref='business')
 
+    class Meta:
+        indexes = (
+            # Specify a unique multi-column index on from/to-user.
+            (('created_by', 'updated_by'), True),
+        )
+
 
 class OwnerBusiness(BaseModel):  # Many-to-many relationship.
     user = ForeignKeyField(User)
@@ -59,6 +65,12 @@ class Reservation(BaseModel):
     reject_by = ForeignKeyField(User, null=True, backref='user')
     customer = ForeignKeyField(User, backref='user')
     business = ForeignKeyField(Business, backref='business')
+
+    class Meta:
+        indexes = (
+            # Specify a unique multi-column index on from/to-user.
+            (('reject_by', 'approved_by', 'customer'), True),
+        )
 
 
 class ReservationService(BaseModel):
