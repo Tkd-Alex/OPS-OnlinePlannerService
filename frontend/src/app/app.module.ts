@@ -46,9 +46,9 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { NgSelectModule } from '@ng-select/ng-select';
 
-import { AdminPlansComponent } from './pages/admin/plans/plans.component';
-import { AdminBusinessComponent } from './pages/admin/business/business.component';
-import { AdminServicesComponent } from './pages/admin/services/services.component';
+import { AdminPlansComponent } from './pages/admin/admin-plans/plans.component';
+import { AdminBusinessComponent } from './pages/admin/admin-business/business.component';
+import { AdminServicesComponent } from './pages/admin/admin-services/services.component';
 
 import { ModalReservationComponent } from './common/modals/reservation/reservation.component';
 

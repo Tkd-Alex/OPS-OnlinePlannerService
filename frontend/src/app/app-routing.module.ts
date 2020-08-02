@@ -7,9 +7,9 @@ import { HomeComponent } from './pages/home/home.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 import { AuthGuardService as AuthGuard } from './providers/auth-guard.service';
-import { AdminBusinessComponent } from './pages/admin/business/business.component';
-import { AdminPlansComponent } from './pages/admin/plans/plans.component';
-import { AdminServicesComponent } from './pages/admin/services/services.component';
+import { AdminBusinessComponent } from './pages/admin/admin-business/business.component';
+import { AdminPlansComponent } from './pages/admin/admin-plans/plans.component';
+import { AdminServicesComponent } from './pages/admin/admin-services/services.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
