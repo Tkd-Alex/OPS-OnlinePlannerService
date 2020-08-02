@@ -1,5 +1,5 @@
 import datetime
-from peewee import MySQLDatabase, Model, CharField, AutoField, DateTimeField, TextField, BooleanField, ForeignKeyField, DoubleField, CompositeKey
+from peewee import MySQLDatabase, Model, CharField, AutoField, DateTimeField, TextField, IntegerField, BooleanField, ForeignKeyField, DoubleField, CompositeKey
 
 db = MySQLDatabase('ops', user='root', password='root', host='127.0.0.1', port=3306)
 
@@ -39,12 +39,6 @@ class Service(BaseModel):
     updated_by = ForeignKeyField(User, null=True, backref='user')
     business = ForeignKeyField(Business, backref='business')
 
-    class Meta:
-        indexes = (
-            # Specify a unique multi-column index on from/to-user.
-            (('created_by', 'updated_by'), True),
-        )
-
 
 class OwnerBusiness(BaseModel):  # Many-to-many relationship.
     user = ForeignKeyField(User)
@@ -76,7 +70,7 @@ class Reservation(BaseModel):
 
 class ReservationService(BaseModel):
     reservation = ForeignKeyField(Reservation)
-    # Little copy of Reservation
+    service_id = IntegerField()  # Without ForeignKeyField
     name = CharField()
     duration_m = DoubleField()
     price = DoubleField()

@@ -66,6 +66,16 @@ export function reducer(state = initialState, action: Action): State {
                 reservations: [ ... state.reservations, buildReservation(action.payload) ]
             };
         }
+        case ReservationsAction.UPDATE_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                response: { error: false, message: null },
+                reservations: state.reservations.map(
+                    (value, index) => value.id === action.payload.reversation_id ? buildReservation(action.payload) : value
+                )
+            };
+        }
         case BusinessAction.GET_SUCCESS: {
             return {
                 ...state,

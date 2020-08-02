@@ -8,7 +8,7 @@ import { Reservation } from '../../../models/reservation';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 
-import { isValidDate, toString } from '../../utils';
+import { isValidDate, dateToString, makeEqualServicesArray } from '../../utils';
 // declare var $: any;
 
 import {
@@ -33,10 +33,11 @@ import {
 })
 export class ModalReservationComponent implements OnInit{
 
-  @Input() date: Date;
+  reservationServices: Service[] = [];
   @Input() services: Service[];
   @Input() timeTable: any[] = [];
 
+  @Input() date?: Date;
   @Input() reservation?: Reservation;
 
   dateForBootstrap: NgbDateStruct;
@@ -51,6 +52,7 @@ export class ModalReservationComponent implements OnInit{
   ) {}
 
   ngOnInit(): void{
+
     if (!this.reservation){
       this.reservation = new Reservation();
       this.reservation.services = [];
@@ -74,6 +76,9 @@ export class ModalReservationComponent implements OnInit{
         hour: new Date(this.reservation.start).getHours(),
         minute: new Date(this.reservation.start).getMinutes()
       };
+
+      this.reservationServices = this.reservation.services.map((service: Service) => (({ ... service, id: service.serviceId })));
+      this.updateTotal();
     }
 
     /*
@@ -107,11 +112,21 @@ export class ModalReservationComponent implements OnInit{
       this.toastr.error('La data selezionata non e\' valida in quanto il negozio sembra essere chiuso', 'Ops!');
     }
     else{
-      this.reservation.start = toString(date);
-      this.reservation.end = toString(addMinutes(
+      if (this.reservation.services.length === 0){
+        this.reservation.services = this.reservationServices.map((service: Service) => ({... service, serviceId: service.id, id: null}));
+      } else {
+        this.reservation.services = makeEqualServicesArray(this.reservationServices, this.reservation.services, 'push');
+        this.reservation.services = makeEqualServicesArray(this.reservation.services, this.reservationServices, 'slice');
+      }
+
+      console.log(this.reservation.services);
+
+      this.reservation.start = dateToString(date);
+      this.reservation.end = dateToString(addMinutes(
         new Date(date),
         this.reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0)
       ));
+
       this.activeModal.close(this.reservation);
     }
   }

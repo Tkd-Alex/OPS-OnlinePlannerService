@@ -123,19 +123,23 @@ class UserEndpoint(Resource):
         current_user = get_jwt_identity()
         current_user = json.loads(current_user)
         user = User.get_or_none(User.username == current_user["username"] and User.user_id == int(current_user["user_id"]))
-        return model_to_dict(user, recurse=False, backrefs=False, exclude=[User.password]), 200
+        if user is not None:
+            return model_to_dict(user, recurse=False, backrefs=False, exclude=[User.password]), 200
+        return {}, 404
 
 
 class BusinessEndpoint(Resource):
-    @jwt_required
     def get(self):
-        current_user = get_jwt_identity()
-        current_user = json.loads(current_user)
-        business = Business.select().join(OwnerBusiness).where(OwnerBusiness.user_id == int(current_user["user_id"])).get()
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("business_id", type=int, required=False, default=1)
+        args = parser.parse_args()
+
+        business = Business.get_or_none(Business.business_id == args["business_id"])
         if business is not None:
             business = model_to_dict(business, recurse=False, backrefs=False)
             business['time_table'] = json.loads(business['time_table'])
-        return business, 200
+            return business, 200
+        return {}, 404
 
     @jwt_required
     def post(self):
@@ -180,7 +184,7 @@ class BusinessEndpoint(Resource):
                     return {'message': 'Assicurati che gli orari orari inseriti per mattino e pomeriggio rispettino tale indicazione'}, 400
                 """
 
-        if OwnerBusiness.get_or_none(OwnerBusiness.business == int(args["id"]) and OwnerBusiness.user_id == int(current_user["user_id"])) is not None:
+        if utils.is_admin(current_user["user_id"], args["id"]) is True:
             update = {}
             for name in argsname:
                 if args[name] is not None:
@@ -262,9 +266,8 @@ class ServiceEndpoint(Resource):
                 return {'message': "Argomento {} non valido".format(name)}, 400
             args[name] = arg
 
-        if OwnerBusiness.get_or_none((OwnerBusiness.user_id == int(current_user["user_id"])) & (OwnerBusiness.business_id == int(args["business_id"]))) is not None:
+        if utils.is_admin(current_user["user_id"], args["business_id"]) is True:
             query = Service.delete().where((Service.service_id == int(args["id"])) & (Service.business == int(args["business_id"])))
-            print(query.sql())
             if query.execute() == 0:
                 return {'message': "Spiacenti, il servizio non e' stato trovato"}, 400
             else:
@@ -335,6 +338,82 @@ class ReservationEndpoint(Resource):
         reservation = model_to_dict(reservation, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table])
         return reservation, 200
 
+    @jwt_required
+    def put(self):  # Multiple update, get directly the array please
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        args = request.get_json()
+
+        for reservation in args["reservations"]:  # Do again a speed check for make sure that all event are 'valid'.
+            business = Business.get_or_none(Business.business_id == int(reservation["business_id"]))
+            time_table = json.loads(business.time_table)
+
+            # "2020-07-27 19:10:00"
+            start = datetime.datetime.strptime(reservation["start"], '%Y-%m-%d %H:%M:%S')
+            end = start + datetime.timedelta(minutes=sum([service["duration_m"] for service in reservation["services"]]))
+
+            start_day = time_table[start.weekday()]
+            end_day = time_table[start.weekday()]
+            if utils.is_valid_date(start_day, start) is False or utils.is_valid_date(end_day, end) is False:
+                return {'message': "La data inserita non sembra esser valida. Il negozio e' chiuso"}, 400
+
+        reservations = []
+        for index in range(0, len(args["reservations"])):
+            reservation = Reservation.get_or_none(Reservation.reservation_id == int(args["reservations"][index]["reservation_id"]))
+            if reservation is not None:
+
+                for service_index in range(0, len(args["reservations"][index]["services"])):
+                    service = args["reservations"][index]["services"][service_index]
+                    if service["id"] is None:
+                        query = ReservationService.insert(
+                            reservation=int(args["reservations"][index]["reservation_id"]),
+                            name=service["name"],
+                            duration_m=service["duration_m"],
+                            price=service["price"],
+                            service_id=service["service_id"],
+                            description=service["description"]
+                        )
+                        args["reservations"][index]["services"][service_index]["id"] = query.execute()
+                    """
+                    else:
+                        update = {
+                            "name": service["name"],
+                            "duration_m": service["duration_m"],
+                            "price": service["price"],
+                            "description": service["description"]
+                        }
+                        query = ReservationService.update(update).where((ReservationService.id == int(service["id"])) & (ReservationService.reservation_id == int(args["reservations"][index]["reservation_id"])))
+                        query.execute()
+                    """
+
+                reservationservice_set = model_to_dict(reservation, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table])["reservationservice_set"]
+                todelete = [int(item["id"]) for item in reservationservice_set if item["id"] not in [service["id"] for service in args["reservations"][index]["services"] if service["id"] is not None]]
+                if todelete != []:
+                    query = ReservationService.delete().where((ReservationService.id << todelete) & (ReservationService.reservation_id == int(args["reservations"][index]["reservation_id"])))
+                    query.execute()
+
+                reservation.start = args["reservations"][index]["start"]
+                reservation.end = args["reservations"][index]["end"]
+                reservation.note = args["reservations"][index]["note"]
+
+                if utils.is_admin(current_user["user_id"], args["reservations"][index]["business_id"]) is True:
+                    if "is_approved" in args["reservations"][index]:
+                        reservation.is_approved = args["reservations"][index]["is_approved"]
+                        reservation.approved_by_id = current_user["user_id"]
+
+                    if "is_reject" in args["reservations"][index]:
+                        reservation.is_reject = args["reservations"][index]["is_reject"]
+                        reservation.reject_by_id = current_user["user_id"]
+
+                reservation.save()
+                reservations.append(reservation)
+
+        if reservations != []:
+            reservations = [model_to_dict(reservation, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for reservation in reservations]
+            return reservations, 200
+        return [], 400
+
 
 api.add_resource(UserRegistration, '/user/register')
 api.add_resource(UserLogin, '/user/login')
@@ -348,4 +427,6 @@ if __name__ == '__main__':
     db.connect()
     db.create_tables([User, Business, Service, OwnerBusiness, Reservation, ReservationService])
 
-    app.run(host="0.0.0.0", port=123456, threaded=True, debug=False)
+    # code.interact(local=locals())
+
+    app.run(host="0.0.0.0", port=123456, threaded=True, debug=True)

@@ -16,7 +16,8 @@ export function buildUser(payload: any): User{
 
 export function buildService(payload: any): Service{
     const service = new Service();
-    service.id = payload.service_id;
+    service.id = payload.id ? payload.id : ( payload.service_id ? payload.service_id : undefined );
+    service.serviceId = payload.service_id ? payload.service_id : ( payload.id ? payload.id : undefined );
     service.name = payload.name;
     service.price = payload.price;
     service.durationM = payload.duration_m;
@@ -45,8 +46,8 @@ export function buildReservation(payload: any): Reservation{
     reservation.start = payload.start;
     reservation.end = payload.end;
     reservation.note = payload.note;
-    reservation.approvedBy = null ; // buildUser(payload.approved_by);
-    reservation.rejectBy = null ; // buildUser(payload.reject_by);
+    reservation.approvedBy = buildUser(payload.approved_by);
+    reservation.rejectBy = buildUser(payload.reject_by);
     reservation.isApproved = payload.is_approved;
     reservation.isReject = payload.is_reject;
     reservation.customer = buildUser(payload.customer);

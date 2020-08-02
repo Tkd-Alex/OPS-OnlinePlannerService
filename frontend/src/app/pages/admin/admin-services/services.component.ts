@@ -24,6 +24,7 @@ export class AdminServicesComponent implements OnInit {
 
   currentState$: Observable<any>;
   services: Service[];
+  dispose: any;
 
   constructor(
     private store: Store<AppState>,
@@ -32,9 +33,10 @@ export class AdminServicesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.currentState$.subscribe((state) => {
+    this.dispose = this.currentState$.subscribe((state) => {
       if (state.isLoading === false){
-        if (state.business === null) { this.store.dispatch(new GetBusiness()); }
+        if (state.response?.error && this.dispose) { this.dispose.unsubscribe(); }
+        else if (state.business === null) { this.store.dispatch(new GetBusiness()); }
         else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
         else if (state.services){
           this.services = JSON.parse(JSON.stringify(state.services)) ;

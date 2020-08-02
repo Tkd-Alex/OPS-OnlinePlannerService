@@ -42,7 +42,8 @@ import { finalize, takeUntil } from 'rxjs/operators';
 
 import {
   Get as GetReservations,
-  Insert as InsertReservation
+  Insert as InsertReservation,
+  Update as UpdateReservation
 } from '../../../store/actions/reservations.actions';
 
 import { Get as GetBusiness } from '../../../store/actions/business.actions';
@@ -53,7 +54,7 @@ import { Service } from '../../../models/service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../../common/modals/reservation/reservation.component';
 
-import { customDateParser, isValidDate } from '../../../common/utils';
+import { customDateParser, isValidDate, dateToString } from '../../../common/utils';
 
 const colors: any = {
   red: {
@@ -116,6 +117,7 @@ export class AdminPlansComponent implements OnInit {
 
   currentState$: Observable<any>;
   isLoading: boolean;
+  dispose: any;
 
   constructor(
     private store: Store<AppState>,
@@ -126,11 +128,11 @@ export class AdminPlansComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.currentState$.subscribe((state) => {
+    this.dispose = this.currentState$.subscribe((state) => {
       this.isLoading = state.isLoading;
-
       if (state.isLoading === false){
-        if (state.business === null) { this.store.dispatch(new GetBusiness()); }
+        if (state.response?.error && this.dispose) { this.dispose.unsubscribe(); }
+        else if (state.business === null) { this.store.dispatch(new GetBusiness()); }
         else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
         else if (state.business !== null && !state.reservations ) { this.store.dispatch(new GetReservations()); }
       }
@@ -187,13 +189,13 @@ export class AdminPlansComponent implements OnInit {
     }).catch((error: any) => { console.log(error); });
   }
 
-  editReservation(event: CalendarEvent): void{
+  editReservation(event: Reservation): void{
     const modalRef = this.modalService.open(ModalReservationComponent, { size: 'lg', centered: false });
-    modalRef.componentInstance.reservation = event.meta;
+    modalRef.componentInstance.reservation = event;
     modalRef.componentInstance.services = this.services;
     modalRef.componentInstance.timeTable = this.timeTable;
     modalRef.result.then((result) => {
-      if (result instanceof Reservation) { this.store.dispatch(new InsertReservation(result)); }
+      if (result instanceof Reservation || typeof(result) === 'object') { this.store.dispatch(new UpdateReservation(result)); }
     }).catch((error: any) => { console.log(error); });
   }
 
@@ -217,6 +219,11 @@ export class AdminPlansComponent implements OnInit {
 
   handleEvent(action: string, event: CalendarEvent): void {
     console.log(action, event);
+    this.editReservation({
+      ... event.meta,
+      start: dateToString(event.start),
+      end: dateToString(event.end)
+    });
   }
 
   deleteEvent(eventToDelete: CalendarEvent): any {

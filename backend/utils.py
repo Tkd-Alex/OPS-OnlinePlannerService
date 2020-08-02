@@ -22,7 +22,7 @@ def services_upsert(args, current_user, action="update"):
     if args["price"] < 0:
         return {'message': "Il prezzo del servizio non puo' essere minore di 0 Eur"}, 400
 
-    if OwnerBusiness.get_or_none((OwnerBusiness.user_id == current_user["user_id"]) & (OwnerBusiness.business_id == args["business_id"])) is not None:
+    if is_admin(current_user["user_id"], args["business_id"]) is True:
         update = {}
         for name in ["name", "description", "price", "business_id", "duration_m"]:
             if args[name] is not None:
@@ -59,3 +59,19 @@ def is_valid_date(day, date):
             return True
 
     return False
+
+
+def is_admin(user_id, business_id):
+    try:
+        OwnerBusiness.select().join(User).where((User.is_admin == 1) & (OwnerBusiness.user_id == int(user_id)) & (OwnerBusiness.business_id == int(business_id))).get()
+        return True
+    except OwnerBusiness.DoesNotExist:
+        return False
+
+
+def index_from_array(array, value, field="id"):
+    for index in range(0, len(array)):
+        print(array[index], value)
+        if array[index][field] == value:
+            return index
+    return -1

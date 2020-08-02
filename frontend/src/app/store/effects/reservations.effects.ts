@@ -15,6 +15,21 @@ import { ToastrService } from 'ngx-toastr';
 import { Store } from '@ngrx/store';
 import { AppState, selectBusinessState } from '../app.state';
 import { Service } from 'src/app/models/service';
+import { Reservation } from 'src/app/models/reservation';
+
+
+function parseReservation(item: Reservation): any{
+    return {
+        ... item,
+        reservation_id: item.id,
+        business_id: item.business.id,
+        is_approved: item.isApproved && typeof(item.isApproved) === 'boolean' ?
+            item.isApproved : false,
+        is_reject: item.isReject && typeof(item.isReject) === 'boolean' ?
+            item.isReject : false,
+        services: item.services.map((service: Service) => ({ ... service, duration_m: service.durationM, service_id: service.serviceId }))
+    };
+}
 
 @Injectable()
 export class ReservationsEffects {
@@ -39,17 +54,16 @@ export class ReservationsEffects {
             ))
         );
 
-    /*
     @Effect()
     Update: Observable<any> = this.actions$.pipe(
         ofType(ReservationsActions.UPDATE_START),
         withLatestFrom(this.store$.select(selectBusinessState)),
         mergeMap( ([action, state]: [ReservationsActions.Update, any]) =>
-            this.reservationsService.update({
-                ... action.payload,
-                duration_m: action.payload.durationM,
-                business_id: state.business.id
-            }).pipe(
+            this.reservationsService.update(
+                Array.isArray(action.payload) === true ?
+                action.payload.map((item: Reservation) => { parseReservation(item); }) :
+                [parseReservation(action.payload)]  // Create array with 1 elements
+            ).pipe(
                 map( (result: any) => {
                     this.toastr.success('Aggiornamento completato con successo', 'Evviva!');
                     return new ReservationsActions.UpdateSuccess(result);
@@ -57,7 +71,6 @@ export class ReservationsEffects {
                 catchError( error => of( new ReservationsActions.UpdateFailed(error) ) )
             ))
         );
-    */
 
     @Effect()
     Insert: Observable<any> = this.actions$.pipe(
