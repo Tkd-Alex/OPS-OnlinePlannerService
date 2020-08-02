@@ -13,7 +13,7 @@ import * as ReservationsActions from '../actions/reservations.actions';
 import { ToastrService } from 'ngx-toastr';
 
 import { Store } from '@ngrx/store';
-import { AppState, selectBusinessState } from '../../store/app.states';
+import { AppState, selectBusinessState } from '../app.state';
 import { Service } from 'src/app/models/service';
 
 @Injectable()

@@ -28,7 +28,7 @@ import { BusinessEffects } from './store/effects/business.effects';
 import { ServicesEffects } from './store/effects/services.effects';
 import { ReservationsEffects } from './store/effects/reservations.effects';
 
-import { reducers } from './store/app.states';
+import { reducers } from './store/app.state';
 
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';

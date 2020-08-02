@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectBusinessState } from '../../../store/app.states';
+import { AppState, selectBusinessState } from '../../../store/app.state';
 
 import { Observable } from 'rxjs';
 
