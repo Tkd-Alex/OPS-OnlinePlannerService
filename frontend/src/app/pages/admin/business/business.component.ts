@@ -1,12 +1,12 @@
 import { Component, OnInit, ChangeDetectorRef, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectBusinessState } from '../store/app.states';
+import { AppState, selectBusinessState } from '../../../store/app.states';
 
 import { Observable } from 'rxjs';
 
-import { Get as GetBusiness, Update as UpdateBusiness } from '../store/actions/business.actions';
+import { Get as GetBusiness, Update as UpdateBusiness } from '../../../store/actions/business.actions';
 
-import { Business } from '../models/business';
+import { Business } from '../../../models/business';
 import { NgbTimeAdapter, NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 
 
@@ -33,8 +33,8 @@ export class NgbTimeStringAdapter extends NgbTimeAdapter<string> {
 
 @Component({
   selector: 'app-admin-business',
-  templateUrl: './admin-business.component.html',
-  styleUrls: ['./admin-business.component.css'],
+  templateUrl: './business.component.html',
+  styleUrls: ['./business.component.css'],
   providers: [{provide: NgbTimeAdapter, useClass: NgbTimeStringAdapter}]
 })
 export class AdminBusinessComponent implements OnInit {

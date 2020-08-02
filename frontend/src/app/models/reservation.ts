@@ -5,7 +5,8 @@ import { Business } from './business';
 export class Reservation {
     id: number | null;
     createdDate: string;
-    planned: string;
+    start: string;
+    end: string;
     note: string;
     approvedBy?: User | null;
     rejectBy?: User | null;

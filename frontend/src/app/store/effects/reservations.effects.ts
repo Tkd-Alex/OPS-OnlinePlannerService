@@ -6,8 +6,8 @@ import { Actions, Effect, createEffect, ofType } from '@ngrx/effects';
 import { Observable, Subject, asapScheduler, pipe, of, from, interval, merge, fromEvent } from 'rxjs';
 import { map, filter, scan, mergeMap, switchMap, tap, catchError, withLatestFrom } from 'rxjs/operators';
 
-import { AuthService } from '../../services/auth.service';
-import { ReservationsService } from '../../services/reservations.service';
+import { AuthService } from '../../services/http-api/auth.service';
+import { ReservationsService } from '../../services/http-api/reservations.service';
 
 import * as ReservationsActions from '../actions/reservations.actions';
 import { ToastrService } from 'ngx-toastr';
@@ -57,6 +57,7 @@ export class ReservationsEffects {
                 catchError( error => of( new ReservationsActions.UpdateFailed(error) ) )
             ))
         );
+    */
 
     @Effect()
     Insert: Observable<any> = this.actions$.pipe(
@@ -65,8 +66,10 @@ export class ReservationsEffects {
         mergeMap( ([action, state]: [ReservationsActions.Insert, any]) =>
             this.reservationsService.insert({
                 ... action.payload,
-                duration_m: action.payload.durationM,
-                business_id: state.business.id
+                business_id: state.business.id,
+                services: action.payload.services.map((service: Service) => {
+                    return {... service, duration_m: service.durationM};
+                })
             }).pipe(
                 map( (result: any) => {
                     this.toastr.success('Inserimento completato con successo', 'Evviva!');
@@ -76,6 +79,7 @@ export class ReservationsEffects {
             ))
         );
 
+    /*
     @Effect()
     Delete: Observable<any> = this.actions$.pipe(
         ofType(ReservationsActions.DELETE_START),

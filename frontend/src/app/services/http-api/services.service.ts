@@ -2,16 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import * as Constant from '../constants';
-import { Service } from '../models/service';
+import * as Constant from '../../common/constants';
+import { Service } from '../../models/service';
 
 @Injectable()
 export class ServicesService {
 
   constructor(private http: HttpClient) {}
 
-  get(): Observable<any> {
-    const url = `${Constant.API_ENDPOINT}/services`;
+  get(businessId: number): Observable<any> {
+    const url = `${Constant.API_ENDPOINT}/services?business_id=${businessId}`;
     return this.http.get(url);
   }
 

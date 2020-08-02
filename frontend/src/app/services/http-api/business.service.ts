@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import * as Constant from '../constants';
-import { Business } from '../models/business';
+import * as Constant from '../../common/constants';
+import { Business } from '../../models/business';
 
 @Injectable()
 export class BusinessService {

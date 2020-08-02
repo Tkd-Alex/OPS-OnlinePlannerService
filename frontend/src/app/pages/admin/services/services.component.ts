@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectBusinessState } from '../store/app.states';
+import { AppState, selectBusinessState } from '../../../store/app.states';
 
 import { Observable } from 'rxjs';
 
@@ -9,14 +9,14 @@ import {
   Update as UpdateService,
   Insert as InsertService,
   Delete as DeleteServices
-} from '../store/actions/services.actions';
-import { Service } from '../models/service';
+} from '../../../store/actions/services.actions';
+import { Service } from '../../../models/service';
 
 
 @Component({
   selector: 'app-admin-services',
-  templateUrl: './admin-services.component.html',
-  styleUrls: ['./admin-services.component.css']
+  templateUrl: './services.component.html',
+  styleUrls: ['./services.component.css']
 })
 export class AdminServicesComponent implements OnInit {
 
@@ -41,12 +41,7 @@ export class AdminServicesComponent implements OnInit {
   }
 
   saveService(index: number): any{
-    if (this.services[index].id !== null) {
-      if (this.services.length > 1 && this.services[0].id === null) {
-        alert('Devi salvare o cancellare il nuovo servizio per salvarne altri');
-      }
-      else { this.store.dispatch(new UpdateService(this.services[index])); }
-    }
+    if (this.services[index].id !== null) { this.store.dispatch(new UpdateService(this.services[index])); }
     else { this.store.dispatch(new InsertService(this.services[index])); }
   }
 

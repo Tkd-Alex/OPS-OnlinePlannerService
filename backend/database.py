@@ -57,7 +57,8 @@ class OwnerBusiness(BaseModel):  # Many-to-many relationship.
 class Reservation(BaseModel):
     reservation_id = AutoField()
     created_date = DateTimeField(default=datetime.datetime.now)
-    planned = DateTimeField(default=datetime.datetime.now)
+    start = DateTimeField()
+    end = DateTimeField()
     note = TextField(null=True)
     is_approved = BooleanField(default=False)
     approved_by = ForeignKeyField(User, null=True, backref='user')

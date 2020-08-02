@@ -27,7 +27,6 @@ export function customDateParser(date: any, time: string): any {
 export function isValidDate(date: Date, timeTable: any[]): boolean{
     let isValid = false;
     const day = timeTable[date.getDay() !== 0 ? date.getDay() - 1 : 6];
-    console.log(day);
     ['morning', 'afternoon'].some((type: string) => {
         if (day[type].open !== null && day[type].close !== null){
         const open = customDateParser(date, day[type].open);
@@ -39,5 +38,9 @@ export function isValidDate(date: Date, timeTable: any[]): boolean{
         }
     });
     return isValid;
-;
+}
+
+// 2020-07-31 23:31:55
+export function toString(date: Date): string{
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getMilliseconds().toString().padStart(2, '0')}`;
 }

@@ -6,7 +6,7 @@ import { Actions, Effect, createEffect, ofType } from '@ngrx/effects';
 import { Observable, Subject, asapScheduler, pipe, of, from, interval, merge, fromEvent } from 'rxjs';
 import { map, filter, scan, mergeMap, switchMap, tap, catchError } from 'rxjs/operators';
 
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/http-api/auth.service';
 
 import * as AuthActions from '../actions/auth.actions';
 

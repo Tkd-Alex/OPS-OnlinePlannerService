@@ -45,3 +45,17 @@ def services_upsert(args, current_user, action="update"):
             return service, 200
     else:
         return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+
+
+def is_valid_date(day, date):
+    for amorpm in ["morning", "afternoon"]:
+        if day[amorpm]["open"] is None and day[amorpm]["close"] is None:
+            continue
+
+        _open_ = datetime.datetime.strptime("{} {}".format(date.strftime("%Y-%m-%d"), day[amorpm]["open"]), '%Y-%m-%d %H:%M')
+        _close = datetime.datetime.strptime("{} {}".format(date.strftime("%Y-%m-%d"), day[amorpm]["close"]), '%Y-%m-%d %H:%M')
+
+        if _open_ <= date <= _close:
+            return True
+
+    return False

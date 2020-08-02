@@ -1,18 +1,35 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Reservation } from '../models/reservation';
-import { Service } from '../models/service';
+
+import { Service } from '../../../models/service';
+import { Reservation } from '../../../models/reservation';
+
 
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 
-import { isValidDate } from '../utils';
+import { isValidDate, toString } from '../../utils';
 // declare var $: any;
+
+import {
+  startOfDay,
+  endOfDay,
+  subDays,
+  addDays,
+  endOfMonth,
+  isSameDay,
+  isSameMonth,
+  addHours,
+  endOfWeek,
+  addMinutes,
+  getHours,
+  set
+} from 'date-fns';
 
 @Component({
   selector: 'app-modal-reservation',
-  templateUrl: './modal-reservation.component.html',
-  styleUrls: ['./modal-reservation.component.css']
+  templateUrl: './reservation.component.html',
+  styleUrls: ['./reservation.component.css']
 })
 export class ModalReservationComponent implements OnInit{
 
@@ -20,7 +37,7 @@ export class ModalReservationComponent implements OnInit{
   @Input() services: Service[];
   @Input() timeTable: any[] = [];
 
-  reservation: Reservation;
+  @Input() reservation?: Reservation;
 
   dateForBootstrap: NgbDateStruct;
   timeForBootstrap: any;
@@ -31,22 +48,33 @@ export class ModalReservationComponent implements OnInit{
   constructor(
     private toastr: ToastrService,
     public activeModal: NgbActiveModal
-  ) {
-    this.reservation = new Reservation();
-    this.reservation.services = [];
-  }
+  ) {}
 
   ngOnInit(): void{
-    console.log(this.date);
-    this.dateForBootstrap = {
-      year: this.date.getFullYear(),
-      month: this.date.getMonth() + 1,
-      day: this.date.getDate()
-    };
-    this.timeForBootstrap = {
-      hour: this.date.getHours(),
-      minute: this.date.getMinutes()
-    };
+    if (!this.reservation){
+      this.reservation = new Reservation();
+      this.reservation.services = [];
+
+      this.dateForBootstrap = {
+        year: this.date.getFullYear(),
+        month: this.date.getMonth() + 1,
+        day: this.date.getDate()
+      };
+      this.timeForBootstrap = {
+        hour: this.date.getHours(),
+        minute: this.date.getMinutes()
+      };
+    }else {
+      this.dateForBootstrap = {
+        year: new Date(this.reservation.start).getFullYear(),
+        month: new Date(this.reservation.start).getMonth() + 1,
+        day: new Date(this.reservation.start).getDate()
+      };
+      this.timeForBootstrap = {
+        hour: new Date(this.reservation.start).getHours(),
+        minute: new Date(this.reservation.start).getMinutes()
+      };
+    }
 
     /*
     $(document).ready(() => {
@@ -75,13 +103,15 @@ export class ModalReservationComponent implements OnInit{
       this.timeForBootstrap.minute,
     );
 
-    console.log(date, this.timeTable);
-
     if (isValidDate(date, this.timeTable) === false){
       this.toastr.error('La data selezionata non e\' valida in quanto il negozio sembra essere chiuso', 'Ops!');
     }
     else{
-      this.reservation.planned = date.toISOString();
+      this.reservation.start = toString(date);
+      this.reservation.end = toString(addMinutes(
+        new Date(date),
+        this.reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0)
+      ));
       this.activeModal.close(this.reservation);
     }
   }

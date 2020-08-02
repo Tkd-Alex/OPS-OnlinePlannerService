@@ -8,7 +8,7 @@ import {
     buildService,
     buildBusiness,
     buildReservation
-} from './builder';
+} from '../../common/builder';
 
 import * as BusinessAction from '../actions/business.actions';
 import * as ServicesAction from '../actions/services.actions';
@@ -55,28 +55,15 @@ export function reducer(state = initialState, action: Action): State {
                 ...state,
                 isLoading: false,
                 response: { error: false, message: null },
-                reservations: action.payload.map((reservation: any) => buildReservation(reservation)) /* ,
-                events: action.payload.map((reservation: any) => buildReservation(reservation)).map((reservation: Reservation) => {
-                    return {
-                      start: new Date(reservation.planned),
-                      end: addMinutes(
-                        new Date(reservation.planned),
-                        reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0)
-                      ),
-                      title: reservation.services.map((service: Service) => service.name).join() +
-                        ' Cliente: ' + reservation.customer.fullName +
-                        ( reservation.note ? ' Note: ' + reservation.note : ''),
-                      // color: reservation.isApproved === true ? colors.green : colors.blue,
-                      actions: [], // this.actions,
-                      allDay: false,
-                      resizable: {
-                        beforeStart: true,
-                        afterEnd: false,
-                      },
-                      draggable: true,
-                      meta: reservation
-                    };
-                }) */
+                reservations: action.payload.map((reservation: any) => buildReservation(reservation))
+            };
+        }
+        case ReservationsAction.INSERT_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                response: { error: false, message: null },
+                reservations: [ ... state.reservations, buildReservation(action.payload) ]
             };
         }
         case BusinessAction.GET_SUCCESS: {

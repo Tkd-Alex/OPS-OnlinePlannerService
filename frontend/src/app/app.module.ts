@@ -11,15 +11,15 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { HomeComponent } from './home/home.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { LoginComponent } from './pages/login/login.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { HomeComponent } from './pages/home/home.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import { AuthService } from './services/auth.service';
-import { BusinessService } from './services/business.service';
-import { ServicesService } from './services/services.service';
-import { ReservationsService } from './services/reservations.service';
+import { AuthService } from './services/http-api/auth.service';
+import { BusinessService } from './services/http-api/business.service';
+import { ServicesService } from './services/http-api/services.service';
+import { ReservationsService } from './services/http-api/reservations.service';
 
 import { TokenInterceptor, ErrorInterceptor } from './services/http-interceptor.service';
 
@@ -39,22 +39,23 @@ import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { LoadingBarModule } from '@ngx-loading-bar/core';
-import { AdminComponent } from './admin/admin.component';
-import { CalendarHeaderComponent } from './calendar-header/calendar-header.component';
+import { CalendarHeaderComponent } from './common/components/calendar-header/calendar-header.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ToastrModule } from 'ngx-toastr';
 
 import { NgSelectModule } from '@ng-select/ng-select';
 
-import { AdminPlansComponent } from './admin-plans/admin-plans.component';
-import { AdminBusinessComponent } from './admin-business/admin-business.component';
-import { AdminServicesComponent } from './admin-services/admin-services.component';
+import { AdminComponent } from './pages/admin/admin.component';
+import { AdminPlansComponent } from './pages/admin/plans/plans.component';
+import { AdminBusinessComponent } from './pages/admin/business/business.component';
+import { AdminServicesComponent } from './pages/admin/services/services.component';
 
-import { ModalReservationComponent } from './modal-reservation/modal-reservation.component';
+import { ModalReservationComponent } from './common/modals/reservation/reservation.component';
 
 import { registerLocaleData } from '@angular/common';
 import localeIta from '@angular/common/locales/it';
+import { AdminSidebarComponent } from './common/components/admin-sidebar/admin-sidebar.component';
 
 registerLocaleData(localeIta);
 
@@ -70,7 +71,8 @@ registerLocaleData(localeIta);
     AdminPlansComponent,
     AdminBusinessComponent,
     AdminServicesComponent,
-    ModalReservationComponent
+    ModalReservationComponent,
+    AdminSidebarComponent
   ],
   imports: [
     BrowserModule,

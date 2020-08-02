@@ -1,7 +1,7 @@
-import { Business } from '../../models/business';
-import { Service } from '../../models/service';
-import { User } from '../../models/user';
-import { Reservation } from '../../models/reservation';
+import { Business } from '../models/business';
+import { Service } from '../models/service';
+import { User } from '../models/user';
+import { Reservation } from '../models/reservation';
 
 export function buildUser(payload: any): User{
     const user = new User();
@@ -42,7 +42,8 @@ export function buildReservation(payload: any): Reservation{
     const reservation = new Reservation();
     reservation.id = payload.reservation_id;
     reservation.createdDate = payload.created_date;
-    reservation.planned = payload.planned;
+    reservation.start = payload.start;
+    reservation.end = payload.end;
     reservation.note = payload.note;
     reservation.approvedBy = null ; // buildUser(payload.approved_by);
     reservation.rejectBy = null ; // buildUser(payload.reject_by);

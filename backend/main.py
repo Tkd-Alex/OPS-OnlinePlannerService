@@ -206,11 +206,15 @@ class ServiceEndpoint(Resource):
     def get(self):
         current_user = get_jwt_identity()
         current_user = json.loads(current_user)
+
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("business_id", type=int, required=True)
+        args = parser.parse_args()
+
         query = (Service
                  .select(Service)
-                 .join(OwnerBusiness, on=(OwnerBusiness.user_id == int(current_user["user_id"])))
                  .order_by(Service.created_date.desc())
-                 .where(OwnerBusiness.user_id == int(current_user["user_id"])))
+                 .where(Service.business == int(args["business_id"])))
 
         services = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
         return services, 200
@@ -281,16 +285,55 @@ class ReservationEndpoint(Resource):
         args = parser.parse_args()
 
         timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
-        in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
+        in___date = datetime.datetime.fromtimestamp(timestamp)  # - datetime.timedelta(days=30)
 
         query = (Reservation
                  .select()
-                 .where((Reservation.business == args["business_id"]) & (Reservation.created_date >= in___date))
-                 .order_by(Reservation.planned)
-                )
+                 .where((Reservation.business == args["business_id"]) & (Reservation.start >= in___date))
+                 .order_by(Reservation.start)
+                 )
 
         reservations = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
         return reservations, 200
+
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        args = request.get_json()
+
+        business = Business.get_or_none(Business.business_id == int(args["business_id"]))
+        time_table = json.loads(business.time_table)
+
+        # "2020-07-27 19:10:00"
+        start = datetime.datetime.strptime(args["start"], '%Y-%m-%d %H:%M:%S')
+        end = start + datetime.timedelta(minutes=sum([service["duration_m"] for service in args["services"]]))
+
+        start_day = time_table[start.weekday()]
+        end_day = time_table[start.weekday()]
+        if utils.is_valid_date(start_day, start) is False or utils.is_valid_date(end_day, end) is False:
+            return {'message': "La data inserita non sembra esser valida. Il negozio e' chiuso"}, 400
+
+        reservation = Reservation.create(
+            start=args["start"],
+            end=args["end"],
+            note=args["note"],
+            customer=int(current_user["user_id"]),
+            business=int(args["business_id"])
+        )
+
+        data = [{
+            "reservation": reservation.reservation_id,
+            "name": service["name"],
+            "duration_m": service["duration_m"],
+            "price": service["price"],
+            "description": service["description"]
+        } for service in args["services"]]
+        ReservationService.insert_many(data).execute()
+
+        reservation = model_to_dict(reservation, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table])
+        return reservation, 200
 
 
 api.add_resource(UserRegistration, '/user/register')
@@ -305,4 +348,4 @@ if __name__ == '__main__':
     db.connect()
     db.create_tables([User, Business, Service, OwnerBusiness, Reservation, ReservationService])
 
-    app.run(host="0.0.0.0", port=123456, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=123456, threaded=True, debug=False)

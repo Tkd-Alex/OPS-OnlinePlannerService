@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectBusinessState } from '../store/app.states';
+import { AppState, selectBusinessState } from '../../../store/app.states';
 
 import { Observable } from 'rxjs';
 
@@ -32,6 +32,7 @@ import {
 
 import getUnixTime from 'date-fns/getUnixTime';
 import isWithinRange from 'date-fns/isWithinInterval';
+import isBefore from 'date-fns/isBefore';
 
 import { Subject } from 'rxjs';
 
@@ -39,13 +40,20 @@ import { WeekViewHourSegment } from 'calendar-utils';
 import { fromEvent } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
-import { Get as GetReservations } from '../store/actions/reservations.actions';
-import { Reservation } from '../models/reservation';
-import { Service } from '../models/service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ModalReservationComponent } from '../modal-reservation/modal-reservation.component';
+import {
+  Get as GetReservations,
+  Insert as InsertReservation
+} from '../../../store/actions/reservations.actions';
 
-import { customDateParser, isValidDate } from '../utils';
+import { Get as GetBusiness } from '../../../store/actions/business.actions';
+import { Get as GetServices } from '../../../store/actions/services.actions';
+
+import { Reservation } from '../../../models/reservation';
+import { Service } from '../../../models/service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalReservationComponent } from '../../../common/modals/reservation/reservation.component';
+
+import { customDateParser, isValidDate } from '../../../common/utils';
 
 const colors: any = {
   red: {
@@ -64,8 +72,8 @@ const colors: any = {
 
 @Component({
   selector: 'app-admin-plans',
-  templateUrl: './admin-plans.component.html',
-  styleUrls: ['./admin-plans.component.css']
+  templateUrl: './plans.component.html',
+  styleUrls: ['./plans.component.css']
 })
 export class AdminPlansComponent implements OnInit {
 
@@ -127,20 +135,23 @@ export class AdminPlansComponent implements OnInit {
       if (state.reservations){
         this.events = state.reservations?.map((reservation: Reservation) => {
             return {
-              start: new Date(reservation.planned),
+              start: new Date(reservation.start),
+              end: new Date(reservation.end),
+              /*
               end: addMinutes(
-                new Date(reservation.planned),
+                new Date(reservation.start),
                 reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0)
               ),
-              title: reservation.services.map((service: Service) => service.name).join() +
+              */
+              title: reservation.services.map((service: Service) => service.name).join(', ') +
                 ' Cliente: ' + reservation.customer.fullName +
                 ( reservation.note ? ' Note: ' + reservation.note : ''),
               // color: reservation.isApproved === true ? colors.green : colors.blue,
               actions: this.actions,
               allDay: false,
               resizable: {
-                beforeStart: true,
-                afterEnd: false,
+                beforeStart: isBefore(new Date(), new Date(reservation.start)) ? true : false,
+                afterEnd: isBefore(new Date(), new Date(reservation.start)) ? true : false,
               },
               draggable: true,
               meta: reservation
@@ -169,10 +180,18 @@ export class AdminPlansComponent implements OnInit {
     modalRef.componentInstance.services = this.services;
     modalRef.componentInstance.timeTable = this.timeTable;
     modalRef.result.then((result) => {
-        if (result instanceof Reservation) {
-          console.log(result);
-        }
-      });
+      if (result instanceof Reservation) { this.store.dispatch(new InsertReservation(result)); }
+    }).catch((error: any) => { console.log(error); });
+  }
+
+  editReservation(event: CalendarEvent): void{
+    const modalRef = this.modalService.open(ModalReservationComponent, { size: 'lg', centered: false });
+    modalRef.componentInstance.reservation = event.meta;
+    modalRef.componentInstance.services = this.services;
+    modalRef.componentInstance.timeTable = this.timeTable;
+    modalRef.result.then((result) => {
+      if (result instanceof Reservation) { this.store.dispatch(new InsertReservation(result)); }
+    }).catch((error: any) => { console.log(error); });
   }
 
   eventTimesChanged({
