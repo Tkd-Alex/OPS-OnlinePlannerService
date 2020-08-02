@@ -125,13 +125,18 @@ export class AdminPlansComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(new GetReservations());
 
     this.currentState$.subscribe((state) => {
       this.isLoading = state.isLoading;
-      if (state.business.timeTable){ this.timeTable = JSON.parse(JSON.stringify(state.business.timeTable)) ; }
-      if (state.services) { this.services = state.services; }
 
+      if (state.isLoading === false){
+        if (state.business === null) { this.store.dispatch(new GetBusiness()); }
+        else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
+        else if (state.business !== null && !state.reservations ) { this.store.dispatch(new GetReservations()); }
+      }
+
+      if (state.business?.timeTable){ this.timeTable = state.business.timeTable ; }  // Local reference please :)
+      if (state.services) { this.services = state.services; }  // Local reference please :)
       if (state.reservations){
         this.events = state.reservations?.map((reservation: Reservation) => {
             return {
@@ -158,8 +163,6 @@ export class AdminPlansComponent implements OnInit {
             };
         });
      }
-
-      // if (this.events.length !== 0) { this.anotherRefresh(); }
     });
   }
 

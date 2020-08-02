@@ -6,8 +6,8 @@ import { Actions, Effect, createEffect, ofType } from '@ngrx/effects';
 import { Observable, Subject, asapScheduler, pipe, of, from, interval, merge, fromEvent } from 'rxjs';
 import { map, filter, scan, mergeMap, switchMap, tap, catchError } from 'rxjs/operators';
 
-import { AuthService } from '../../services/http-api/auth.service';
-import { BusinessService } from '../../services/http-api/business.service';
+import { AuthService } from '../../providers/http-api/auth.service';
+import { BusinessService } from '../../providers/http-api/business.service';
 
 import * as BusinessActions from '../actions/business.actions';
 import { ToastrService } from 'ngx-toastr';

@@ -6,8 +6,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { HomeComponent } from './pages/home/home.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
-import { AdminComponent } from './pages/admin/admin.component';
+import { AuthGuardService as AuthGuard } from './providers/auth-guard.service';
 import { AdminBusinessComponent } from './pages/admin/business/business.component';
 import { AdminPlansComponent } from './pages/admin/plans/plans.component';
 import { AdminServicesComponent } from './pages/admin/services/services.component';
@@ -17,8 +16,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'home', component: HomeComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  /*{ path: 'admin',  redirectTo: '/admin/business', pathMatch: 'full' },*/
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
+  { path: 'admin',  redirectTo: '/admin/business', pathMatch: 'full' },
   { path: 'admin/business', component: AdminBusinessComponent, canActivate: [AuthGuard] },
   { path: 'admin/plans', component: AdminPlansComponent, canActivate: [AuthGuard] },
   { path: 'admin/services', component: AdminServicesComponent, canActivate: [AuthGuard] },

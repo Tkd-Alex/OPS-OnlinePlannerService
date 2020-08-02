@@ -29,12 +29,12 @@ def services_upsert(args, current_user, action="update"):
                 update[name] = args[name]
 
         if action == "update":
-            query = Service.update(update).where(Service.service_id == args["id"] and Service.business == args["business_id"])
+            query = Service.update(update).where((Service.service_id == int(args["id"])) & (Service.business == int(args["business_id"])))
             if query.execute() != 0:
                 update["updated_date"] = datetime.datetime.now()
                 update["updated_by"] = current_user["user_id"]
 
-                service = Service.get_or_none(Service.service_id == args["id"] and Service.business == args["business_id"])
+                service = Service.get_or_none((Service.service_id == int(args["id"])) & (Service.business == int(args["business_id"])))
                 service = model_to_dict(service, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table])
                 return service, 200
         else:

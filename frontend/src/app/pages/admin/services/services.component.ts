@@ -10,6 +10,8 @@ import {
   Insert as InsertService,
   Delete as DeleteServices
 } from '../../../store/actions/services.actions';
+import { Get as GetBusiness } from '../../../store/actions/business.actions';
+
 import { Service } from '../../../models/service';
 
 
@@ -30,12 +32,14 @@ export class AdminServicesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(new GetServices());
-
     this.currentState$.subscribe((state) => {
-      if (state.services){
-        this.services = JSON.parse(JSON.stringify(state.services)) ;
-        this.newService();
+      if (state.isLoading === false){
+        if (state.business === null) { this.store.dispatch(new GetBusiness()); }
+        else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
+        else if (state.services){
+          this.services = JSON.parse(JSON.stringify(state.services)) ;
+          this.newService();
+        }
       }
     });
   }

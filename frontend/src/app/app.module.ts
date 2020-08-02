@@ -16,12 +16,12 @@ import { RegisterComponent } from './pages/register/register.component';
 import { HomeComponent } from './pages/home/home.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import { AuthService } from './services/http-api/auth.service';
-import { BusinessService } from './services/http-api/business.service';
-import { ServicesService } from './services/http-api/services.service';
-import { ReservationsService } from './services/http-api/reservations.service';
+import { AuthService } from './providers/http-api/auth.service';
+import { BusinessService } from './providers/http-api/business.service';
+import { ServicesService } from './providers/http-api/services.service';
+import { ReservationsService } from './providers/http-api/reservations.service';
 
-import { TokenInterceptor, ErrorInterceptor } from './services/http-interceptor.service';
+import { TokenInterceptor, ErrorInterceptor } from './providers/http-interceptor.service';
 
 import { AuthEffects } from './store/effects/auth.effects';
 import { BusinessEffects } from './store/effects/business.effects';
@@ -34,7 +34,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
 
-import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
+import { AuthGuardService as AuthGuard } from './providers/auth-guard.service';
 
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
@@ -46,7 +46,6 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { NgSelectModule } from '@ng-select/ng-select';
 
-import { AdminComponent } from './pages/admin/admin.component';
 import { AdminPlansComponent } from './pages/admin/plans/plans.component';
 import { AdminBusinessComponent } from './pages/admin/business/business.component';
 import { AdminServicesComponent } from './pages/admin/services/services.component';
@@ -66,7 +65,6 @@ registerLocaleData(localeIta);
     RegisterComponent,
     HomeComponent,
     DashboardComponent,
-    AdminComponent,
     CalendarHeaderComponent,
     AdminPlansComponent,
     AdminBusinessComponent,
