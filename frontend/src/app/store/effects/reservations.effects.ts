@@ -48,7 +48,7 @@ export class ReservationsEffects {
         ofType(ReservationsActions.GET_START),
         withLatestFrom(this.store$.select(selectBusinessState)),
         mergeMap( ([action, state]: [ReservationsActions.Get, any]) =>
-            this.reservationsService.get(state.business.id, action.payload).pipe(
+            this.reservationsService.get(state.business.id, action.payload.timestamp, action.payload.customerId).pipe(
                 map( (result: any) => new ReservationsActions.GetSuccess(result) ),
                 catchError( error => of( new ReservationsActions.GetFailed(error) ) )
             ))

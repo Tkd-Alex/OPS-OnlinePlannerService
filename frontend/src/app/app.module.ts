@@ -20,6 +20,7 @@ import { AuthService } from './providers/http-api/auth.service';
 import { BusinessService } from './providers/http-api/business.service';
 import { ServicesService } from './providers/http-api/services.service';
 import { ReservationsService } from './providers/http-api/reservations.service';
+import { CustomersService } from './providers/http-api/customers.service';
 
 import { TokenInterceptor, ErrorInterceptor } from './providers/http-interceptor.service';
 
@@ -27,6 +28,7 @@ import { AuthEffects } from './store/effects/auth.effects';
 import { BusinessEffects } from './store/effects/business.effects';
 import { ServicesEffects } from './store/effects/services.effects';
 import { ReservationsEffects } from './store/effects/reservations.effects';
+import { CustomersEffects } from './store/effects/customers.effects';
 
 import { reducers } from './store/app.state';
 
@@ -49,6 +51,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { AdminPlansComponent } from './pages/admin/admin-plans/plans.component';
 import { AdminBusinessComponent } from './pages/admin/admin-business/business.component';
 import { AdminServicesComponent } from './pages/admin/admin-services/services.component';
+import { AdminCustomersComponent } from './pages/admin/admin-customers/customers.component';
 
 import { ModalReservationComponent } from './common/modals/reservation/reservation.component';
 
@@ -69,6 +72,7 @@ registerLocaleData(localeIta);
     AdminPlansComponent,
     AdminBusinessComponent,
     AdminServicesComponent,
+    AdminCustomersComponent,
     ModalReservationComponent,
     AdminSidebarComponent
   ],
@@ -85,7 +89,7 @@ registerLocaleData(localeIta);
     LoadingBarModule,
     ToastrModule.forRoot(),
     StoreModule.forRoot(reducers, {}),
-    EffectsModule.forRoot([AuthEffects, BusinessEffects, ServicesEffects, ReservationsEffects]),
+    EffectsModule.forRoot([AuthEffects, BusinessEffects, ServicesEffects, ReservationsEffects, CustomersEffects]),
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
@@ -94,6 +98,7 @@ registerLocaleData(localeIta);
     BusinessService,
     ServicesService,
     ReservationsService,
+    CustomersService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

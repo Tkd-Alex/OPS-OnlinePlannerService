@@ -10,6 +10,7 @@ export function buildUser(payload: any): User{
         user.username = payload.username;
         user.fullName = payload.fullname;
         user.email = payload.email;
+        user.isAdmin = payload.is_admin;
     }
     return user;
 }

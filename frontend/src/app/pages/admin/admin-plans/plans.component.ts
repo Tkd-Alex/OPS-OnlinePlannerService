@@ -143,7 +143,7 @@ export class AdminPlansComponent implements OnInit {
         if (state.response?.error && this.dispose) { this.dispose.unsubscribe(); }
         else if (state.business === null) { this.store.dispatch(new GetBusiness()); }
         else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
-        else if (state.business !== null && !state.reservations ) { this.store.dispatch(new GetReservations()); }
+        else if (state.business !== null && !state.reservations ) { this.store.dispatch(new GetReservations({})); }
       }
 
       if (state.business?.timeTable){ this.timeTable = state.business.timeTable ; }  // Local reference please :)
@@ -250,7 +250,7 @@ export class AdminPlansComponent implements OnInit {
 
   fetchReservation(): void{
     const timestamp = getUnixTime(new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1));
-    this.store.dispatch(new GetReservations(timestamp));
+    this.store.dispatch(new GetReservations({timestamp}));
   }
 
   disableDayHours(renderEvent: CalendarWeekViewBeforeRenderEvent): void {

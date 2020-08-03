@@ -13,17 +13,16 @@ import {
 import * as BusinessAction from '../actions/business.actions';
 import * as ServicesAction from '../actions/services.actions';
 import * as ReservationsAction from '../actions/reservations.actions';
-import { CalendarEvent } from 'angular-calendar';
-import { addMinutes } from 'date-fns';
+import * as CustomersActions from '../actions/customers.actions';
 
-export type Action = BusinessAction.All | ServicesAction.All | ReservationsAction.All;
+export type Action = BusinessAction.All | ServicesAction.All | ReservationsAction.All | CustomersActions.All;
 
 export interface State {
     isLoading: boolean;
     business: Business | null;
     services: Service[] | null;
     reservations: Reservation[] | null;
-    events: CalendarEvent[];
+    customers: User[] | null;
     response: any | null;
 }
 
@@ -32,13 +31,15 @@ export const initialState: State = {
     business: null,
     services: null,
     reservations: null,
-    events: [],
+    customers: null,
     response: null
 };
 
 export function reducer(state = initialState, action: Action): State {
     switch (action.type) {
+        case CustomersActions.GET_START:
         case ReservationsAction.GET_START:
+        case ReservationsAction.UPDATE_START:
         case ServicesAction.GET_START:
         case ServicesAction.UPDATE_START:
         case ServicesAction.INSERT_START:
@@ -56,6 +57,14 @@ export function reducer(state = initialState, action: Action): State {
                 isLoading: false,
                 response: { error: false, message: null },
                 reservations: action.payload.map((reservation: any) => buildReservation(reservation))
+            };
+        }
+        case CustomersActions.GET_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                response: { error: false, message: null },
+                customers: action.payload.map((user: any) => buildUser(user))
             };
         }
         case ReservationsAction.INSERT_SUCCESS: {
@@ -132,7 +141,9 @@ export function reducer(state = initialState, action: Action): State {
                 services: [buildService(action.payload)].concat(state.services)
             };
         }
+        case CustomersActions.GET_FAILED:
         case ReservationsAction.GET_FAILED:
+        case ReservationsAction.UPDATE_FAILED:
         case ServicesAction.GET_FAILED:
         case ServicesAction.UPDATE_FAILED:
         case ServicesAction.INSERT_FAILED:

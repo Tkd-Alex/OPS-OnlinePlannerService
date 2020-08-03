@@ -14,7 +14,6 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Store } from '@ngrx/store';
 import { AppState, selectBusinessState } from '../app.state';
-import { Service } from 'src/app/models/service';
 
 @Injectable()
 export class ServicesEffects {

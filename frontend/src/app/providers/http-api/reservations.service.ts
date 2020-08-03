@@ -10,9 +10,10 @@ export class ReservationsService {
 
   constructor(private http: HttpClient) {}
 
-  get(businessId: number, timestamp: number): Observable<any> {
+  get(businessId: number, timestamp: number, customerId: number): Observable<any> {
     let url = `${Constant.API_ENDPOINT}/reservations?business_id=${businessId}`;
     if (timestamp) { url += `&timestamp=${timestamp}`; }
+    if (typeof(customerId) === 'number') { url += `&customer_id=${customerId}`; }
     return this.http.get(url);
   }
 
