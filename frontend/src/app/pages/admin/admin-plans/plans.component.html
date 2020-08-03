@@ -1,4 +1,6 @@
 <div class="container">
+
+
   <div class="row">
     <div class="col-md-2 pt-2">
       <app-admin-sidebar></app-admin-sidebar>
@@ -11,6 +13,8 @@
           <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()"
             (viewChange)="fetchReservation()"></app-calendar-header>
           <hr>
+
+          <!--
           <br>
 
           <div class="alert alert-info">
@@ -18,42 +22,68 @@
             <strong *ngIf="clickedDate">You clicked on this time: {{ clickedDate | date:'medium' }}</strong>
             <strong *ngIf="clickedColumn != null">You clicked on this column: {{ clickedColumn }}</strong>
           </div>
+          -->
 
-          <br>
+          <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+            <li [ngbNavItem]="1">
+              <a ngbNavLink>Calendario</a>
+              <ng-template ngbNavContent>
 
-          <div class="row">
-            <div class="col-md-12">
-              <div *ngIf="isLoading === false && this.events !== []; else loading">
-                <div [ngSwitch]="view">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div *ngIf="isLoading === false && events !== []; else loading">
+                      <div [ngSwitch]="view">
 
-                  <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events"
-                    [activeDayIsOpen]="activeDayIsOpen" (dayClicked)="dayClicked($event.day)"
-                    (eventClicked)="handleEvent('Clicked', $event.event)"
-                    (eventTimesChanged)="eventTimesChanged($event)">
-                  </mwl-calendar-month-view>
+                        <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events"
+                          [activeDayIsOpen]="activeDayIsOpen" (dayClicked)="dayClicked($event.day)"
+                          (eventClicked)="handleEvent('Clicked', $event.event)"
+                          (eventTimesChanged)="eventTimesChanged($event)">
+                        </mwl-calendar-month-view>
 
-                  <mwl-calendar-week-view *ngSwitchCase="'week'" [events]="events" [viewDate]="viewDate"
-                    [weekStartsOn]="weekStartsOn" (eventClicked)="handleEvent('Clicked', $event.event)"
-                    (eventTimesChanged)="eventTimesChanged($event)" (hourSegmentClicked)="handleHourClick($event.date)"
-                    (beforeViewRender)="beforeWeekViewRender($event)"
-                    [hourSegmentTemplate]="weekViewHourSegmentTemplate"
-                    (dayHeaderClicked)="dayClicked($event.day)"
-                    [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
-                    [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
-                  </mwl-calendar-week-view>
+                        <mwl-calendar-week-view *ngSwitchCase="'week'" [events]="events" [viewDate]="viewDate"
+                          [weekStartsOn]="weekStartsOn" (eventClicked)="handleEvent('Clicked', $event.event)"
+                          (eventTimesChanged)="eventTimesChanged($event)" (hourSegmentClicked)="handleHourClick($event.date)"
+                          (beforeViewRender)="beforeWeekViewRender($event)"
+                          [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+                          (dayHeaderClicked)="dayClicked($event.day)"
+                          [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
+                          [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
+                        </mwl-calendar-week-view>
 
-                  <mwl-calendar-day-view *ngSwitchCase="'day'" [events]="events" [viewDate]="viewDate"
-                    (eventClicked)="handleEvent('Clicked', $event.event)"
-                    (eventTimesChanged)="eventTimesChanged($event)" (hourSegmentClicked)="handleHourClick($event.date)"
-                    (beforeViewRender)="beforeDayViewRender($event)" [hourSegmentTemplate]="weekViewHourSegmentTemplate"
-                    [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
-                    [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
-                  </mwl-calendar-day-view>
+                        <mwl-calendar-day-view *ngSwitchCase="'day'" [events]="events" [viewDate]="viewDate"
+                          (eventClicked)="handleEvent('Clicked', $event.event)"
+                          (eventTimesChanged)="eventTimesChanged($event)" (hourSegmentClicked)="handleHourClick($event.date)"
+                          (beforeViewRender)="beforeDayViewRender($event)" [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+                          [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
+                          [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
+                        </mwl-calendar-day-view>
 
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="2">
+              <a ngbNavLink>Lista</a>
+              <ng-template ngbNavContent>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div *ngIf="isLoading === false && events !== []; else loading">
+                      <div *ngFor="let event of events; index as i" >
+                        <p>Inizio: {{ event.start | date:'medium' }} - Fine: {{ event.end | date:'medium' }}</p>
+                        <p [innerHTML]="event.title"></p>
+                        <hr>
+                      </div>
+                      </div>
+                    </div>
+                </div>
+              </ng-template>
+            </li>
+          </ul>
+
+          <div [ngbNavOutlet]="nav" class="mt-2"></div>
+
         </div>
       </div>
 

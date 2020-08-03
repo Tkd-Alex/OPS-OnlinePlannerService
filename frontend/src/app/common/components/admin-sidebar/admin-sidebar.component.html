@@ -1,3 +1,15 @@
-<button type="button" [routerLink]="'/admin/business'" class="btn btn-block btn-primary">Gestione attivita'</button>
-<button type="button" [routerLink]="'/admin/services'" class="btn btn-block btn-primary">Gestione servizi</button>
-<button type="button" [routerLink]="'/admin/plans'" class="btn btn-block btn-primary">Appuntamenti</button>
+<button type="button" [routerLink]="'/admin/business'" class="btn btn-block btn-primary text-left">
+    <i class="mr-1 fa fa-building"></i> Negozio
+</button>
+
+<button type="button" [routerLink]="'/admin/services'" class="btn btn-block btn-primary text-left">
+    <i class="mr-1 fa fa-exclamation-circle"></i> Servizi
+</button>
+
+<button type="button" [routerLink]="'/admin/plans'" class="btn btn-block btn-primary text-left">
+    <i class="mr-1 fa fa-calendar"></i> Appuntamenti
+</button>
+
+<button type="button" [routerLink]="'/admin/clients'" class="btn btn-block btn-primary text-left">
+    <i class="mr-1 fa fa-users"></i> Clienti
+</button>

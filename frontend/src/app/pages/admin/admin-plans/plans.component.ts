@@ -57,6 +57,8 @@ import { ModalReservationComponent } from '../../../common/modals/reservation/re
 import { customDateParser, isValidDate, dateToString } from '../../../common/utils';
 import { ToastrService } from 'ngx-toastr';
 
+import { CustomEventTitleFormatter } from '../../../common/injectable';
+
 const colors: any = {
   red: {
     primary: '#ad2121',
@@ -72,35 +74,11 @@ const colors: any = {
   },
 };
 
-import { Injectable } from '@angular/core';
-
-@Injectable()
-export class CustomEventTitleFormatter extends CalendarEventTitleFormatter {
-  // you can override any of the methods defined in the parent class
-
-  monthTooltip(event: CalendarEvent): string {
-    return event.title.replace(/_/g, '<br>');
-  }
-
-  weekTooltip(event: CalendarEvent): string {
-    return event.title.replace(/_/g, '<br>');
-  }
-
-  dayTooltip(event: CalendarEvent): string {
-    return event.title.replace(/_/g, '<br>');
-  }
-}
-
 @Component({
   selector: 'app-admin-plans',
   templateUrl: './plans.component.html',
   styleUrls: ['./plans.component.css'],
-  providers: [
-    {
-      provide: CalendarEventTitleFormatter,
-      useClass: CustomEventTitleFormatter,
-    },
-  ],
+  providers: [{provide: CalendarEventTitleFormatter, useClass: CustomEventTitleFormatter}],
 })
 export class AdminPlansComponent implements OnInit {
 
@@ -146,6 +124,8 @@ export class AdminPlansComponent implements OnInit {
   isLoading: boolean;
   dispose: any;
 
+  activeTab = 1;
+
   constructor(
     private store: Store<AppState>,
     private modalService: NgbModal,
@@ -174,8 +154,8 @@ export class AdminPlansComponent implements OnInit {
               start: new Date(reservation.start),
               end: new Date(reservation.end),
               title: reservation.services.map((service: Service) => service.name).join(', ') +
-                ' _ <b>Cliente: </b>' + reservation.customer.fullName +
-                ( reservation.note ? ' _ <b>Note: </b>' + reservation.note : ''),
+                ' Cliente: ' + reservation.customer.fullName +
+                ( reservation.note ? ' Note: ' + reservation.note : ''),
               color: reservation.isApproved === true ? colors.green : colors.blue,
               actions: this.actions,
               allDay: false,
