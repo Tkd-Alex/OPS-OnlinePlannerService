@@ -1,0 +1,109 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-2 pt-2">
+      <app-admin-sidebar></app-admin-sidebar>
+    </div>
+    <div class="col-md-10">
+      <div class="row pt-2">
+        <div class="col-md-12">
+
+          <div class="row">
+            <div class="col-md-12">
+              <input (keyup)="handleSearch($event)" [(ngModel)]="query" type="text" class="form-control" name="query"
+                placeholder="Cerca ...">
+              <br>
+
+              <div *ngIf="customers" class="scrollabe-div">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Nome</th>
+                      <th scope="col">Username</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let user of customers" [class.table-active]="user === selected" (click)="select(user)">
+                      <td>{{ user.fullName }}</td>
+                      <td>{{ user.username }}</td>
+                      <td>{{ user.email }}</td>
+                      <td>{{ user.isAdmin ? 'Si' : 'No' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="row mt-5" *ngIf="selected">
+            <div class="col-md-12">
+              <h3>{{ selected.fullName }}</h3>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group mb-0">
+                <label for="username">Username</label>
+                <input type="text" disabled class="form-control" id="username" [(ngModel)]="selected.username">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-0">
+                <label for="email">Email</label>
+                <input type="text" disabled class="form-control" id="email" [(ngModel)]="selected.email">
+              </div>
+            </div>
+            <div class="col-md-2 align-self-end text-center">
+
+              <div class="btn-group py-0 px-0" role="group">
+                <button type="button"
+                  [class.active]="selected.isAdmin === true"
+                  (click)="update({isAdmin: true})"
+                  class="btn btn-primary">Si
+                </button>
+                <button type="button"
+                  [class.active]="selected.isAdmin === false"
+                  (click)="update({isAdmin: false})"
+                  class="btn btn-primary">No
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-5">
+            <div class="col-md-12">
+              <div *ngIf="(currentState$ | async).isLoading == false && reservations && selected" class="scrollabe-div">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Inizio</th>
+                      <th scope="col">Durata</th>
+                      <th scope="col">Servizi</th>
+                      <th scope="col">Note</th>
+                      <th scope="col">Stato</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let reservation of reservations">
+                      <td>{{ reservation.start }}</td>
+                      <td>{{ _differenceInMinutes(reservation.start, reservation.end) + 'm' }}</td>
+                      <td>{{ joinServices(reservation.services) }}</td>
+                      <td>{{ reservation.note }}</td>
+                      <td>
+                        <i *ngIf="reservation.isApproved === true && reservation.isReject === false" class="fa fa-thumbs-up"></i>
+                        <i *ngIf="reservation.isApproved === false && reservation.isReject === false" class="fa fa-pause-circle"></i>
+                        <i *ngIf="reservation.isApproved === false && reservation.isReject === true" class="fa fa-thumbs-down"></i>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
