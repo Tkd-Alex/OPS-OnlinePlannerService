@@ -33,6 +33,8 @@ import {
 })
 export class ModalReservationComponent implements OnInit{
 
+  isNew = true;
+
   reservationServices: Service[] = [];
   @Input() services: Service[];
   @Input() timeTable: any[] = [];
@@ -67,6 +69,7 @@ export class ModalReservationComponent implements OnInit{
         minute: this.date.getMinutes()
       };
     }else {
+      this.isNew = false;
       this.dateForBootstrap = {
         year: new Date(this.reservation.start).getFullYear(),
         month: new Date(this.reservation.start).getMonth() + 1,
@@ -118,8 +121,6 @@ export class ModalReservationComponent implements OnInit{
         this.reservation.services = makeEqualServicesArray(this.reservationServices, this.reservation.services, 'push');
         this.reservation.services = makeEqualServicesArray(this.reservation.services, this.reservationServices, 'slice');
       }
-
-      console.log(this.reservation.services);
 
       this.reservation.start = dateToString(date);
       this.reservation.end = dateToString(addMinutes(

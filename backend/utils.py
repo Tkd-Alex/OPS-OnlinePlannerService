@@ -1,5 +1,6 @@
 import json
 import datetime
+import re
 
 from playhouse.shortcuts import model_to_dict
 from database import User, Business, Service, OwnerBusiness, Reservation, ReservationService
@@ -75,3 +76,10 @@ def index_from_array(array, value, field="id"):
         if array[index][field] == value:
             return index
     return -1
+
+
+def cleanhtml(raw_html):
+    cleanr = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
+    cleanr = re.compile('<.*?>')
+    cleantext = re.sub(cleanr, '', raw_html)
+    return cleantext

@@ -288,7 +288,7 @@ class ReservationEndpoint(Resource):
         args = parser.parse_args()
 
         timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
-        in___date = datetime.datetime.fromtimestamp(timestamp)  # - datetime.timedelta(days=30)
+        in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
 
         query = (Reservation
                  .select()
@@ -318,10 +318,13 @@ class ReservationEndpoint(Resource):
         if utils.is_valid_date(start_day, start) is False or utils.is_valid_date(end_day, end) is False:
             return {'message': "La data inserita non sembra esser valida. Il negozio e' chiuso"}, 400
 
+        # if Reservation.get_or_none((Reservation.start >= start) & (Reservation.end >= end)) is not None:
+        #     return {'message': 'Sembra esserci un altro appuntamento allo stesso orario, impossibile proseguire'}, 400
+
         reservation = Reservation.create(
             start=args["start"],
             end=args["end"],
-            note=args["note"],
+            note=utils.cleanhtml(args["note"]),
             customer=int(current_user["user_id"]),
             business=int(args["business_id"])
         )
@@ -358,10 +361,13 @@ class ReservationEndpoint(Resource):
             if utils.is_valid_date(start_day, start) is False or utils.is_valid_date(end_day, end) is False:
                 return {'message': "La data inserita non sembra esser valida. Il negozio e' chiuso"}, 400
 
+        is_admin = utils.is_admin(current_user["user_id"], args["business_id"]) is True
+
         reservations = []
         for index in range(0, len(args["reservations"])):
             reservation = Reservation.get_or_none(Reservation.reservation_id == int(args["reservations"][index]["reservation_id"]))
-            if reservation is not None:
+            # if Reservation.get_or_none((Reservation.start >= reservation.start) & (Reservation.end <= reservation.end) & (Reservation.reservation_id != reservation.reservation_id)) is None:
+            if reservation is not None and reservation.business_id == int(args["business_id"]) and (is_admin is True or reservation.customer.user_id == int(current_user["user_id"])):
 
                 for service_index in range(0, len(args["reservations"][index]["services"])):
                     service = args["reservations"][index]["services"][service_index]
@@ -395,9 +401,9 @@ class ReservationEndpoint(Resource):
 
                 reservation.start = args["reservations"][index]["start"]
                 reservation.end = args["reservations"][index]["end"]
-                reservation.note = args["reservations"][index]["note"]
+                reservation.note = utils.cleanhtml(args["reservations"][index]["note"])
 
-                if utils.is_admin(current_user["user_id"], args["reservations"][index]["business_id"]) is True:
+                if is_admin:
                     if "is_approved" in args["reservations"][index]:
                         reservation.is_approved = args["reservations"][index]["is_approved"]
                         reservation.approved_by_id = current_user["user_id"]

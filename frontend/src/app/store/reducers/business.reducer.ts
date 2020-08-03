@@ -72,7 +72,10 @@ export function reducer(state = initialState, action: Action): State {
                 isLoading: false,
                 response: { error: false, message: null },
                 reservations: state.reservations.map(
-                    (value, index) => value.id === action.payload.reversation_id ? buildReservation(action.payload) : value
+                    (value, index) => {
+                        const filtered = action.payload.filter( (item: any) => item.reservation_id === value.id );
+                        return filtered.length === 1 ? buildReservation(filtered[0]) : value;
+                    }
                 )
             };
         }

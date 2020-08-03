@@ -60,6 +60,7 @@ export class ReservationsEffects {
         withLatestFrom(this.store$.select(selectBusinessState)),
         mergeMap( ([action, state]: [ReservationsActions.Update, any]) =>
             this.reservationsService.update(
+                state.business.id,
                 Array.isArray(action.payload) === true ?
                 action.payload.map((item: Reservation) => { parseReservation(item); }) :
                 [parseReservation(action.payload)]  // Create array with 1 elements

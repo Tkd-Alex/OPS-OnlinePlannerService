@@ -53,7 +53,6 @@ export function makeEqualServicesArray(a: Service[], b: Service[], op: string = 
         let founded = false;
         // tslint:disable-next-line: prefer-for-of
         for (let j = 0; j < b.length; j++){
-            // console.log(a[i].serviceId, b[j].serviceId, a[i].name, b[j].name)
             if (a[i].serviceId === b[j].serviceId && a[i].name === b[j].name){
                 founded = true;
                 break;

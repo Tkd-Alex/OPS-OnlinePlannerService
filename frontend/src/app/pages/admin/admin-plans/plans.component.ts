@@ -55,29 +55,56 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../../common/modals/reservation/reservation.component';
 
 import { customDateParser, isValidDate, dateToString } from '../../../common/utils';
+import { ToastrService } from 'ngx-toastr';
 
 const colors: any = {
   red: {
-    primary: '#cf1b1b',
-    secondary: '#900d0d',
+    primary: '#ad2121',
+    secondary: '#fae3e3',
   },
   blue: {
-    primary: '#0f4c75',
-    secondary: '#3282b8',
+    primary: '#1e90ff',
+    secondary: '#d1e8ff',
   },
   green: {
-    primary: '#8cba51',
-    secondary: '#deff8b',
+    primary: '#21ad28',
+    secondary: '#e3fae5',
   },
 };
+
+import { Injectable } from '@angular/core';
+
+@Injectable()
+export class CustomEventTitleFormatter extends CalendarEventTitleFormatter {
+  // you can override any of the methods defined in the parent class
+
+  monthTooltip(event: CalendarEvent): string {
+    return event.title.replace(/_/g, '<br>');
+  }
+
+  weekTooltip(event: CalendarEvent): string {
+    return event.title.replace(/_/g, '<br>');
+  }
+
+  dayTooltip(event: CalendarEvent): string {
+    return event.title.replace(/_/g, '<br>');
+  }
+}
 
 @Component({
   selector: 'app-admin-plans',
   templateUrl: './plans.component.html',
-  styleUrls: ['./plans.component.css']
+  styleUrls: ['./plans.component.css'],
+  providers: [
+    {
+      provide: CalendarEventTitleFormatter,
+      useClass: CustomEventTitleFormatter,
+    },
+  ],
 })
 export class AdminPlansComponent implements OnInit {
 
+  refresh: Subject<any> = new Subject();
   view: CalendarView = CalendarView.Month;
   viewDate: Date = new Date();
 
@@ -106,8 +133,8 @@ export class AdminPlansComponent implements OnInit {
 
   events: CalendarEvent[] = [];
 
-  dayStartHour = 6; // Math.max(0, getHours(new Date()) - 2);
-  dayEndHour = 22; // Math.min(23, getHours(new Date()) + 2);
+  dayStartHour = 6;
+  dayEndHour = 22;
 
   timeTable: any[] = [];
   services: Service[];
@@ -121,7 +148,8 @@ export class AdminPlansComponent implements OnInit {
 
   constructor(
     private store: Store<AppState>,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private toastr: ToastrService
   ) {
     this.currentState$ = this.store.select(selectBusinessState);
   }
@@ -141,35 +169,30 @@ export class AdminPlansComponent implements OnInit {
       if (state.services) { this.services = state.services; }  // Local reference please :)
       if (state.reservations){
         this.events = state.reservations?.map((reservation: Reservation) => {
+            const editable = isBefore(new Date(), new Date(reservation.start)) ? true : false;
             return {
               start: new Date(reservation.start),
               end: new Date(reservation.end),
-              /*
-              end: addMinutes(
-                new Date(reservation.start),
-                reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0)
-              ),
-              */
               title: reservation.services.map((service: Service) => service.name).join(', ') +
-                ' Cliente: ' + reservation.customer.fullName +
-                ( reservation.note ? ' Note: ' + reservation.note : ''),
-              // color: reservation.isApproved === true ? colors.green : colors.blue,
+                ' _ <b>Cliente: </b>' + reservation.customer.fullName +
+                ( reservation.note ? ' _ <b>Note: </b>' + reservation.note : ''),
+              color: reservation.isApproved === true ? colors.green : colors.blue,
               actions: this.actions,
               allDay: false,
-              resizable: {
-                beforeStart: isBefore(new Date(), new Date(reservation.start)) ? true : false,
-                afterEnd: isBefore(new Date(), new Date(reservation.start)) ? true : false,
-              },
-              draggable: true,
+              resizable: { beforeStart: editable, afterEnd: editable },
+              draggable: editable,
               meta: reservation
             };
         });
+        const values = this.getDayStartEnd(this.view === 'week' ? false : true);
+        this.dayStartHour = values.min;
+        this.dayEndHour = values.max;
      }
     });
   }
 
   dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
-    if (isSameMonth(date, this.viewDate)) {
+    if (isSameMonth(date, this.viewDate) && this.view === 'month') {
       if (
         (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
         events.length === 0
@@ -199,26 +222,24 @@ export class AdminPlansComponent implements OnInit {
     }).catch((error: any) => { console.log(error); });
   }
 
-  eventTimesChanged({
-    event,
-    newStart,
-    newEnd,
-  }: CalendarEventTimesChangedEvent): void {
-    this.events = this.events.map((iEvent) => {
-      if (iEvent === event) {
-        return {
-          ...event,
-          start: newStart,
-          end: newEnd,
-        };
-      }
-      return iEvent;
-    });
-    this.handleEvent('Dropped or resized', event);
+  eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
+    if (isValidDate(newStart, this.timeTable) === true && isValidDate(newEnd, this.timeTable) === true) {
+      this.events = this.events.map((iEvent) => {
+        if (iEvent === event) { return { ...event, start: newStart, end: newEnd, }; }
+        return iEvent;
+      });
+
+      const reservation: Reservation = {... event.meta};
+      reservation.start = dateToString(newStart);
+      reservation.end = dateToString(newEnd);
+      this.store.dispatch(new UpdateReservation(reservation));
+    }else {
+      this.toastr.error('La data inserita non sembra esser valida. Il negozio e\' chiuso', 'Ops!');
+      this.refresh.next();
+    }
   }
 
   handleEvent(action: string, event: CalendarEvent): void {
-    console.log(action, event);
     this.editReservation({
       ... event.meta,
       start: dateToString(event.start),
@@ -231,30 +252,9 @@ export class AdminPlansComponent implements OnInit {
   }
 
   fetchReservation(): void{
-    // console.log(this.viewDate, this.view);
-    // const theLast = this.events.length !== 0 ? this.events[this.events.length - 1].start : null;
     const timestamp = getUnixTime(new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1));
     this.store.dispatch(new GetReservations(timestamp));
   }
-
-
-  // https://stackblitz.com/edit/angular-7zsn3h?file=demo%2Fcomponent.ts
-
-  /*
-  private anotherRefresh(): any {
-    this.events = [...this.events];
-    this.cdr.detectChanges();
-  }
-
-  beforeMonthViewRender(renderEvent: CalendarMonthViewBeforeRenderEvent): void {
-    renderEvent.body.forEach(day => {
-      const dayOfMonth = day.date.getDate();
-      if (dayOfMonth > 5 && dayOfMonth < 10 && day.inMonth) {
-        day.cssClass = 'bg-disabled';
-      }
-    });
-  }
-  */
 
   disableDayHours(renderEvent: CalendarWeekViewBeforeRenderEvent): void {
     renderEvent.hourColumns.forEach(hourColumn => {
@@ -285,6 +285,22 @@ export class AdminPlansComponent implements OnInit {
         });
       });
     });
+  }
+
+  getDayStartEnd(single = true): any {
+    const allhours = [];
+    const timings = single ? [this.timeTable[this.viewDate.getDay() !== 0 ? this.viewDate.getDay() - 1 : 6]] : this.timeTable;
+    timings.forEach((value: any) => {
+      ['morning', 'afternoon'].map((type: string) => {
+        if (value[type].open !== null && value[type].close !== null){
+          allhours.push(parseInt(value[type].open.split(':')[0], 0));
+          allhours.push(parseInt(value[type].close.split(':')[0], 0));
+        }
+      });
+    });
+    const max = Math.max(...allhours);
+    const min = Math.min(...allhours);
+    return { min, max };
   }
 
   handleHourClick(date: Date): void{

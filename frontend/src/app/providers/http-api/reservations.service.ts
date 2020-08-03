@@ -16,9 +16,9 @@ export class ReservationsService {
     return this.http.get(url);
   }
 
-  update(payload: Reservation[]): Observable<any> {
+  update(businessId: number, payload: Reservation[]): Observable<any> {
     const url = `${Constant.API_ENDPOINT}/reservations`;
-    return this.http.put<Reservation>(url, {reservations: payload});
+    return this.http.put<Reservation>(url, {business_id: businessId, reservations: payload});
   }
 
   insert(payload: Reservation): Observable<any> {
