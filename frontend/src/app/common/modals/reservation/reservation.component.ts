@@ -8,7 +8,7 @@ import { Reservation } from '../../../models/reservation';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 
-import { isValidDate, dateToString, makeEqualServicesArray } from '../../utils';
+import { isValidDate, dateToString, makeEqualServicesArray, changeState } from '../../utils';
 // declare var $: any;
 
 import {
@@ -95,6 +95,8 @@ export class ModalReservationComponent implements OnInit{
     });
     */
   }
+
+  _changeState(state: string): void{ this.reservation = changeState(state, this.reservation); }
 
   updateTotal(): void{
     this.totalDuration = this.reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0);

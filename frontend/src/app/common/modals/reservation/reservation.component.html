@@ -7,7 +7,7 @@
   <div class="modal-body">
 
     <div class="row">
-      <div class="col-md-9 align-self-center">
+      <div class="col-md-8 align-self-center">
         <div class="input-group">
           <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="dateForBootstrap" ngbDatepicker #d="ngbDatepicker">
           <div class="input-group-append">
@@ -15,8 +15,8 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3">
-        <ngb-timepicker size="small" [(ngModel)]="timeForBootstrap"></ngb-timepicker>
+      <div class="col-md-4 text-right">
+        <ngb-timepicker class="mx-0" [spinners]="false" [(ngModel)]="timeForBootstrap"></ngb-timepicker>
       </div>
     </div>
 
@@ -42,14 +42,28 @@
     </div>
 
     <div class="row">
-      <div class="col-md-12">
-
+      <div class="col-md-5">
+        <div class="btn-group" role="group">
+          <button type="button"
+            [class.active]="reservation.isApproved === true && reservation.isReject === false"
+            (click)="_changeState('approved')"
+            class="btn btn-secondary">Approva
+          </button>
+          <button type="button"
+            [class.active]="reservation.isApproved === false && reservation.isReject === false"
+            (click)="_changeState('pending')"
+            class="btn btn-secondary">Attesa
+          </button>
+          <button type="button"
+            [class.active]="reservation.isApproved === false && reservation.isReject === true"
+            (click)="_changeState('reject')"
+            class="btn btn-secondary">Rifiuta
+          </button>
+        </div>
       </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-6"><p class="pt-2">Durata complessiva: {{ totalDuration + 'm' }}</p></div>
-      <div class="col-md-6"><p class="pt-2">Preventivo complessivo: {{ totalPrice + ' Eur' }}</p></div>
+      <div class="col-md-7 align-self-center text-right">
+        <p class="my-0"><b>Durata:</b> {{ totalDuration + 'm' }}, <b>Preventivo:</b> {{ totalPrice + ' €' }}</p>
+      </div>
     </div>
 
   </div>

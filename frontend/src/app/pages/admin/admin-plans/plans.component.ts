@@ -23,6 +23,7 @@ import {
   endOfMonth,
   isSameDay,
   isSameMonth,
+  isSameWeek,
   addHours,
   endOfWeek,
   addMinutes,
@@ -54,7 +55,7 @@ import { Service } from '../../../models/service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../../common/modals/reservation/reservation.component';
 
-import { customDateParser, isValidDate, dateToString } from '../../../common/utils';
+import { customDateParser, isValidDate, dateToString, changeState } from '../../../common/utils';
 import { ToastrService } from 'ngx-toastr';
 
 import { CustomEventTitleFormatter } from '../../../common/injectable';
@@ -171,6 +172,10 @@ export class AdminPlansComponent implements OnInit {
     });
   }
 
+  joinServices(services: Service[]): string {
+    return services.map((service: Service) => service.name).join(', ');
+  }
+
   dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate) && this.view === 'month') {
       if (
@@ -183,7 +188,7 @@ export class AdminPlansComponent implements OnInit {
   }
 
   newReservation(date: Date): void {
-    const modalRef = this.modalService.open(ModalReservationComponent, { size: 'lg', centered: false });
+    const modalRef = this.modalService.open(ModalReservationComponent, { size: 'md', centered: false });
     modalRef.componentInstance.date = date;
     modalRef.componentInstance.services = this.services;
     modalRef.componentInstance.timeTable = this.timeTable;
@@ -192,14 +197,26 @@ export class AdminPlansComponent implements OnInit {
     }).catch((error: any) => { console.log(error); });
   }
 
-  editReservation(event: Reservation): void{
-    const modalRef = this.modalService.open(ModalReservationComponent, { size: 'lg', centered: false });
-    modalRef.componentInstance.reservation = event;
+  editReservation(reservation: Reservation): void{
+    const modalRef = this.modalService.open(ModalReservationComponent, { size: 'md', centered: false });
+    modalRef.componentInstance.reservation = reservation;
     modalRef.componentInstance.services = this.services;
     modalRef.componentInstance.timeTable = this.timeTable;
     modalRef.result.then((result) => {
       if (result instanceof Reservation || typeof(result) === 'object') { this.store.dispatch(new UpdateReservation(result)); }
     }).catch((error: any) => { console.log(error); });
+  }
+
+  showItemInList(event: CalendarEvent): boolean{
+    if (this.view === 'month' && isSameMonth(event.start, this.viewDate) ) { return true; }
+    if (this.view === 'week' && isSameWeek(event.start, this.viewDate)) { return true; }
+    if (this.view === 'day' && isSameDay(event.start, this.viewDate) ) { return true; }
+    return false;
+  }
+
+  _changeState(state: string, event: CalendarEvent): void{
+    event.meta = changeState(state, {... event.meta});
+    this.store.dispatch(new UpdateReservation(event.meta));
   }
 
   eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {

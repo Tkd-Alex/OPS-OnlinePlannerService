@@ -63,3 +63,21 @@ export function makeEqualServicesArray(a: Service[], b: Service[], op: string = 
     }
     return op === 'slice' ? a : b;
 }
+
+export function changeState(state: string, reservation: Reservation): Reservation{
+    switch (state) {
+      case 'approved':
+        reservation.isApproved = true;
+        reservation.isReject = false;
+        break;
+      case 'reject':
+        reservation.isApproved = false;
+        reservation.isReject = true;
+        break;
+      default:
+        reservation.isApproved = false;
+        reservation.isReject = false;
+        break;
+    }
+    return reservation;
+  }
