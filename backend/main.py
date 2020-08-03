@@ -285,16 +285,24 @@ class ReservationEndpoint(Resource):
         parser = reqparse.RequestParser(bundle_errors=True)
         parser.add_argument("timestamp", type=int, required=False)
         parser.add_argument("business_id", type=int, required=True)
+        parser.add_argument("customer_id", type=int, required=False)
         args = parser.parse_args()
 
-        timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
-        in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
+        if args["customer_id"] is None and args["customer_id"] != "":
+            timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
+            in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
 
-        query = (Reservation
-                 .select()
-                 .where((Reservation.business == args["business_id"]) & (Reservation.start >= in___date))
-                 .order_by(Reservation.start)
-                 )
+            query = (Reservation
+                     .select()
+                     .where((Reservation.business == args["business_id"]) & (Reservation.start >= in___date))
+                     .order_by(Reservation.start)
+                     )
+        else:
+            query = (Reservation
+                     .select()
+                     .where((Reservation.business == args["business_id"]) & (Reservation.customer >= int(args["customer_id"])))
+                     .order_by(Reservation.start)
+                     )
 
         reservations = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
         return reservations, 200
@@ -406,11 +414,13 @@ class ReservationEndpoint(Resource):
                 if is_admin:
                     if "is_approved" in args["reservations"][index]:
                         reservation.is_approved = args["reservations"][index]["is_approved"]
-                        reservation.approved_by_id = current_user["user_id"]
+                        if args["reservations"][index]["is_approved"] is True:
+                            reservation.approved_by_id = current_user["user_id"]
 
                     if "is_reject" in args["reservations"][index]:
                         reservation.is_reject = args["reservations"][index]["is_reject"]
-                        reservation.reject_by_id = current_user["user_id"]
+                        if args["reservations"][index]["is_reject"] is True:
+                            reservation.reject_by_id = current_user["user_id"]
 
                 reservation.save()
                 reservations.append(reservation)
@@ -421,18 +431,40 @@ class ReservationEndpoint(Resource):
         return [], 400
 
 
+class CustomersEndpoint(Resource):
+    @jwt_required
+    def get(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument("business_id", type=int, required=True)
+        parser.add_argument("q", type=str, required=False)
+        args = parser.parse_args()
+
+        if utils.is_admin(current_user["user_id"], args["business_id"]) is True:
+            if args['q'] is not None and args['q'] != "":
+                query = (User.select().where(User.fullname.contains(args["q"])).order_by(User.fullname).limit(75))
+            else:
+                query = (User.select().order_by(User.fullname).limit(75))
+            customers = [model_to_dict(item, recurse=False, backrefs=False, max_depth=0, exclude=[User.password]) for item in query]
+            return customers, 200
+        else:
+            return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+
+
 api.add_resource(UserRegistration, '/user/register')
 api.add_resource(UserLogin, '/user/login')
 api.add_resource(UserEndpoint, '/user')
 api.add_resource(BusinessEndpoint, '/business')
 api.add_resource(ServiceEndpoint, '/services')
 api.add_resource(ReservationEndpoint, '/reservations')
+api.add_resource(CustomersEndpoint, '/customers')
 
 
 if __name__ == '__main__':
     db.connect()
     db.create_tables([User, Business, Service, OwnerBusiness, Reservation, ReservationService])
-
     # code.interact(local=locals())
 
     app.run(host="0.0.0.0", port=123456, threaded=True, debug=True)
