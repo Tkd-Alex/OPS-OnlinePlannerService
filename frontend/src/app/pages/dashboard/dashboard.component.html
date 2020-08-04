@@ -10,46 +10,77 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="col-md-12 pt-5">
-
-          <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()"
-            (viewChange)="fetchReservation()"></app-calendar-header>
-          <hr>
-
-          <div *ngIf="isLoading === false && events !== []; else loading">
-            <div [ngSwitch]="view">
-
-              <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events"
-                (dayClicked)="dayClicked($event.day)"
-                (eventClicked)="handleEvent('Clicked', $event.event)"
-                (eventTimesChanged)="eventTimesChanged($event)">
-              </mwl-calendar-month-view>
-
-              <mwl-calendar-week-view *ngSwitchCase="'week'" [events]="events" [viewDate]="viewDate"
-                [weekStartsOn]="weekStartsOn" (eventClicked)="handleEvent('Clicked', $event.event)"
-                (eventTimesChanged)="eventTimesChanged($event)"
-                (hourSegmentClicked)="handleHourClick($event.date)"
-                (beforeViewRender)="beforeWeekViewRender($event)"
-                [hourSegmentTemplate]="weekViewHourSegmentTemplate"
-                (dayHeaderClicked)="dayClicked($event.day)"
-                [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
-                [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
-              </mwl-calendar-week-view>
-
-              <mwl-calendar-day-view *ngSwitchCase="'day'" [events]="events" [viewDate]="viewDate"
-                (eventClicked)="handleEvent('Clicked', $event.event)"
-                (eventTimesChanged)="eventTimesChanged($event)"
-                (hourSegmentClicked)="handleHourClick($event.date)"
-                (beforeViewRender)="beforeDayViewRender($event)"
-                [hourSegmentTemplate]="weekViewHourSegmentTemplate"
-                [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
-                [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
-              </mwl-calendar-day-view>
-
-            </div>
-          </div>
+        <div class="col-md-12 pt-2">
+          <h3>{{ ( this.currentState$ | async )?.business?.name }}</h3>
+          <p>{{ ( this.currentState$ | async )?.business?.description }} </p>
+          <!-- <a target="_blank" href="https://www.google.com/maps?q={{ ( this.currentState$ | async )?.business?.address }}">{{ ( this.currentState$ | async )?.business?.address }}</a> -->
         </div>
       </div>
+
+      <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+        <li [ngbNavItem]="1" (click)="fetchReservation()">
+          <a ngbNavLink>Calendario</a>
+          <ng-template ngbNavContent>
+
+            <div class="row">
+              <div class="col-md-12">
+
+                <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()"
+                (viewChange)="fetchReservation()"></app-calendar-header>
+              <hr>
+
+              <div *ngIf="isLoading === false && events !== []; else loading">
+                <div [ngSwitch]="view">
+
+                  <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events"
+                    (dayClicked)="dayClicked($event.day)"
+                    (eventClicked)="handleEvent('Clicked', $event.event)"
+                    (eventTimesChanged)="eventTimesChanged($event)">
+                  </mwl-calendar-month-view>
+
+                  <mwl-calendar-week-view *ngSwitchCase="'week'" [events]="events" [viewDate]="viewDate"
+                    [weekStartsOn]="weekStartsOn" (eventClicked)="handleEvent('Clicked', $event.event)"
+                    (eventTimesChanged)="eventTimesChanged($event)"
+                    (hourSegmentClicked)="handleHourClick($event.date)"
+                    (beforeViewRender)="beforeWeekViewRender($event)"
+                    [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+                    (dayHeaderClicked)="dayClicked($event.day)"
+                    [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
+                    [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
+                  </mwl-calendar-week-view>
+
+                  <mwl-calendar-day-view *ngSwitchCase="'day'" [events]="events" [viewDate]="viewDate"
+                    (eventClicked)="handleEvent('Clicked', $event.event)"
+                    (eventTimesChanged)="eventTimesChanged($event)"
+                    (hourSegmentClicked)="handleHourClick($event.date)"
+                    (beforeViewRender)="beforeDayViewRender($event)"
+                    [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+                    [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
+                    [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
+                  </mwl-calendar-day-view>
+
+                </div>
+              </div>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="2" (click)="fetchUserReservation()">
+          <a ngbNavLink>I miei appuntamenti</a>
+          <ng-template ngbNavContent>
+            <div class="row">
+              <div class="col-md-12">
+                <div *ngIf="(currentState$ | async).isLoading == false && (currentState$ | async).reservations" class="scrollabe-div">
+                  <app-user-reversations-table [reservations]="(currentState$ | async).reservations"></app-user-reversations-table>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+
+      <div [ngbNavOutlet]="nav" class="mt-2"></div>
+
     </div>
   </body>
 </html>

@@ -94,6 +94,8 @@ export class DashboardComponent implements OnInit {
 
   currentUser: User = null;
 
+  activeTab = 1;
+
   constructor(
     private store: Store<AppState>,
     private modalService: NgbModal,
@@ -209,6 +211,10 @@ export class DashboardComponent implements OnInit {
   fetchReservation(): void{
     const timestamp = getUnixTime(new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1));
     this.store.dispatch(new GetReservations({timestamp}));
+  }
+
+  fetchUserReservation(): void{
+    this.store.dispatch(new GetReservations({ customerId: this.currentUser.id }));
   }
 
   disableDayHours(renderEvent: CalendarWeekViewBeforeRenderEvent): void {

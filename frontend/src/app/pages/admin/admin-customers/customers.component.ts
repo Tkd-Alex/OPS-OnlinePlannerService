@@ -10,9 +10,6 @@ import { Get as GetReservations } from '../../../store/actions/reservations.acti
 
 import { User } from 'src/app/models/user';
 import { Reservation } from 'src/app/models/reservation';
-import { Service } from 'src/app/models/service';
-
-import differenceInMinutes from 'date-fns/differenceInMinutes';
 
 @Component({
   selector: 'app-admin-customers',
@@ -59,14 +56,6 @@ export class AdminCustomersComponent implements OnInit {
         (event.keyCode >= 65 && event.keyCode <= 90)){
       if (this.isLoading === false){ this.store.dispatch(new GetCustomers(this.query)); }
     }
-  }
-
-  joinServices(services: Service[]): string {
-    return services.map((service: Service) => service.name).join(', ');
-  }
-
-  _differenceInMinutes(start: string, end: string): number{
-    return differenceInMinutes(new Date(end), new Date(start));
   }
 
   select(user: User): void {
