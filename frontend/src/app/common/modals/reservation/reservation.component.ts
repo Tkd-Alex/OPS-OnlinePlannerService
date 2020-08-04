@@ -102,8 +102,8 @@ export class ModalReservationComponent implements OnInit{
   _changeState(state: string): void{ this.reservation = changeState(state, this.reservation); }
 
   updateTotal(): void{
-    this.totalDuration = this.reservation.services.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0);
-    this.totalPrice = this.reservation.services.map((service: Service) => service.price).reduce((a, b) => a + b, 0);
+    this.totalDuration = this.reservationServices.map((service: Service) => service.durationM).reduce((a, b) => a + b, 0);
+    this.totalPrice = this.reservationServices.map((service: Service) => service.price).reduce((a, b) => a + b, 0);
   }
 
   save(): void{
