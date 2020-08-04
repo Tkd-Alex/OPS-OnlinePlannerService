@@ -455,6 +455,34 @@ class CustomersEndpoint(Resource):
         else:
             return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
 
+    @jwt_required
+    def put(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        args = request.get_json()
+
+        if utils.is_admin(current_user["user_id"], args["business_id"]) is True:
+            user = User.get_or_none(User.user_id == args["user"]["user_id"])
+            if user is None:
+                return {'message': "Spacenti, utente non trovato"}, 400
+            else:
+                if user.is_admin != args["user"]["is_admin"]:
+                    if args["user"]["is_admin"] is True:
+                        OwnerBusiness.insert(
+                            user=int(args["user"]["user_id"]),
+                            business=int(args["business_id"])
+                        ).execute()
+                        user.is_admin = True
+                        user.save()
+                    else:
+                        OwnerBusiness.delete().where((OwnerBusiness.user == int(args["user"]["user_id"])) & (OwnerBusiness.business == int(args["business_id"]))).execute()
+                        user.is_admin = False
+                        user.save()
+                return model_to_dict(user, recurse=False, backrefs=False, max_depth=0, exclude=[User.password]), 200
+        else:
+            return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+
 
 api.add_resource(UserRegistration, '/user/register')
 api.add_resource(UserLogin, '/user/login')

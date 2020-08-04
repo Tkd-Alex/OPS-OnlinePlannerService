@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import * as Constant from '../../common/constants';
-import { Service } from '../../models/service';
+import { User } from '../../models/user';
 
 @Injectable()
 export class CustomersService {
@@ -16,18 +16,18 @@ export class CustomersService {
     return this.http.get(url);
   }
 
-  update(payload: Service): Observable<any> {
+  update(payload: any): Observable<any> {
     const url = `${Constant.API_ENDPOINT}/customers`;
-    return this.http.put<Service>(url, payload);
+    return this.http.put<User>(url, payload);
   }
 
-  insert(payload: Service): Observable<any> {
+  insert(payload: User): Observable<any> {
     const url = `${Constant.API_ENDPOINT}/customers`;
-    return this.http.post<Service>(url, payload);
+    return this.http.post<User>(url, payload);
   }
 
   delete(id: number, businessId: number): Observable<any> {
     const url = `${Constant.API_ENDPOINT}/customers?id=${id}&business_id=${businessId}`;
-    return this.http.delete<Service>(url);
+    return this.http.delete<User>(url);
   }
 }

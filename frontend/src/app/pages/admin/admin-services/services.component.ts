@@ -8,7 +8,7 @@ import {
   Get as GetServices,
   Update as UpdateService,
   Insert as InsertService,
-  Delete as DeleteServices
+  Delete as DeleteService
 } from '../../../store/actions/services.actions';
 import { Get as GetBusiness } from '../../../store/actions/business.actions';
 
@@ -52,7 +52,7 @@ export class AdminServicesComponent implements OnInit {
   }
 
   deleteService(index: number): any{
-    if (this.services[index].id !== null) { this.store.dispatch(new DeleteServices(this.services[index])); }
+    if (this.services[index].id !== null) { this.store.dispatch(new DeleteService(this.services[index])); }
     else { this.services.splice(index, 1); }
   }
 

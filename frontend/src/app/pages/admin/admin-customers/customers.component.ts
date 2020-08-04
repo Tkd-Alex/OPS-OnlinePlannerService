@@ -4,7 +4,7 @@ import { AppState, selectBusinessState } from '../../../store/app.state';
 
 import { Observable } from 'rxjs';
 
-import { Get as GetCustomers } from '../../../store/actions/customers.actions';
+import { Get as GetCustomers, Update as UpdateCustomer } from '../../../store/actions/customers.actions';
 import { Get as GetBusiness } from '../../../store/actions/business.actions';
 import { Get as GetReservations } from '../../../store/actions/reservations.actions';
 
@@ -75,7 +75,10 @@ export class AdminCustomersComponent implements OnInit {
   }
 
   update(values: any): void{
-    if (values.isAdmin) { this.selected = { ... this.selected, isAdmin: values.isAdmin }; }
+    if (typeof(values.isAdmin) === 'boolean') {
+      this.selected = { ... this.selected, isAdmin: values.isAdmin };
+      this.store.dispatch(new UpdateCustomer(this.selected));
+    }
   }
 
 }

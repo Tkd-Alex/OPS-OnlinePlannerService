@@ -37,6 +37,23 @@ export class CustomersEffects {
             })
         );
 
+    @Effect()
+    Update: Observable<any> = this.actions$.pipe(
+        ofType(CustomersActions.UPDATE_START),
+        withLatestFrom(this.store$.select(selectBusinessState)),
+        mergeMap( ([action, state]: [CustomersActions.Update, any]) =>
+            this.customersService.update({
+                user: { ... action.payload, user_id: action.payload.id, is_admin: action.payload.isAdmin},
+                business_id: state.business.id
+            }).pipe(
+                map( (result: any) => {
+                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!');
+                    return new CustomersActions.UpdateSuccess(result);
+                } ),
+                catchError( error => of( new CustomersActions.UpdateFailed(error) ) )
+            ))
+        );
+
     @Effect({ dispatch: false })
     Success: Observable<any> = this.actions$.pipe(
         ofType(CustomersActions.GET_SUCCESS, CustomersActions.UPDATE_SUCCESS, CustomersActions.INSERT_SUCCESS)

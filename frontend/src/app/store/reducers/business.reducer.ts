@@ -67,6 +67,14 @@ export function reducer(state = initialState, action: Action): State {
                 customers: action.payload.map((user: any) => buildUser(user))
             };
         }
+        case CustomersActions.UPDATE_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                response: { error: false, message: null },
+                customers: state.customers.map((user: User) => user.id === action.payload.user_id ? buildUser(action.payload) : user )
+            };
+        }
         case ReservationsAction.INSERT_SUCCESS: {
             return {
                 ...state,
