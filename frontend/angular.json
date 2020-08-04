@@ -24,6 +24,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/aos/dist/aos.css",
               "node_modules/angular-calendar/css/angular-calendar.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/font-awesome/css/font-awesome.css",
@@ -33,7 +34,8 @@
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/jqueryui/jquery-ui.js"
+              "node_modules/jqueryui/jquery-ui.js",
+              "node_modules/aos/dist/aos.js"
             ]
           },
           "configurations": {

@@ -139,7 +139,7 @@ export class DashboardComponent implements OnInit {
               },
               actions: [],
               allDay: false,
-              resizable: { beforeStart: editable, afterEnd: editable },
+              resizable: { beforeStart: false, afterEnd: false },
               draggable: editable,
               meta: reservation
             };
