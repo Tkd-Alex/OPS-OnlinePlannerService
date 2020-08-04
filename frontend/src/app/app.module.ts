@@ -42,6 +42,7 @@ import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { LoadingBarModule } from '@ngx-loading-bar/core';
 import { CalendarHeaderComponent } from './common/components/calendar-header/calendar-header.component';
+import { UserReservationsTableComponent } from './common/components/user-reversations-table/user-reversations-table.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ToastrModule } from 'ngx-toastr';
@@ -69,6 +70,7 @@ registerLocaleData(localeIta);
     HomeComponent,
     DashboardComponent,
     CalendarHeaderComponent,
+    UserReservationsTableComponent,
     AdminPlansComponent,
     AdminBusinessComponent,
     AdminServicesComponent,
