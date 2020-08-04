@@ -288,7 +288,7 @@ class ReservationEndpoint(Resource):
         parser.add_argument("customer_id", type=int, required=False)
         args = parser.parse_args()
 
-        if args["customer_id"] is None and args["customer_id"] != "":
+        if args["customer_id"] in [None, ""]:
             timestamp = int(time.time()) if args["timestamp"] is None else args["timestamp"]
             in___date = datetime.datetime.fromtimestamp(timestamp) - datetime.timedelta(days=30)
 
@@ -300,11 +300,14 @@ class ReservationEndpoint(Resource):
         else:
             query = (Reservation
                      .select()
-                     .where((Reservation.business == args["business_id"]) & (Reservation.customer >= int(args["customer_id"])))
+                     .where((Reservation.business == args["business_id"]) & (Reservation.customer == int(args["customer_id"])))
                      .order_by(Reservation.start)
                      )
 
-        reservations = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
+        if utils.is_admin(current_user["user_id"], args["business_id"]) is True or (args["customer_id"] not in [None, ""] and args["customer_id"] == current_user["user_id"]):
+            reservations = [model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]) for item in query]
+        else:
+            reservations = [utils.hideinfo(model_to_dict(item, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table]), current_user["user_id"]) for item in query]
         return reservations, 200
 
     @jwt_required

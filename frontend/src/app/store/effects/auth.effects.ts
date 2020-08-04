@@ -33,6 +33,17 @@ export class AuthEffects {
     );
 
     @Effect()
+    Status: Observable<any> = this.actions$.pipe(
+        ofType(AuthActions.STATUS_START),
+        switchMap((action: AuthActions.Status) => {
+            return this.authService.status().pipe(
+                map( (result: any) => new AuthActions.StatusSuccess(result) ),
+                catchError( error => of( new AuthActions.StatusFailed(error) ) )
+            );
+        })
+    );
+
+    @Effect()
     Register: Observable<any> = this.actions$.pipe(
         ofType(AuthActions.REGISTER_START),
         map((action: AuthActions.Register) => action.payload),
@@ -49,7 +60,7 @@ export class AuthEffects {
         ofType(AuthActions.LOGIN_SUCCESS),
         tap((payload) => {
             localStorage.setItem('token', payload.payload.token);
-            this.router.navigateByUrl('/dashboard');
+            this.router.navigateByUrl(!payload.payload.user.isAdmin ? '/dashboard' : '/admin');
         })
     );
 

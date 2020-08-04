@@ -1,6 +1,8 @@
 import { User } from '../../models/user';
 import * as AuthAction from '../actions/auth.actions';
 
+import { buildUser } from '../../common/builder';
+
 export interface State {
     isLoading: boolean;
     isAuthenticated: boolean;
@@ -19,6 +21,7 @@ export const initialState: State = {
 
 export function reducer(state = initialState, action: AuthAction.All): State {
     switch (action.type) {
+        case AuthAction.STATUS_START:
         case AuthAction.REGISTER_START:
         case AuthAction.LOGIN_START: {
             return {
@@ -41,12 +44,21 @@ export function reducer(state = initialState, action: AuthAction.All): State {
                 ...state,
                 isLoading: false,
                 isAuthenticated: true,
-                user: action.payload.user,
+                user: buildUser(action.payload.user),
                 token: action.payload.token,
                 response: {
                     error: false,
                     message: action.payload.message
                 }
+            };
+        }
+        case AuthAction.STATUS_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                isAuthenticated: true,
+                user: buildUser(action.payload),
+                response: { error: false, message: null}
             };
         }
         case AuthAction.REGISTER_FAILED:

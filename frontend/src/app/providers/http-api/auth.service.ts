@@ -24,4 +24,9 @@ export class AuthService {
     const url = `${Constant.API_ENDPOINT}/user/register`;
     return this.http.post<User>(url, payload);
   }
+
+  status(): Observable<User> {
+    const url = `${Constant.API_ENDPOINT}/user`;
+    return this.http.get<User>(url);
+  }
 }

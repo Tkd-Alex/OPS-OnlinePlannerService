@@ -8,6 +8,10 @@ export const LOGIN_START        = '[Auth] Login Start';
 export const LOGIN_SUCCESS      = '[Auth] Login Success';
 export const LOGIN_FAILED       = '[Auth] Login Failed';
 
+export const STATUS_START        = '[Auth] Status Start';
+export const STATUS_SUCCESS      = '[Auth] Status Success';
+export const STATUS_FAILED       = '[Auth] Status Failed';
+
 export class Register implements Action {
     readonly type = REGISTER_START;
     constructor(public payload: any) {}
@@ -38,6 +42,21 @@ export class LoginFailed implements Action {
     constructor(public payload: any) {}
 }
 
+export class Status implements Action {
+    readonly type = STATUS_START;
+    constructor() {}
+}
+
+export class StatusSuccess implements Action {
+    readonly type = STATUS_SUCCESS;
+    constructor(public payload: any) {}
+}
+
+export class StatusFailed implements Action {
+    readonly type = STATUS_FAILED;
+    constructor(public payload: any) {}
+}
+
 export type All =
     | Register
     | RegisterSuccess
@@ -45,5 +64,9 @@ export type All =
 
     | Login
     | LoginSuccess
-    | LoginFailed;
+    | LoginFailed
+
+    | Status
+    | StatusSuccess
+    | StatusFailed;
 

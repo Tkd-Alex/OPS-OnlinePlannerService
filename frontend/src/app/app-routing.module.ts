@@ -6,7 +6,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { HomeComponent } from './pages/home/home.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import { AuthGuardService as AuthGuard } from './providers/auth-guard.service';
+import { AuthGuardService as AuthGuard, AuthAdminGuardService as AuthAdminGuard } from './providers/auth-guard.service';
 import { AdminBusinessComponent } from './pages/admin/admin-business/business.component';
 import { AdminPlansComponent } from './pages/admin/admin-plans/plans.component';
 import { AdminServicesComponent } from './pages/admin/admin-services/services.component';
@@ -18,10 +18,10 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'admin',  redirectTo: '/admin/business', pathMatch: 'full' },
-  { path: 'admin/business', component: AdminBusinessComponent, canActivate: [AuthGuard] },
-  { path: 'admin/plans', component: AdminPlansComponent, canActivate: [AuthGuard] },
-  { path: 'admin/services', component: AdminServicesComponent, canActivate: [AuthGuard] },
-  { path: 'admin/customers', component: AdminCustomersComponent, canActivate: [AuthGuard] },
+  { path: 'admin/business', component: AdminBusinessComponent, canActivate: [AuthAdminGuard] },
+  { path: 'admin/plans', component: AdminPlansComponent, canActivate: [AuthAdminGuard] },
+  { path: 'admin/services', component: AdminServicesComponent, canActivate: [AuthAdminGuard] },
+  { path: 'admin/customers', component: AdminCustomersComponent, canActivate: [AuthAdminGuard] },
   { path: '',   redirectTo: '/home', pathMatch: 'full' }
 ];
 

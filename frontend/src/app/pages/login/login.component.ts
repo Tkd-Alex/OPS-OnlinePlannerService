@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentState$.subscribe((state) => {
-      this.response = state.response;
+      // this.response = state.response;
       this.isLoading = state.isLoading;
     });
   }

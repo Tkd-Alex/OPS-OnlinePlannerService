@@ -8,7 +8,7 @@ import { Reservation } from '../../../models/reservation';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 
-import { isValidDate, dateToString, makeEqualServicesArray, changeState } from '../../utils';
+import { isValidDate, dateToString, makeEqualServicesArray, changeState, itsGone } from '../../utils';
 // declare var $: any;
 
 import {
@@ -34,6 +34,8 @@ import {
 export class ModalReservationComponent implements OnInit{
 
   isNew = true;
+  isEditable = true;
+  @Input() isAdmin: boolean;
 
   reservationServices: Service[] = [];
   @Input() services: Service[];
@@ -70,6 +72,7 @@ export class ModalReservationComponent implements OnInit{
       };
     }else {
       this.isNew = false;
+      this.isEditable = !itsGone(this.reservation.start);
       this.dateForBootstrap = {
         year: new Date(this.reservation.start).getFullYear(),
         month: new Date(this.reservation.start).getMonth() + 1,

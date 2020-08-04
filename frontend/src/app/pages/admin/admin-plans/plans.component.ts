@@ -55,7 +55,7 @@ import { Service } from '../../../models/service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../../common/modals/reservation/reservation.component';
 
-import { customDateParser, isValidDate, dateToString, changeState } from '../../../common/utils';
+import { customDateParser, isValidDate, dateToString, changeState, itsGone, getDayStartEnd } from '../../../common/utils';
 import { ToastrService } from 'ngx-toastr';
 
 import { CustomEventTitleFormatter } from '../../../common/injectable';
@@ -118,7 +118,6 @@ export class AdminPlansComponent implements OnInit {
   timeTable: any[] = [];
   services: Service[];
 
-  dragToCreateActive = false;
   weekStartsOn = 1;
 
   currentState$: Observable<any>;
@@ -150,11 +149,11 @@ export class AdminPlansComponent implements OnInit {
       if (state.services) { this.services = state.services; }  // Local reference please :)
       if (state.reservations){
         this.events = state.reservations?.map((reservation: Reservation) => {
-            const editable = isBefore(new Date(), new Date(reservation.start)) ? true : false;
+            const editable = !itsGone(reservation.start);
             return {
               start: new Date(reservation.start),
               end: new Date(reservation.end),
-              title: reservation.services.map((service: Service) => service.name).join(', ') +
+              title: this.joinServices(reservation.services) +
                 ' Cliente: ' + reservation.customer.fullName +
                 ( reservation.note ? ' Note: ' + reservation.note : ''),
               color: reservation.isApproved === true ? colors.green : colors.blue,
@@ -165,7 +164,7 @@ export class AdminPlansComponent implements OnInit {
               meta: reservation
             };
         });
-        const values = this.getDayStartEnd(this.view === 'week' ? false : true);
+        const values = getDayStartEnd(this.timeTable, this.viewDate, this.view === 'week' ? false : true);
         this.dayStartHour = values.min;
         this.dayEndHour = values.max;
      }
@@ -192,6 +191,7 @@ export class AdminPlansComponent implements OnInit {
     modalRef.componentInstance.date = date;
     modalRef.componentInstance.services = this.services;
     modalRef.componentInstance.timeTable = this.timeTable;
+    modalRef.componentInstance.isAdmin = true;
     modalRef.result.then((result) => {
       if (result instanceof Reservation) { this.store.dispatch(new InsertReservation(result)); }
     }).catch((error: any) => { console.log(error); });
@@ -202,6 +202,7 @@ export class AdminPlansComponent implements OnInit {
     modalRef.componentInstance.reservation = reservation;
     modalRef.componentInstance.services = this.services;
     modalRef.componentInstance.timeTable = this.timeTable;
+    modalRef.componentInstance.isAdmin = true;
     modalRef.result.then((result) => {
       if (result instanceof Reservation || typeof(result) === 'object') { this.store.dispatch(new UpdateReservation(result)); }
     }).catch((error: any) => { console.log(error); });
@@ -282,22 +283,6 @@ export class AdminPlansComponent implements OnInit {
         });
       });
     });
-  }
-
-  getDayStartEnd(single = true): any {
-    const allhours = [];
-    const timings = single ? [this.timeTable[this.viewDate.getDay() !== 0 ? this.viewDate.getDay() - 1 : 6]] : this.timeTable;
-    timings.forEach((value: any) => {
-      ['morning', 'afternoon'].map((type: string) => {
-        if (value[type].open !== null && value[type].close !== null){
-          allhours.push(parseInt(value[type].open.split(':')[0], 0));
-          allhours.push(parseInt(value[type].close.split(':')[0], 0));
-        }
-      });
-    });
-    const max = Math.max(...allhours);
-    const min = Math.min(...allhours);
-    return { min, max };
   }
 
   handleHourClick(date: Date): void{

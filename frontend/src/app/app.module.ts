@@ -36,7 +36,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
 
-import { AuthGuardService as AuthGuard } from './providers/auth-guard.service';
+import { AuthGuardService as AuthGuard, AuthAdminGuardService as AuthAdminGuard } from './providers/auth-guard.service';
 
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
@@ -100,6 +100,7 @@ registerLocaleData(localeIta);
     ReservationsService,
     CustomersService,
     AuthGuard,
+    AuthAdminGuard,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: LOCALE_ID, useValue: 'it-IT'}

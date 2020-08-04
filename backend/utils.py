@@ -83,3 +83,10 @@ def cleanhtml(raw_html):
     cleanr = re.compile('<.*?>')
     cleantext = re.sub(cleanr, '', raw_html)
     return cleantext
+
+
+def hideinfo(item, current_user):
+    for key in item['customer']:
+        if item['customer']['user_id'] != current_user:
+            item['customer'][key] = "" if type(item['customer'][key]) == str else -1  # "*" * (len(str(item['customer'][key])) // 2)
+    return item

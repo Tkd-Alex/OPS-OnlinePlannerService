@@ -16,6 +16,8 @@ import {
 
 import getUnixTime from 'date-fns/getUnixTime';
 import isWithinRange from 'date-fns/isWithinInterval';
+import isBefore from 'date-fns/isBefore';
+
 import { Reservation } from '../models/reservation';
 import { Service } from '../models/service';
 
@@ -80,4 +82,24 @@ export function changeState(state: string, reservation: Reservation): Reservatio
         break;
     }
     return reservation;
-  }
+}
+
+export function itsGone(date: any): boolean{
+    return isBefore(new Date(), typeof(date) === 'string' ? new Date(date) : date) ? false : true;
+}
+
+export function getDayStartEnd(timeTable: any[], viewDate: Date, single = true): any {
+    const allhours = [];
+    const timings = single ? [timeTable[viewDate.getDay() !== 0 ? viewDate.getDay() - 1 : 6]] : timeTable;
+    timings.forEach((value: any) => {
+      ['morning', 'afternoon'].map((type: string) => {
+        if (value[type].open !== null && value[type].close !== null){
+          allhours.push(parseInt(value[type].open.split(':')[0], 0));
+          allhours.push(parseInt(value[type].close.split(':')[0], 0));
+        }
+      });
+    });
+    const max = Math.max(...allhours);
+    const min = Math.min(...allhours);
+    return { min, max };
+}

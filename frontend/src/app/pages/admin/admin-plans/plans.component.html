@@ -85,17 +85,17 @@
                           <div class="col-md-3 align-self-center text-right">
                             <div class="btn-group" role="group">
                               <button type="button" (click)="_changeState('approved', event)"
-                                [class.active]="event.meta.isApproved === true && event.meta.isReject === false"
+                                [disabled]="event.draggable === false" [class.active]="event.meta.isApproved === true && event.meta.isReject === false"
                                 alt="Approva" class="btn btn-secondary">
                                 <i class="fa fa-thumbs-up"></i>
                               </button>
                               <button type="button" (click)="_changeState('pending', event)"
-                                [class.active]="event.meta.isApproved === false && event.meta.isReject === false"
+                                [disabled]="event.draggable === false" [class.active]="event.meta.isApproved === false && event.meta.isReject === false"
                                 alt="In attesa" class="btn btn-secondary">
                                 <i class="fa fa-pause-circle"></i>
                               </button>
                               <button type="button" (click)="_changeState('reject', event)"
-                                [class.active]="event.meta.isApproved === false && event.meta.isReject === true"
+                                [disabled]="event.draggable === false" [class.active]="event.meta.isApproved === false && event.meta.isReject === true"
                                 alt="Rifiuta" class="btn btn-secondary">
                                 <i class="fa fa-thumbs-down"></i>
                               </button>
