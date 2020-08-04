@@ -10,6 +10,8 @@ import code
 
 import utils
 
+from Mailer import Mailer
+
 from flask import Flask, make_response, request
 from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
@@ -24,6 +26,18 @@ app = Flask(__name__)
 CORS(app)
 
 api = Api(app, prefix="/api/v1")
+
+with open("./settings.json") as f:
+    settings = json.load(f)
+
+SEND_EMAIL = False
+mailer = Mailer(
+    smtp=settings["EMAIL"]["SMTP"],
+    port=settings["EMAIL"]["PORT"],
+    email=settings["EMAIL"]["EMAIL"],
+    password=settings["EMAIL"]["PASSWORD"],
+    html_template="./",
+)
 
 app.config['JWT_SECRET_KEY'] = 'lxVYbvu7ZwFNlt1gkx9K'
 jwt = JWTManager(app)
@@ -332,6 +346,12 @@ class ReservationEndpoint(Resource):
         # if Reservation.get_or_none((Reservation.start >= start) & (Reservation.end >= end)) is not None:
         #     return {'message': 'Sembra esserci un altro appuntamento allo stesso orario, impossibile proseguire'}, 400
 
+        is_admin = utils.is_admin(current_user["user_id"], args["business_id"])
+
+        if is_admin is False:
+            if Reservation.select().where((Reservation.customer == int(current_user["user_id"])) & (Reservation.business == args["business_id"]) & (Reservation.is_reject is False) & (Reservation.is_approved is False)).count() >= 3:
+                return {'message': "Spiacenti, hai troppi appuntamenti in sospeso, impossibile crearne uno nuovo"}, 400
+
         reservation = Reservation.create(
             start=args["start"],
             end=args["end"],
@@ -350,6 +370,19 @@ class ReservationEndpoint(Resource):
         ReservationService.insert_many(data).execute()
 
         reservation = model_to_dict(reservation, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table])
+
+        if is_admin is False:
+            data = {
+                "fullname": reservation["customer"]["fullname"],
+                "start": reservation["start"],
+                "services": ", ".join([item["name"] for item in reservation["reservationservice_set"]])
+            }
+            text = "Il cliente: {fullname}, ha richiesto un appuntamento per il: {start}, richiedendo i seguenti servizi: {services}".format(**data)
+            html = "Il cliente: <b>{fullname}</b>, ha richiesto un appuntamento per il: <b>{start}</b>, richiedendo i seguenti servizi: <b>{services}</b>".format(**data)
+            html = mailer.build_html_mail("Nuova prenotazione!", html)
+            if SEND_EMAIL is True:
+                mailer.send_mail(reservation["business"]["email"], reservation["business"]["name"], text, "Nuova prenotazione!", html=html)
+
         return reservation, 200
 
     @jwt_required
@@ -372,7 +405,7 @@ class ReservationEndpoint(Resource):
             if utils.is_valid_date(start_day, start) is False or utils.is_valid_date(end_day, end) is False:
                 return {'message': "La data inserita non sembra esser valida. Il negozio e' chiuso"}, 400
 
-        is_admin = utils.is_admin(current_user["user_id"], args["business_id"]) is True
+        is_admin = utils.is_admin(current_user["user_id"], args["business_id"])
 
         reservations = []
         for index in range(0, len(args["reservations"])):
@@ -415,15 +448,29 @@ class ReservationEndpoint(Resource):
                 reservation.note = utils.cleanhtml(args["reservations"][index]["note"])
 
                 if is_admin:
-                    if "is_approved" in args["reservations"][index]:
+                    if "is_approved" in args["reservations"][index] and reservation.is_approved != args["reservations"][index]["is_approved"]:
                         reservation.is_approved = args["reservations"][index]["is_approved"]
                         if args["reservations"][index]["is_approved"] is True:
                             reservation.approved_by_id = current_user["user_id"]
 
-                    if "is_reject" in args["reservations"][index]:
+                            data = {"fullname": reservation.customer.fullname, "start": reservation.start}
+                            title = "Evviva, prenotazione confermata!"
+                            text = "Ciao {fullname}, la tua prenotazione per il: {start}, e' stata accettata".format(**data)
+                            html = "Ciao <b>{fullname}</b>, la tua prenotazione per il: <b>{start}</b>, e' stata <b>accettata</b>".format(**data)
+
+                    if "is_reject" in args["reservations"][index] and reservation.is_reject != args["reservations"][index]["is_reject"]:
                         reservation.is_reject = args["reservations"][index]["is_reject"]
                         if args["reservations"][index]["is_reject"] is True:
                             reservation.reject_by_id = current_user["user_id"]
+
+                            data = {"fullname": reservation.customer.fullname, "start": reservation.start}
+                            title = "Ci dispiace, prenotazione rifiutata!"
+                            text = "Caro {fullname}, ci dispiace ma la tua prenotazione per il: {start}, e' stata rifiutata".format(**data)
+                            html = "Caro <b>{fullname}</b>, ci dispiace ma la tua prenotazione per il: <b>{start}</b>, e' stata <b>rifiutata</b>".format(**data)
+
+                    html = mailer.build_html_mail(title, html)
+                    if SEND_EMAIL is True:
+                        mailer.send_mail(reservation.customer.email, reservation.customer.username, text, title, html=html)
 
                 reservation.save()
                 reservations.append(reservation)

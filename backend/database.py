@@ -24,6 +24,7 @@ class Business(BaseModel):
     name = CharField(unique=True)
     description = TextField(null=True)
     address = TextField()
+    email = TextField()
     time_table = TextField()  # JSON string :)
 
 
@@ -60,12 +61,6 @@ class Reservation(BaseModel):
     reject_by = ForeignKeyField(User, null=True, backref='user')
     customer = ForeignKeyField(User, backref='user')
     business = ForeignKeyField(Business, backref='business')
-
-    class Meta:
-        indexes = (
-            # Specify a unique multi-column index on from/to-user.
-            (('reject_by', 'approved_by', 'customer'), True),
-        )
 
 
 class ReservationService(BaseModel):
