@@ -89,22 +89,22 @@
                           <div class="col-md-3 align-self-center text-right">
                             <div class="btn-group" role="group">
                               <button type="button" (click)="_changeState('approved', event)"
-                                [disabled]="event.draggable === false" [class.active]="event.meta.isApproved === true && event.meta.isReject === false"
-                                alt="Approva" class="btn btn-secondary">
+                                [disabled]="event.draggable === false"
+                                alt="Approva" class="btn {{ event.meta.isApproved === true && event.meta.isReject === false ? 'btn-success' : 'btn-secondary' }}">
                                 <i class="fa fa-thumbs-up"></i>
                               </button>
                               <button type="button" (click)="_changeState('pending', event)"
-                                [disabled]="event.draggable === false" [class.active]="event.meta.isApproved === false && event.meta.isReject === false"
-                                alt="In attesa" class="btn btn-secondary">
+                                [disabled]="event.draggable === false"
+                                alt="In attesa" class="btn {{ event.meta.isApproved === false && event.meta.isReject === false ? 'btn-warning' : 'btn-secondary' }}">
                                 <i class="fa fa-pause-circle"></i>
                               </button>
                               <button type="button" (click)="_changeState('reject', event)"
-                                [disabled]="event.draggable === false" [class.active]="event.meta.isApproved === false && event.meta.isReject === true"
-                                alt="Rifiuta" class="btn btn-secondary">
+                                [disabled]="event.draggable === false"
+                                alt="Rifiuta" class="btn {{ event.meta.isApproved === false && event.meta.isReject === true ? 'btn-danger' : 'btn-secondary' }}">
                                 <i class="fa fa-thumbs-down"></i>
                               </button>
                               <button type="button" alt="Modifica" (click)="editReservation(event.meta)"
-                                class="pl-2 btn btn-primary"><i class="fa fa-pencil"></i></button>
+                                class="btn btn-primary"><i class="fa fa-{{ !event.draggable ? 'info-circle' : 'pencil'}}"></i></button>
                             </div>
                           </div>
                         </div>

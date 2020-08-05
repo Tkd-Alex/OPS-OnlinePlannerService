@@ -1,0 +1,27 @@
+.card-img-top {
+    width: 100%;
+    height: 12vw;
+    object-fit: cover;
+    object-position: center;
+}
+
+a.nav-link:link{
+    color: #495057;
+    text-decoration: none;
+}
+a.nav-link:visited{
+    color: #495057;
+    text-decoration: none;
+}
+a.nav-link:hover{
+    color: #495057;
+    text-decoration: none;
+}
+a.nav-link:active{
+    color: #495057;
+    text-decoration: none;
+}
+
+textarea {
+    resize: none;
+}

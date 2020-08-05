@@ -34,6 +34,7 @@ export function buildBusiness(payload: any): Business{
     const business = new Business();
     business.id = payload.business_id;
     business.name = payload.name;
+    business.email = payload.email;
     business.description = payload.description;
     business.address = payload.address;
     business.timeTable = payload.time_table;

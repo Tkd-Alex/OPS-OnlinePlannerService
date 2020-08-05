@@ -109,13 +109,7 @@ export function reducer(state = initialState, action: Action): State {
                 ...state,
                 isLoading: false,
                 response: { error: false, message: null},
-                business: {
-                    id: action.payload.business_id,
-                    name: action.payload.name,
-                    description: action.payload.description,
-                    address: action.payload.address,
-                    timeTable: action.payload.time_table
-                }
+                business: buildBusiness(action.payload)
             };
         }
         case ServicesAction.GET_SUCCESS: {

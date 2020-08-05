@@ -24,6 +24,8 @@ export class AdminBusinessComponent implements OnInit {
   business: Business;
   timeTable: any[] = [];
 
+  activeTab = 1;
+
   constructor(
     private store: Store<AppState>,
     private cdr: ChangeDetectorRef
@@ -41,7 +43,7 @@ export class AdminBusinessComponent implements OnInit {
     });
   }
 
-  saveBusiness(): any{
+  save(): any{
     this.store.dispatch(new UpdateBusiness({ ... this.business, timeTable: this.timeTable }));
   }
 
