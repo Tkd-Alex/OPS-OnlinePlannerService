@@ -32,7 +32,7 @@
                     <div *ngIf="isLoading === false && events !== []; else loading">
                       <div [ngSwitch]="view">
 
-                        <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events"
+                        <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events" [weekStartsOn]="weekStartsOn"
                           [activeDayIsOpen]="activeDayIsOpen" (dayClicked)="dayClicked($event.day)"
                           (eventClicked)="handleEvent('Clicked', $event.event)"
                           (eventTimesChanged)="eventTimesChanged($event)">
@@ -60,6 +60,10 @@
                         </mwl-calendar-day-view>
 
                       </div>
+                    </div>
+                    <div *ngIf="isLoading === false && todayIsClose === true" class="text-center pt-4" >
+                      <h1>Oggi il negozio e' chiuso</h1>
+                      <img width="40%" src="../../../assets/img/we-are-closed.gif">
                     </div>
                   </div>
                 </div>
@@ -113,6 +117,7 @@
           </ul>
 
           <div [ngbNavOutlet]="nav" class="mt-2"></div>
+          <br><br><br>
 
         </div>
       </div>

@@ -116,6 +116,7 @@ export class AdminPlansComponent implements OnInit {
   dayEndHour = 22;
 
   timeTable: any[] = [];
+  todayIsClose = false;
   services: Service[];
 
   weekStartsOn = 1;
@@ -157,16 +158,14 @@ export class AdminPlansComponent implements OnInit {
                 ' Cliente: ' + reservation.customer.fullName +
                 ( reservation.note ? ' Note: ' + reservation.note : ''),
               color: reservation.isApproved === true ? colors.green : colors.blue,
-              actions: this.actions,
+              actions: [],
               allDay: false,
               resizable: { beforeStart: editable, afterEnd: editable },
               draggable: editable,
               meta: reservation
             };
         });
-        const values = getDayStartEnd(this.timeTable, this.viewDate, this.view === 'week' ? false : true);
-        this.dayStartHour = values.min;
-        this.dayEndHour = values.max;
+        this.recalculateStoreOpenClose(this.view === 'week' ? false : true);
      }
     });
   }
@@ -184,6 +183,14 @@ export class AdminPlansComponent implements OnInit {
       this.viewDate = date;
     }
     if (this.activeDayIsOpen === false){ this.view = CalendarView.Day; }
+    else { this.recalculateStoreOpenClose(true); }
+  }
+
+  recalculateStoreOpenClose(single = true): void{
+    const values = getDayStartEnd(this.timeTable, this.viewDate, single);
+    this.dayStartHour = values.min;
+    this.dayEndHour = values.max;
+    this.todayIsClose = this.dayStartHour === Infinity && this.dayEndHour === -Infinity && this.view === 'day' ? true : false;
   }
 
   newReservation(date: Date): void {

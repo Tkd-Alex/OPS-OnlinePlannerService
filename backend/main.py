@@ -355,7 +355,7 @@ class ReservationEndpoint(Resource):
         reservation = Reservation.create(
             start=args["start"],
             end=args["end"],
-            note=utils.cleanhtml(args["note"]),
+            note=utils.cleanhtml(args["note"]) if "note" in args else "",
             customer=int(current_user["user_id"]),
             business=int(args["business_id"])
         )
@@ -445,7 +445,7 @@ class ReservationEndpoint(Resource):
 
                 reservation.start = args["reservations"][index]["start"]
                 reservation.end = args["reservations"][index]["end"]
-                reservation.note = utils.cleanhtml(args["reservations"][index]["note"])
+                reservation.note = utils.cleanhtml(args["reservations"][index]["note"]) if "note" in args["reservations"][index] else ""
 
                 if is_admin:
                     if "is_approved" in args["reservations"][index] and reservation.is_approved != args["reservations"][index]["is_approved"]:
@@ -458,6 +458,10 @@ class ReservationEndpoint(Resource):
                             text = "Ciao {fullname}, la tua prenotazione per il: {start}, e' stata accettata".format(**data)
                             html = "Ciao <b>{fullname}</b>, la tua prenotazione per il: <b>{start}</b>, e' stata <b>accettata</b>".format(**data)
 
+                            html = mailer.build_html_mail(title, html)
+                            if SEND_EMAIL is True:
+                                mailer.send_mail(reservation.customer.email, reservation.customer.username, text, title, html=html)
+
                     if "is_reject" in args["reservations"][index] and reservation.is_reject != args["reservations"][index]["is_reject"]:
                         reservation.is_reject = args["reservations"][index]["is_reject"]
                         if args["reservations"][index]["is_reject"] is True:
@@ -468,9 +472,9 @@ class ReservationEndpoint(Resource):
                             text = "Caro {fullname}, ci dispiace ma la tua prenotazione per il: {start}, e' stata rifiutata".format(**data)
                             html = "Caro <b>{fullname}</b>, ci dispiace ma la tua prenotazione per il: <b>{start}</b>, e' stata <b>rifiutata</b>".format(**data)
 
-                    html = mailer.build_html_mail(title, html)
-                    if SEND_EMAIL is True:
-                        mailer.send_mail(reservation.customer.email, reservation.customer.username, text, title, html=html)
+                            html = mailer.build_html_mail(title, html)
+                            if SEND_EMAIL is True:
+                                mailer.send_mail(reservation.customer.email, reservation.customer.username, text, title, html=html)
 
                 reservation.save()
                 reservations.append(reservation)

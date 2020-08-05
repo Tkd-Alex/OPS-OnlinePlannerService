@@ -82,6 +82,7 @@ export class DashboardComponent implements OnInit {
   dayEndHour = 22;
 
   timeTable: any[] = [];
+  todayIsClose = false;
   services: Service[];
 
   weekStartsOn = 1;
@@ -146,10 +147,8 @@ export class DashboardComponent implements OnInit {
               meta: reservation
             };
         });
-        const values = getDayStartEnd(this.timeTable, this.viewDate, this.view === 'week' ? false : true);
-        this.dayStartHour = values.min;
-        this.dayEndHour = values.max;
-     }
+        this.recalculateStoreOpenClose(this.view === 'week' ? false : true);
+      }
     });
   }
 
@@ -157,7 +156,18 @@ export class DashboardComponent implements OnInit {
     return services.map((service: Service) => service.name).join(', ');
   }
 
-  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void { this.view = CalendarView.Day; }
+  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+    this.viewDate = date;
+    this.view = CalendarView.Day;
+    this.recalculateStoreOpenClose(true);
+  }
+
+  recalculateStoreOpenClose(single = true): void{
+    const values = getDayStartEnd(this.timeTable, this.viewDate, single);
+    this.dayStartHour = values.min;
+    this.dayEndHour = values.max;
+    this.todayIsClose = this.dayStartHour === Infinity && this.dayEndHour === -Infinity && this.view === 'day' ? true : false;
+  }
 
   newReservation(date: Date): void {
     const modalRef = this.modalService.open(ModalReservationComponent, { size: 'md', centered: false });

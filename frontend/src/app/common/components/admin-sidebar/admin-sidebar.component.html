@@ -1,15 +1,15 @@
-<button type="button" [routerLink]="'/admin/business'" class="btn btn-block btn-primary text-left">
+<button type="button" [routerLink]="'/admin/business'" [class.active]="router.url === '/admin/business'"  class="btn btn-block btn-outline-primary border-0 border-bottom-1 text-left">
     <i class="mr-1 fa fa-building"></i> Negozio
 </button>
 
-<button type="button" [routerLink]="'/admin/services'" class="btn btn-block btn-primary text-left">
+<button type="button" [routerLink]="'/admin/services'" [class.active]="router.url === '/admin/services'"  class="btn btn-block btn-outline-primary border-0 border-bottom-1 text-left">
     <i class="mr-1 fa fa-exclamation-circle"></i> Servizi
 </button>
 
-<button type="button" [routerLink]="'/admin/plans'" class="btn btn-block btn-primary text-left">
+<button type="button" [routerLink]="'/admin/plans'" [class.active]="router.url === '/admin/plans'"  class="btn btn-block btn-outline-primary border-0 border-bottom-1 text-left">
     <i class="mr-1 fa fa-calendar"></i> Appuntamenti
 </button>
 
-<button type="button" [routerLink]="'/admin/customers'" class="btn btn-block btn-primary text-left">
+<button type="button" [routerLink]="'/admin/customers'" [class.active]="router.url === '/admin/customers'"  class="btn btn-block btn-outline-primary border-0 border-bottom-1 text-left">
     <i class="mr-1 fa fa-users"></i> Clienti
 </button>

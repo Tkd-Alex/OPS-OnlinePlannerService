@@ -24,6 +24,7 @@ export class AdminServicesComponent implements OnInit {
 
   currentState$: Observable<any>;
   services: Service[];
+  selected: Service = new Service();
   dispose: any;
 
   constructor(
@@ -46,27 +47,28 @@ export class AdminServicesComponent implements OnInit {
     });
   }
 
-  saveService(index: number): any{
-    if (this.services[index].id !== null) { this.store.dispatch(new UpdateService(this.services[index])); }
-    else { this.store.dispatch(new InsertService(this.services[index])); }
+  selectService(service: Service): void{
+    this.selected = service;
   }
 
-  deleteService(index: number): any{
-    if (this.services[index].id !== null) { this.store.dispatch(new DeleteService(this.services[index])); }
-    else { this.services.splice(index, 1); }
+  saveService(): void{
+    if (this.selected.id !== null) { this.store.dispatch(new UpdateService(this.selected)); }
+    else { this.store.dispatch(new InsertService(this.selected)); }
   }
 
-  newService(): any{
-    if (this.services.length === 0 || this.services[0].id !== null){
-      const service: Service = new Service();
-      service.id = null;
-      service.name = '';
-      service.price = 0.00;
-      service.durationM = 0;
-      service.description = '';
-      // this.services.push(service);
-      this.services = [service].concat(this.services);
-    }
+  deleteService(): void{
+    if (this.selected.id !== null) { this.store.dispatch(new DeleteService(this.selected)); }
+    // else { this.services.splice(index, 1); }
+  }
+
+  newService(): void{
+    const service: Service = new Service();
+    service.id = null;
+    service.name = '';
+    service.price = 0.00;
+    service.durationM = 0;
+    service.description = '';
+    this.selected = service;
   }
 
 }

@@ -3,15 +3,15 @@
     <div class="btn-group">
       <div class="btn btn-primary" mwlCalendarPreviousView [view]="view" [(viewDate)]="viewDate"
         (viewDateChange)="viewDateChange.next(viewDate)">
-        Precedente
+        <i class="fa fa-chevron-left"></i>
       </div>
-      <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate"
+      <div class="btn btn-primary" mwlCalendarToday [(viewDate)]="viewDate"
         (viewDateChange)="viewDateChange.next(viewDate)">
         Oggi
       </div>
       <div class="btn btn-primary" mwlCalendarNextView [view]="view" [(viewDate)]="viewDate"
         (viewDateChange)="viewDateChange.next(viewDate)">
-        Successivo
+        <i class="fa fa-chevron-right"></i>
       </div>
     </div>
   </div>
