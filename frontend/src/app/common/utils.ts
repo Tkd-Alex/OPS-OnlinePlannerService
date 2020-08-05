@@ -7,6 +7,7 @@ import {
     endOfMonth,
     isSameDay,
     isSameMonth,
+    isSameWeek,
     addHours,
     endOfWeek,
     addMinutes,
@@ -20,6 +21,7 @@ import isBefore from 'date-fns/isBefore';
 
 import { Reservation } from '../models/reservation';
 import { Service } from '../models/service';
+import { CalendarEvent } from 'angular-calendar';
 
 export function customDateParser(date: any, time: string): any {
     const hours = parseInt(time.split(':')[0], 0);
@@ -102,4 +104,11 @@ export function getDayStartEnd(timeTable: any[], viewDate: Date, single = true):
     const max = Math.max(...allhours);
     const min = Math.min(...allhours);
     return { min, max };
+}
+
+export function showItemInList(view: any, viewDate: Date, start: any): boolean{
+    if (view === 'month' && isSameMonth(typeof(start) === 'string' ? new Date(start) : start, viewDate ) ) { return true; }
+    if (view === 'week' && isSameWeek(typeof(start) === 'string' ? new Date(start) : start, viewDate )) { return true; }
+    if (view === 'day' && isSameDay(typeof(start) === 'string' ? new Date(start) : start, viewDate ) ) { return true; }
+    return false;
 }

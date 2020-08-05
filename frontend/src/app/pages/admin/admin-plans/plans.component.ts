@@ -55,7 +55,7 @@ import { Service } from '../../../models/service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../../common/modals/reservation/reservation.component';
 
-import { customDateParser, isValidDate, dateToString, changeState, itsGone, getDayStartEnd } from '../../../common/utils';
+import { customDateParser, isValidDate, dateToString, changeState, itsGone, getDayStartEnd, showItemInList } from '../../../common/utils';
 import { ToastrService } from 'ngx-toastr';
 
 import { CustomEventTitleFormatter } from '../../../common/injectable';
@@ -165,6 +165,7 @@ export class AdminPlansComponent implements OnInit {
               meta: reservation
             };
         });
+        if (this.activeTab === 2) { this.events = this.events.filter(event => showItemInList(this.view, this.viewDate, event.start)); }
         this.recalculateStoreOpenClose(this.view === 'week' ? false : true);
      }
     });
@@ -182,8 +183,10 @@ export class AdminPlansComponent implements OnInit {
       ) { this.activeDayIsOpen = false; } else { this.activeDayIsOpen = true; }
       this.viewDate = date;
     }
-    if (this.activeDayIsOpen === false){ this.view = CalendarView.Day; }
-    else { this.recalculateStoreOpenClose(true); }
+    if (this.activeDayIsOpen === false){
+      this.view = CalendarView.Day;
+      this.recalculateStoreOpenClose(true);
+    }
   }
 
   recalculateStoreOpenClose(single = true): void{
@@ -213,13 +216,6 @@ export class AdminPlansComponent implements OnInit {
     modalRef.result.then((result) => {
       if (result instanceof Reservation || typeof(result) === 'object') { this.store.dispatch(new UpdateReservation(result)); }
     }).catch((error: any) => { console.log(error); });
-  }
-
-  showItemInList(event: CalendarEvent): boolean{
-    if (this.view === 'month' && isSameMonth(event.start, this.viewDate) ) { return true; }
-    if (this.view === 'week' && isSameWeek(event.start, this.viewDate)) { return true; }
-    if (this.view === 'day' && isSameDay(event.start, this.viewDate) ) { return true; }
-    return false;
   }
 
   _changeState(state: string, event: CalendarEvent): void{

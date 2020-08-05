@@ -17,6 +17,10 @@
         </div>
       </div>
 
+      <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()" (viewChange)="fetchReservation()"></app-calendar-header>
+      <hr>
+
+
       <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
         <li [ngbNavItem]="1" (click)="fetchReservation()">
           <a ngbNavLink>Calendario</a>
@@ -24,11 +28,6 @@
 
             <div class="row">
               <div class="col-md-12">
-
-                <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()"
-                (viewChange)="fetchReservation()"></app-calendar-header>
-              <hr>
-
               <div *ngIf="isLoading === false && events !== []; else loading">
                 <div [ngSwitch]="view">
 
@@ -69,13 +68,13 @@
             </div>
           </ng-template>
         </li>
-        <li [ngbNavItem]="2" (click)="fetchUserReservation()">
+        <li [ngbNavItem]="2" (click)="fetchReservation()">
           <a ngbNavLink>I miei appuntamenti</a>
           <ng-template ngbNavContent>
             <div class="row">
               <div class="col-md-12">
-                <div *ngIf="(currentState$ | async).isLoading == false && (currentState$ | async).reservations" class="scrollabe-div">
-                  <app-user-reversations-table [reservations]="(currentState$ | async).reservations"></app-user-reversations-table>
+                <div *ngIf="(currentState$ | async).isLoading == false && reservations" class="scrollabe-div">
+                  <app-user-reversations-table [reservations]="reservations"></app-user-reversations-table>
                 </div>
               </div>
             </div>

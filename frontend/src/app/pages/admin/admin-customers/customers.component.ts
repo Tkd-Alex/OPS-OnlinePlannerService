@@ -10,6 +10,10 @@ import { Get as GetReservations } from '../../../store/actions/reservations.acti
 
 import { User } from 'src/app/models/user';
 import { Reservation } from 'src/app/models/reservation';
+import { CalendarView } from 'angular-calendar';
+import { showItemInList } from '../../../common/utils';
+
+import getUnixTime from 'date-fns/getUnixTime';
 
 @Component({
   selector: 'app-admin-customers',
@@ -21,6 +25,9 @@ export class AdminCustomersComponent implements OnInit {
   currentState$: Observable<any>;
   customers: User[];
   dispose: any;
+
+  view: CalendarView = CalendarView.Month;
+  viewDate: Date = new Date();
 
   isLoading = false;
   query = '';
@@ -44,23 +51,33 @@ export class AdminCustomersComponent implements OnInit {
         else if (state.business !== null && !state.customers ) { this.store.dispatch(new GetCustomers(this.query)); }
         else {
           if (state.customers){ this.customers = [ ... state.customers ]; }
-          if (state.reservations){ this.reservations = [ ... state.reservations ]; }
+          if (state.reservations){
+            this.reservations = [ ... state.reservations.filter(
+              (event: Reservation) => showItemInList(this.view, this.viewDate, new Date(event.start))
+            )];
+          }
         }
       }
     });
   }
 
-  handleSearch(event: any): void {
-    if ((event.keyCode === 8 && !this.query) ||
-        (event.keyCode >= 48 && event.keyCode <= 57) ||
-        (event.keyCode >= 65 && event.keyCode <= 90)){
-      if (this.isLoading === false){ this.store.dispatch(new GetCustomers(this.query)); }
+
+  search(): void {
+    if (this.isLoading === false){ // && this.query){
+      this.selected = null;
+      this.reservations = [];
+      this.store.dispatch(new GetCustomers(this.query));
     }
   }
 
   select(user: User): void {
     this.selected = user;
-    this.store.dispatch(new GetReservations({ customerId: this.selected.id }));
+    this.fetchReservation();
+  }
+
+  fetchReservation(): void{
+    const timestamp = getUnixTime(new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1));
+    this.store.dispatch(new GetReservations({ timestamp, customerId: this.selected.id }));
   }
 
   update(values: any): void{

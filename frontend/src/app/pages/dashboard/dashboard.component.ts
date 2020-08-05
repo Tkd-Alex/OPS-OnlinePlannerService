@@ -55,7 +55,7 @@ import { Service } from '../../models/service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../common/modals/reservation/reservation.component';
 
-import { customDateParser, isValidDate, dateToString, changeState, itsGone, getDayStartEnd } from '../../common/utils';
+import { customDateParser, isValidDate, dateToString, changeState, itsGone, getDayStartEnd, showItemInList } from '../../common/utils';
 import { ToastrService } from 'ngx-toastr';
 
 import { CustomEventTitleFormatter } from '../../common/injectable';
@@ -77,6 +77,7 @@ export class DashboardComponent implements OnInit {
   clickedColumn: number;
 
   events: CalendarEvent[] = [];
+  reservations: Reservation[] = [];
 
   dayStartHour = 6;
   dayEndHour = 22;
@@ -147,6 +148,9 @@ export class DashboardComponent implements OnInit {
               meta: reservation
             };
         });
+        this.reservations = [ ... state.reservations.filter(
+          (event: Reservation) => this.activeTab !== 2 ? event : showItemInList(this.view, this.viewDate, new Date(event.start))
+        )];
         this.recalculateStoreOpenClose(this.view === 'week' ? false : true);
       }
     });
@@ -220,11 +224,7 @@ export class DashboardComponent implements OnInit {
 
   fetchReservation(): void{
     const timestamp = getUnixTime(new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1));
-    this.store.dispatch(new GetReservations({timestamp}));
-  }
-
-  fetchUserReservation(): void{
-    this.store.dispatch(new GetReservations({ customerId: this.currentUser.id }));
+    this.store.dispatch(new GetReservations( this.activeTab !== 2 ? {timestamp} : { timestamp, customerId: this.currentUser.id }));
   }
 
   disableDayHours(renderEvent: CalendarWeekViewBeforeRenderEvent): void {

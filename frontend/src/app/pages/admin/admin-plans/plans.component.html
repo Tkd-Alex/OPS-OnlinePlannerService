@@ -63,7 +63,7 @@
                     </div>
                     <div *ngIf="isLoading === false && todayIsClose === true" class="text-center pt-4" >
                       <h1>Oggi il negozio e' chiuso</h1>
-                      <img width="40%" src="../../../assets/img/we-are-closed.gif">
+                      <img width="45%" src="../../../assets/img/we-are-closed.gif">
                     </div>
                   </div>
                 </div>
@@ -76,7 +76,7 @@
                   <div class="col-md-12">
                     <div *ngIf="isLoading === false && events !== []; else loading">
                       <div *ngFor="let event of events; index as i">
-                        <div *ngIf="showItemInList(event)" class="row border-bottom py-2">
+                        <div class="row border-bottom py-2">
                           <div class="col-md-9">
                             <p class="my-0 py-1"><b>Inizio:</b> {{ event.start | date:'medium' }} - <b>Fine:</b>
                               {{ event.end | date:'medium' }}</p>
@@ -109,6 +109,10 @@
                           </div>
                         </div>
                       </div>
+                    </div>
+                    <div *ngIf="isLoading === false && events?.length === 0" class="text-center pt-4" >
+                      <h1>Nessun appuntamento</h1>
+                      <img width="45%" src="../../../assets/img/confused-travolta.gif">
                     </div>
                   </div>
                 </div>

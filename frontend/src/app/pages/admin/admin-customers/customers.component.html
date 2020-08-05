@@ -9,8 +9,17 @@
 
           <div class="row">
             <div class="col-md-12">
-              <input (keyup)="handleSearch($event)" [(ngModel)]="query" type="text" class="form-control" name="query"
-                placeholder="Cerca ...">
+
+              <div class="card mb-2">
+                <img class="card-img-top" src="../../../../assets/img/people-unsplash.jpg" alt="The customerssszz">
+                <div class="input-group">
+                  <input [(ngModel)]="query" type="text" class="form-control" name="query" placeholder="Cerca ...">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" (click)="search()" [disabled]="isLoading === true" type="button"><i class="fa fa-search" aria-hidden="true"></i> Cerca</button>
+                  </div>
+                </div>
+              </div>
+
               <br>
 
               <div *ngIf="customers" class="scrollabe-div">
@@ -37,7 +46,7 @@
             </div>
           </div>
 
-          <div class="row mt-5" *ngIf="selected">
+          <div class="row mt-1" *ngIf="selected">
             <div class="col-md-12">
               <h3>{{ selected.fullName }}</h3>
             </div>
@@ -73,8 +82,10 @@
 
           <div class="row mt-5">
             <div class="col-md-12">
-              <div *ngIf="(currentState$ | async).isLoading == false && reservations && selected" class="scrollabe-div">
-                <app-user-reversations-table [reservations]="reservations"></app-user-reversations-table>
+              <div *ngIf="(currentState$ | async).isLoading == false && reservations && selected">
+                <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()" (viewChange)="fetchReservation()"></app-calendar-header>
+                <hr>
+                <div class="scrollabe-div"><app-user-reversations-table [reservations]="reservations"></app-user-reversations-table></div>
               </div>
             </div>
           </div>
