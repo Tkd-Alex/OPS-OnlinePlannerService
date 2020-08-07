@@ -29,4 +29,10 @@ export class AuthService {
     const url = `${Constant.API_ENDPOINT}/user`;
     return this.http.get<User>(url);
   }
+
+  logout(): Observable<User> {
+    const url = `${Constant.API_ENDPOINT}/user`;
+    return this.http.delete<User>(url);
+  }
+
 }

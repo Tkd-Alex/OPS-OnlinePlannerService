@@ -34,10 +34,9 @@ export class AdminBusinessComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(new GetBusiness());
+    if (!this.business) { this.store.dispatch(new GetBusiness()) };
 
     this.currentState$.subscribe((state) => {
-      // Create a mutable copy , isn't the correct way to use immutable state of ngrx - but, It's ok for the moment
       this.business = { ... state.business};
       if (this.business.timeTable){ this.timeTable = JSON.parse(JSON.stringify(this.business.timeTable)) ; }
     });

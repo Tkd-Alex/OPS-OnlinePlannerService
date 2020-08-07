@@ -34,7 +34,7 @@ export class ErrorInterceptor implements HttpInterceptor {
       .pipe(
         catchError((response: HttpErrorResponse) => {
           if (response instanceof HttpErrorResponse){
-            if (response.status === 403) {
+            if (response.status === 403 || response.status === 422) {
               localStorage.removeItem('token');
               this.router.navigateByUrl('/login');
             }

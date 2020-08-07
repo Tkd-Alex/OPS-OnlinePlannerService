@@ -23,7 +23,7 @@ import getUnixTime from 'date-fns/getUnixTime';
 export class AdminCustomersComponent implements OnInit {
 
   currentState$: Observable<any>;
-  customers: User[];
+  customers: User[] = [];
   dispose: any;
 
   view: CalendarView = CalendarView.Month;
@@ -46,9 +46,13 @@ export class AdminCustomersComponent implements OnInit {
     this.dispose = this.currentState$.subscribe((state) => {
       this.isLoading = state.isLoading;
       if (state.isLoading === false){
-        if (state.response?.error && this.dispose) { this.dispose.unsubscribe(); }
-        else if (state.business === null) { this.store.dispatch(new GetBusiness()); }
-        else if (state.business !== null && !state.customers ) { this.store.dispatch(new GetCustomers(this.query)); }
+        if (state.response?.error === true && this.dispose) { this.dispose.unsubscribe(); }
+        else if (this.customers.length === 0 && state.business === null) {
+          this.store.dispatch(new GetBusiness());
+        }
+        else if (this.customers.length === 0 && state.business !== null && !state.customers ) {
+          this.store.dispatch(new GetCustomers(this.query));
+        }
         else {
           if (state.customers){ this.customers = [ ... state.customers ]; }
           if (state.reservations){

@@ -8,6 +8,7 @@ export const UPDATE_START        = '[Business] Update Start';
 export const UPDATE_SUCCESS      = '[Business] Update Success';
 export const UPDATE_FAILED       = '[Business] Update Failed';
 
+export const RESET               = '[*] Reset';
 
 export class Get implements Action {
     readonly type = GET_START;
@@ -39,6 +40,11 @@ export class UpdateFailed implements Action {
     constructor(public payload: any) {}
 }
 
+export class Reset implements Action {
+    readonly type = RESET;
+    constructor() {}
+}
+
 export type All =
     | Get
     | GetSuccess
@@ -46,4 +52,6 @@ export type All =
 
     | Update
     | UpdateSuccess
-    | UpdateFailed;
+    | UpdateFailed
+
+    | Reset;

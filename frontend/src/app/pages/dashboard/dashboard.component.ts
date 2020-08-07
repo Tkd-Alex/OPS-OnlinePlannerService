@@ -60,7 +60,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { CustomEventTitleFormatter } from '../../common/injectable';
 import { User } from 'src/app/models/user';
-import { Status } from '../../store/actions/auth.actions';
+import { Status, Logout } from '../../store/actions/auth.actions';
 
 @Component({
   selector: 'app-dashboard',
@@ -84,7 +84,7 @@ export class DashboardComponent implements OnInit {
 
   timeTable: any[] = [];
   todayIsClose = false;
-  services: Service[];
+  services: Service[] = [];
 
   weekStartsOn = 1;
 
@@ -116,10 +116,12 @@ export class DashboardComponent implements OnInit {
     this.dispose = this.currentState$.subscribe((state) => {
       this.isLoading = state.isLoading;
       if (state.isLoading === false){
-        if (state.response?.error && this.dispose) { this.dispose.unsubscribe(); }
-        else if (state.business === null) { this.store.dispatch(new GetBusiness()); }
-        else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
-        else if (state.business !== null && !state.reservations ) { this.store.dispatch(new GetReservations({})); }
+        if (state.response?.error === true && this.dispose) { this.dispose.unsubscribe(); }
+        else if (this.timeTable.length === 0 && state.business === null) { this.store.dispatch(new GetBusiness()); }
+        else if (this.services.length === 0 && state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
+        else if (this.events.length === 0 && state.business !== null && !state.reservations ) {
+          this.store.dispatch(new GetReservations({}));
+        }
       }
 
       if (state.business?.timeTable){ this.timeTable = state.business.timeTable ; }  // Local reference please :)
@@ -268,6 +270,10 @@ export class DashboardComponent implements OnInit {
 
   beforeDayViewRender(renderEvent: CalendarDayViewBeforeRenderEvent): void {
     this.disableDayHours(renderEvent);
+  }
+
+  logout(): void {
+    this.store.dispatch(new Logout());
   }
 
 }

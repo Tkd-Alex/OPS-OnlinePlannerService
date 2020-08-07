@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Action } from '@ngrx/store';
+import { Action, Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { Actions, Effect, createEffect, ofType } from '@ngrx/effects';
 
@@ -8,7 +8,9 @@ import { map, filter, scan, mergeMap, switchMap, tap, catchError } from 'rxjs/op
 
 import { AuthService } from '../../providers/http-api/auth.service';
 
+import { Reset } from '../actions/business.actions';
 import * as AuthActions from '../actions/auth.actions';
+import { AppState } from '../app.state';
 
 
 @Injectable()
@@ -18,6 +20,7 @@ export class AuthEffects {
         private actions$: Actions,
         private authService: AuthService,
         private router: Router,
+        private store: Store<AppState>
     ) {}
 
     @Effect()
@@ -55,12 +58,33 @@ export class AuthEffects {
         )
     );
 
+    @Effect()
+    Logout: Observable<any> = this.actions$.pipe(
+        ofType(AuthActions.LOGOUT_START),
+        switchMap((action: AuthActions.Logout) => {
+            return this.authService.logout().pipe(
+                map( (result: any) => new AuthActions.LogoutSuccess(result) ),
+                catchError( error => of( new AuthActions.LogoutFailed(error) ) )
+            );
+        })
+    );
+
     @Effect({ dispatch: false })
     LoginSuccess: Observable<any> = this.actions$.pipe(
         ofType(AuthActions.LOGIN_SUCCESS),
         tap((payload) => {
             localStorage.setItem('token', payload.payload.token);
             this.router.navigateByUrl(!payload.payload.user.isAdmin ? '/dashboard' : '/admin');
+        })
+    );
+
+    @Effect({ dispatch: false })
+    LogoutSuccess: Observable<any> = this.actions$.pipe(
+        ofType(AuthActions.LOGOUT_SUCCESS),
+        tap((payload) => {
+            this.store.dispatch(new Reset());
+            localStorage.clear();
+            this.router.navigateByUrl('/home');
         })
     );
 

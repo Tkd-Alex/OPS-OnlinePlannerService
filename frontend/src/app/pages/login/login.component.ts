@@ -11,10 +11,7 @@ import { Observable } from 'rxjs';
 })
 export class LoginComponent implements OnInit {
 
-  form: any = {
-    username: '',
-    password: '',
-  };
+  form: any = { username: '', password: '' };
 
   currentState$: Observable<any>;
   response: any | null;
@@ -28,13 +25,13 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentState$.subscribe((state) => {
-      // this.response = state.response;
       this.isLoading = state.isLoading;
     });
   }
 
   onSubmit(): void {
     this.store.dispatch(new Login(this.form));
+    this.form = { username: '', password: '' };
   }
 
 }

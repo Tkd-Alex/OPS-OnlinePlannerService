@@ -117,7 +117,7 @@ export class AdminPlansComponent implements OnInit {
 
   timeTable: any[] = [];
   todayIsClose = false;
-  services: Service[];
+  services: Service[] = [];
 
   weekStartsOn = 1;
 
@@ -140,10 +140,12 @@ export class AdminPlansComponent implements OnInit {
     this.dispose = this.currentState$.subscribe((state) => {
       this.isLoading = state.isLoading;
       if (state.isLoading === false){
-        if (state.response?.error && this.dispose) { this.dispose.unsubscribe(); }
-        else if (state.business === null) { this.store.dispatch(new GetBusiness()); }
-        else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
-        else if (state.business !== null && !state.reservations ) { this.store.dispatch(new GetReservations({})); }
+        if (state.response?.error === true && this.dispose) { this.dispose.unsubscribe(); }
+        else if (this.timeTable.length === 0 && state.business === null) { this.store.dispatch(new GetBusiness()); }
+        else if (this.services.length === 0 && state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
+        else if (this.events.length === 0 && state.business !== null && !state.reservations ) {
+          this.store.dispatch(new GetReservations({}));
+        }
       }
 
       if (state.business?.timeTable){ this.timeTable = state.business.timeTable ; }  // Local reference please :)

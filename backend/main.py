@@ -15,7 +15,11 @@ from Mailer import Mailer
 from flask import Flask, make_response, request
 from flask_cors import CORS
 from flask_restful import Resource, Api, reqparse
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import (
+    JWTManager, jwt_required, get_jwt_identity,
+    create_access_token, get_raw_jwt
+)
+
 
 from werkzeug.security import safe_str_cmp
 
@@ -40,7 +44,11 @@ mailer = Mailer(
 )
 
 app.config['JWT_SECRET_KEY'] = 'lxVYbvu7ZwFNlt1gkx9K'
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+
 jwt = JWTManager(app)
+blacklist = set()
 
 SALT = b'$2b$10$UikBBmN7A0dv7WFcxD.8uO'
 
@@ -60,6 +68,12 @@ def output_json(data, status_code, headers=None):
 @jwt.unauthorized_loader
 def unauthorized_loader(expired_token):
     return {'message': 'Missing Authorization Header'}, 403
+
+
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    jti = decrypted_token['jti']
+    return jti in blacklist
 
 
 class UserRegistration(Resource):
@@ -140,6 +154,20 @@ class UserEndpoint(Resource):
         if user is not None:
             return model_to_dict(user, recurse=False, backrefs=False, exclude=[User.password]), 200
         return {}, 404
+
+    """
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+        user = User.get_or_none(User.username == current_user["username"] and User.user_id == int(current_user["user_id"]))
+    """
+
+    @jwt_required
+    def delete(self):
+        jti = get_raw_jwt()['jti']
+        blacklist.add(jti)
+        return {'message': 'Logout completato'}, 200
 
 
 class BusinessEndpoint(Resource):

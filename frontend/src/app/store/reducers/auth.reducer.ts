@@ -21,6 +21,7 @@ export const initialState: State = {
 
 export function reducer(state = initialState, action: AuthAction.All): State {
     switch (action.type) {
+        case AuthAction.LOGOUT_START:
         case AuthAction.STATUS_START:
         case AuthAction.REGISTER_START:
         case AuthAction.LOGIN_START: {
@@ -61,6 +62,11 @@ export function reducer(state = initialState, action: AuthAction.All): State {
                 response: { error: false, message: null}
             };
         }
+        case AuthAction.LOGOUT_SUCCESS: {
+            return initialState;
+        }
+        case AuthAction.LOGOUT_FAILED:
+        case AuthAction.STATUS_FAILED:
         case AuthAction.REGISTER_FAILED:
         case AuthAction.LOGIN_FAILED: {
             return {

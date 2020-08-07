@@ -23,7 +23,7 @@ import { Service } from '../../../models/service';
 export class AdminServicesComponent implements OnInit {
 
   currentState$: Observable<any>;
-  services: Service[];
+  services: Service[] = [];
   selected: Service = new Service();
   dispose: any;
 
@@ -36,9 +36,9 @@ export class AdminServicesComponent implements OnInit {
   ngOnInit(): void {
     this.dispose = this.currentState$.subscribe((state) => {
       if (state.isLoading === false){
-        if (state.response?.error && this.dispose) { this.dispose.unsubscribe(); }
-        else if (state.business === null) { this.store.dispatch(new GetBusiness()); }
-        else if (state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
+        if (state.response?.error === true && this.dispose) { this.dispose.unsubscribe(); }
+        else if (this.services.length === 0 && state.business === null) { this.store.dispatch(new GetBusiness()); }
+        else if (this.services.length === 0 && state.business !== null && !state.services ) { this.store.dispatch(new GetServices()); }
         else if (state.services){
           this.services = JSON.parse(JSON.stringify(state.services)) ;
           this.newService();

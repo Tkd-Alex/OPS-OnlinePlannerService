@@ -161,6 +161,9 @@ export function reducer(state = initialState, action: Action): State {
                 }
             };
         }
+        case BusinessAction.RESET: {
+            return initialState;
+        }
         default: {
             return state;
         }
