@@ -50,7 +50,7 @@ app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 jwt = JWTManager(app)
 blacklist = set()
 
-SALT = b'$2b$10$UikBBmN7A0dv7WFcxD.8uO'
+SALT = settings["SALT"].encode("utf-8")
 
 
 # @app.errorhandler(Exception)
