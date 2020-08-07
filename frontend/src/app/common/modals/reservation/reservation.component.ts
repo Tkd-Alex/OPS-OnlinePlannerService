@@ -4,6 +4,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Service } from '../../../models/service';
 import { Reservation } from '../../../models/reservation';
 
+import { CustomersService } from '../../../providers/http-api/customers.service';
 
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -25,6 +26,10 @@ import {
   getHours,
   set
 } from 'date-fns';
+import { concat, Observable, of, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
+import { User } from '../../../models/user';
+import { Business } from 'src/app/models/business';
 
 @Component({
   selector: 'app-modal-reservation',
@@ -39,7 +44,9 @@ export class ModalReservationComponent implements OnInit{
 
   reservationServices: Service[] = [];
   @Input() services: Service[];
-  @Input() timeTable: any[] = [];
+
+  @Input() business: Business;
+  timeTable: any[] = [];
 
   @Input() date?: Date;
   @Input() reservation?: Reservation;
@@ -50,12 +57,19 @@ export class ModalReservationComponent implements OnInit{
   totalDuration = 0;
   totalPrice = 0;
 
+  people$: Observable<User[]>;
+  customersLoading = false;
+  customersInput$ = new Subject<string>();
+
+
   constructor(
     private toastr: ToastrService,
-    public activeModal: NgbActiveModal
+    private customersService: CustomersService,
+    public activeModal: NgbActiveModal,
   ) {}
 
   ngOnInit(): void{
+    this.timeTable = JSON.parse(JSON.stringify(this.business.timeTable)) ;
 
     if (!this.reservation){
       this.reservation = new Reservation();
@@ -86,6 +100,8 @@ export class ModalReservationComponent implements OnInit{
       this.reservationServices = this.reservation.services.map((service: Service) => (({ ... service, id: service.serviceId })));
       this.updateTotal();
     }
+
+    this.loadCustomers();
 
     /*
     $(document).ready(() => {
@@ -137,5 +153,22 @@ export class ModalReservationComponent implements OnInit{
     }
   }
 
+  trackByFn(item: User): number {
+    return item.id;
+  }
+
+  loadCustomers(): void {
+    this.people$ = concat(
+        of([]), // default items
+        this.customersInput$.pipe(
+            distinctUntilChanged(),
+            tap(() => this.customersLoading = true),
+            switchMap(term => this.customersService.get(this.business.id, term).pipe(
+                catchError(() => of([])), // empty list on error
+                tap(() => this.customersLoading = false)
+            ))
+        )
+    );
+  }
 
 }

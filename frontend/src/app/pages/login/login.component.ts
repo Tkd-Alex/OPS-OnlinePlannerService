@@ -30,8 +30,7 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.store.dispatch(new Login(this.form));
-    this.form = { username: '', password: '' };
+    this.store.dispatch(new Login({... this.form}));
   }
 
 }

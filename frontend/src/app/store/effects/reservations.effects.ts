@@ -66,7 +66,7 @@ export class ReservationsEffects {
                 [parseReservation(action.payload)]  // Create array with 1 elements
             ).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!');
+                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!', { timeOut: 3000 });
                     return new ReservationsActions.UpdateSuccess(result);
                 } ),
                 catchError( error => of( new ReservationsActions.UpdateFailed(error) ) )
@@ -86,7 +86,7 @@ export class ReservationsEffects {
                 })
             }).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Inserimento completato con successo', 'Evviva!');
+                    this.toastr.success('Inserimento completato con successo', 'Evviva!', { timeOut: 3000 });
                     return new ReservationsActions.InsertSuccess(result);
                 } ),
                 catchError( error => of( new ReservationsActions.InsertFailed(error) ) )
@@ -101,7 +101,7 @@ export class ReservationsEffects {
         mergeMap( ([action, state]: [ReservationsActions.Delete, any]) =>
             this.reservationsService.delete(action.payload.id, state.business.id).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Appuntamento cancellato con successo', 'Evviva!');
+                    this.toastr.success('Appuntamento cancellato con successo', 'Evviva!', { timeOut: 3000 });
                     return new ReservationsActions.DeleteSuccess(result);
                 } ),
                 catchError( error => of( new ReservationsActions.DeleteFailed(error) ) )

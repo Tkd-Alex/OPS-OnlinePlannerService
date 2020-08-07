@@ -74,7 +74,8 @@ export class AuthEffects {
         ofType(AuthActions.LOGIN_SUCCESS),
         tap((payload) => {
             localStorage.setItem('token', payload.payload.token);
-            this.router.navigateByUrl(!payload.payload.user.isAdmin ? '/dashboard' : '/admin');
+            // is_admin == isAdmin (not already builded here)
+            this.router.navigateByUrl(payload.payload.user.is_admin === false ? '/dashboard' : '/admin');
         })
     );
 

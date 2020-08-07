@@ -47,7 +47,7 @@ export class CustomersEffects {
                 business_id: state.business.id
             }).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!');
+                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!', { timeOut: 3000 });
                     return new CustomersActions.UpdateSuccess(result);
                 } ),
                 catchError( error => of( new CustomersActions.UpdateFailed(error) ) )

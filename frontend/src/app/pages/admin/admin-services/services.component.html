@@ -61,7 +61,7 @@
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item"><b>Durata:</b> {{ service.durationM }}m, <b>Prezzo:</b> {{ service.price }}€</li>
                 </ul>
-                <div class="card-footer px-3 py-1">
+                <div class="card-footer py-1">
                   <small class="text-muted">{{ service.createdBy && service.createdDate ? 'Creato da: ' + service.createdBy.fullName + ' il ' + (service.createdDate | date:'medium') : 'Creato da ...' }}</small>
                   <br>
                   <small class="text-muted">{{ service.updatedBy && service.updatedDate ? 'Modificato da: ' + service.updatedBy.fullName + ' il ' + (service.updatedDate | date:'medium') : 'Modificato da ...' }}</small>

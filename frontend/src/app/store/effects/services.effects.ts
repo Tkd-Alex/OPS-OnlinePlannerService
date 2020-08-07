@@ -46,7 +46,7 @@ export class ServicesEffects {
         mergeMap( ([action, state]: [ServicesActions.Update, any]) =>
             this.servicesService.update({... action.payload, duration_m: action.payload.durationM, business_id: state.business.id}).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!');
+                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!', { timeOut: 3000 });
                     return new ServicesActions.UpdateSuccess(result);
                 } ),
                 catchError( error => of( new ServicesActions.UpdateFailed(error) ) )
@@ -60,7 +60,7 @@ export class ServicesEffects {
         mergeMap( ([action, state]: [ServicesActions.Insert, any]) =>
             this.servicesService.insert({... action.payload, duration_m: action.payload.durationM, business_id: state.business.id}).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Inserimento completato con successo', 'Evviva!');
+                    this.toastr.success('Inserimento completato con successo', 'Evviva!', { timeOut: 3000 });
                     return new ServicesActions.InsertSuccess(result);
                 } ),
                 catchError( error => of( new ServicesActions.InsertFailed(error) ) )
@@ -74,7 +74,7 @@ export class ServicesEffects {
         mergeMap( ([action, state]: [ServicesActions.Delete, any]) =>
             this.servicesService.delete(action.payload.id, state.business.id).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Servizio cancellato con successo', 'Evviva!');
+                    this.toastr.success('Servizio cancellato con successo', 'Evviva!', { timeOut: 3000 });
                     return new ServicesActions.DeleteSuccess(result);
                 } ),
                 catchError( error => of( new ServicesActions.DeleteFailed(error) ) )

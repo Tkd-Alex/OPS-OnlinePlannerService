@@ -32,7 +32,7 @@ if __name__ == '__main__':
         is_admin=True
     )
 
-    time_table = json.dumps([{"name": "Luned\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Marted\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Mercoled\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Gioved\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Venerd\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Sabato", "morning": {"open": None, "close": None}, "afternoon": {"open": "14:00", "close": None}}, {"name": "Domenica", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}])
+    time_table = json.dumps([{"name": "Luned\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Marted\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Mercoled\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Gioved\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Venerd\u00ec", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Sabato", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}, {"name": "Domenica", "morning": {"open": None, "close": None}, "afternoon": {"open": None, "close": None}}])
 
     print("\n================================\n")
 

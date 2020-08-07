@@ -103,8 +103,8 @@ class UserRegistration(Resource):
         - Should have at least one special symbol.
         - Should be between 6 to 20 characters long.
         """
-        if re.search(regex_passw, args["password1"]) is None:
-            return {"message": "La password deve contenere almeno un numero, un carattere speciale, caratteri misti (upper, lower) e deve comprendere tra i 6 e i 20 caratteri"}, 400
+        # if re.search(regex_passw, args["password1"]) is None:
+        #     return {"message": "La password deve contenere almeno un numero, un carattere speciale, caratteri misti (upper, lower) e deve comprendere tra i 6 e i 20 caratteri"}, 400
 
         if re.search(regex_email, args["email"]) is None:
             return {"message": "La mail inserita non sembra essere valida"}, 400
@@ -122,7 +122,7 @@ class UserRegistration(Resource):
             password=hashed
         )
 
-        return {'message': 'L\'utente e\' stato creato con successo. Per favore accedi con le tua credenziali nella pagina dedicata'}, 200
+        return {'message': 'L\'utente {} e\' stato creato con successo. Per favore accedi con le tua credenziali nella pagina dedicata'.format(args["username"])}, 200
 
 
 class UserLogin(Resource):
@@ -377,19 +377,27 @@ class ReservationEndpoint(Resource):
         is_admin = utils.is_admin(current_user["user_id"], args["business_id"])
 
         if is_admin is False:
-            if Reservation.select().where((Reservation.customer == int(current_user["user_id"])) & (Reservation.business == args["business_id"]) & (Reservation.is_reject is False) & (Reservation.is_approved is False)).count() >= 3:
+            query = Reservation.select().where((Reservation.customer == int(current_user["user_id"])) & (Reservation.business == args["business_id"]) & (Reservation.is_reject == 0) & (Reservation.is_approved == 0))
+            if query.count() >= 3:
                 return {'message': "Spiacenti, hai troppi appuntamenti in sospeso, impossibile crearne uno nuovo"}, 400
+
+            customer_id = int(current_user["user_id"])
+        else:
+            customer_id = int(args["customer"]["user_id"])
 
         reservation = Reservation.create(
             start=args["start"],
             end=args["end"],
-            note=utils.cleanhtml(args["note"]) if "note" in args else "",
-            customer=int(current_user["user_id"]),
-            business=int(args["business_id"])
+            note=utils.cleanhtml(utils.safe_data(args, "note", _type="string")),
+            customer=customer_id,
+            business=int(args["business_id"]),
+            is_approved=False if is_admin is False else True,
+            approved_by_id=None if is_admin is False else current_user["user_id"]
         )
 
         data = [{
             "reservation": reservation.reservation_id,
+            "service_id": utils.safe_data(service, "serviceId", _type="number"),
             "name": service["name"],
             "duration_m": service["duration_m"],
             "price": service["price"],

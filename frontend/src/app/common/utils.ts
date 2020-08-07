@@ -1,27 +1,35 @@
 
 import {
-    startOfDay,
-    endOfDay,
-    subDays,
-    addDays,
-    endOfMonth,
     isSameDay,
     isSameMonth,
     isSameWeek,
-    addHours,
-    endOfWeek,
-    addMinutes,
-    getHours,
     set
 } from 'date-fns';
 
-import getUnixTime from 'date-fns/getUnixTime';
 import isWithinRange from 'date-fns/isWithinInterval';
 import isBefore from 'date-fns/isBefore';
 
 import { Reservation } from '../models/reservation';
 import { Service } from '../models/service';
-import { CalendarEvent } from 'angular-calendar';
+
+export const colors: any = {
+    blue: {
+      primary: '#1e90ff',
+      secondary: '#d1e8ff',
+    },
+    green: {
+      primary: '#21ad28',
+      secondary: '#e3fae5',
+    },
+    yellow: {
+      primary: '#e3bc08',
+      secondary: '#FDF1BA',
+    },
+    red: {
+      primary: '#ad2121',
+      secondary: '#fae3e3',
+    }
+};
 
 export function customDateParser(date: any, time: string): any {
     const hours = parseInt(time.split(':')[0], 0);

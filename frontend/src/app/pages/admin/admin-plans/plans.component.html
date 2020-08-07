@@ -23,7 +23,7 @@
           -->
 
           <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
-            <li [ngbNavItem]="1">
+            <li [ngbNavItem]="1" (click)="fetchReservation()">
               <a ngbNavLink>Calendario</a>
               <ng-template ngbNavContent>
 
@@ -69,7 +69,7 @@
                 </div>
               </ng-template>
             </li>
-            <li [ngbNavItem]="2">
+            <li [ngbNavItem]="2" (click)="fetchReservation()">
               <a ngbNavLink>Lista</a>
               <ng-template ngbNavContent>
                 <div class="row">

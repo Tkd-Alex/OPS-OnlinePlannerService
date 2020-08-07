@@ -47,10 +47,26 @@
                           <th class="py-1" colspan="2">Pomeriggio</th>
                         </tr>
                         <tr>
-                          <th>Apertura</th>
-                          <th>Chisura</th>
-                          <th>Apertura</th>
-                          <th>Chisura</th>
+                          <th>Apertura
+                            <button type="button" class="ml-5 btn btn-sm btn-outline-dark border-0" (click)="pinTime('open', 'morning')">
+                              <i aria-hidden="true" class="fa fa-thumb-tack"></i>
+                            </button>
+                          </th>
+                          <th>Chisura
+                            <button type="button" class="ml-5 btn btn-sm btn-outline-dark border-0" (click)="pinTime('close', 'morning')">
+                              <i aria-hidden="true" class="fa fa-thumb-tack"></i>
+                            </button>
+                          </th>
+                          <th>Apertura
+                            <button type="button" class="ml-5 btn btn-sm btn-outline-dark border-0" (click)="pinTime('open', 'afternoon')">
+                              <i aria-hidden="true" class="fa fa-thumb-tack"></i>
+                            </button>
+                          </th>
+                          <th>Chisura
+                            <button type="button" class="ml-5 btn btn-sm btn-outline-dark border-0" (click)="pinTime('close', 'afternoon')">
+                              <i aria-hidden="true" class="fa fa-thumb-tack"></i>
+                            </button>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>

@@ -6,40 +6,17 @@ import { Observable } from 'rxjs';
 
 import {
   CalendarEvent,
-  CalendarEventTitleFormatter,
-  CalendarEventAction,
   CalendarEventTimesChangedEvent,
   CalendarView,
-  CalendarMonthViewBeforeRenderEvent,
   CalendarWeekViewBeforeRenderEvent,
   CalendarDayViewBeforeRenderEvent,
 } from 'angular-calendar';
 
-import {
-  startOfDay,
-  endOfDay,
-  subDays,
-  addDays,
-  endOfMonth,
-  isSameDay,
-  isSameMonth,
-  isSameWeek,
-  addHours,
-  endOfWeek,
-  addMinutes,
-  getHours,
-  set
-} from 'date-fns';
 
 import getUnixTime from 'date-fns/getUnixTime';
 import isWithinRange from 'date-fns/isWithinInterval';
-import isBefore from 'date-fns/isBefore';
 
 import { Subject } from 'rxjs';
-
-import { WeekViewHourSegment } from 'calendar-utils';
-import { fromEvent } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
 
 import {
   Get as GetReservations,
@@ -55,12 +32,20 @@ import { Service } from '../../models/service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../common/modals/reservation/reservation.component';
 
-import { customDateParser, isValidDate, dateToString, changeState, itsGone, getDayStartEnd, showItemInList } from '../../common/utils';
+import {
+  customDateParser,
+  isValidDate,
+  dateToString,
+  itsGone,
+  getDayStartEnd,
+  showItemInList,
+  colors
+} from '../../common/utils';
 import { ToastrService } from 'ngx-toastr';
 
-import { CustomEventTitleFormatter } from '../../common/injectable';
 import { User } from 'src/app/models/user';
 import { Status, Logout } from '../../store/actions/auth.actions';
+import { Business } from '../../models/business';
 
 @Component({
   selector: 'app-dashboard',
@@ -82,6 +67,7 @@ export class DashboardComponent implements OnInit {
   dayStartHour = 6;
   dayEndHour = 22;
 
+  business: Business;
   timeTable: any[] = [];
   todayIsClose = false;
   services: Service[] = [];
@@ -124,25 +110,29 @@ export class DashboardComponent implements OnInit {
         }
       }
 
-      if (state.business?.timeTable){ this.timeTable = state.business.timeTable ; }  // Local reference please :)
+      if (state.business?.timeTable){
+        this.business = state.business;
+        this.timeTable = state.business.timeTable;
+      }  // Local reference please :)
       if (state.services) { this.services = state.services; }  // Local reference please :)
       if (state.reservations && this.currentUser){
         this.events = state.reservations?.map((reservation: Reservation) => {
-            const editable = !itsGone(reservation.start) && reservation.customer.id === this.currentUser.id;
+            const sameOwner = reservation.customer.id === this.currentUser.id;
+            const isPending = reservation.isApproved === false && reservation.isReject === false;
+            const editable = isPending && !itsGone(reservation.start) && reservation.customer.id === this.currentUser.id;
             return {
               start: new Date(reservation.start),
               end: new Date(reservation.end),
-              title: reservation.customer.id !== this.currentUser.id ?
-                '' :
+              title: !sameOwner ? '' :
                 (
                   this.joinServices(reservation.services) +
                   ' Cliente: ' + reservation.customer.fullName +
                   ( reservation.note ? ' Note: ' + reservation.note : '')
                 ),
-              color: {
-                primary: '#1e90ff',
-                secondary: '#d1e8ff',
-              },
+              color: !sameOwner ? colors.blue :
+                ( isPending ? colors.yellow :
+                  ( reservation.isApproved === true ? colors.green : colors.red )
+                ),
               actions: [],
               allDay: false,
               resizable: { beforeStart: false, afterEnd: false },
@@ -150,8 +140,12 @@ export class DashboardComponent implements OnInit {
               meta: reservation
             };
         });
+        // Hide the events in calendar if are rejected
+        if (this.activeTab === 1) { this.events = this.events.filter(event => event.meta.isReject === false); }
         this.reservations = [ ... state.reservations.filter(
-          (event: Reservation) => this.activeTab !== 2 ? event : showItemInList(this.view, this.viewDate, new Date(event.start))
+          (event: Reservation) => this.activeTab !== 2 ?
+          event :
+          showItemInList(this.view, this.viewDate, new Date(event.start))
         )];
         this.recalculateStoreOpenClose(this.view === 'week' ? false : true);
       }
@@ -179,7 +173,7 @@ export class DashboardComponent implements OnInit {
     const modalRef = this.modalService.open(ModalReservationComponent, { size: 'md', centered: false });
     modalRef.componentInstance.date = date;
     modalRef.componentInstance.services = this.services;
-    modalRef.componentInstance.timeTable = this.timeTable;
+    modalRef.componentInstance.business = this.business;
     modalRef.componentInstance.isAdmin = false;
     modalRef.result.then((result) => {
       if (result instanceof Reservation) { this.store.dispatch(new InsertReservation(result)); }
@@ -189,9 +183,9 @@ export class DashboardComponent implements OnInit {
   editReservation(reservation: Reservation): void{
     if (reservation.customer.id === this.currentUser.id){
       const modalRef = this.modalService.open(ModalReservationComponent, { size: 'md', centered: false });
-      modalRef.componentInstance.reservation = reservation;
+      modalRef.componentInstance.reservation = {... reservation};
       modalRef.componentInstance.services = this.services;
-      modalRef.componentInstance.timeTable = this.timeTable;
+      modalRef.componentInstance.business = this.business;
       modalRef.componentInstance.isAdmin = false;
       modalRef.result.then((result) => {
         if (result instanceof Reservation || typeof(result) === 'object') { this.store.dispatch(new UpdateReservation(result)); }
@@ -200,7 +194,8 @@ export class DashboardComponent implements OnInit {
   }
 
   eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
-    if (isValidDate(newStart, this.timeTable) === true && isValidDate(newEnd, this.timeTable) === true) {
+    if (itsGone(newStart)) { this.toastr.error('Non puoi inserire un evento nel passato', 'Ops!'); }
+    else if (isValidDate(newStart, this.timeTable) === true && isValidDate(newEnd, this.timeTable) === true) {
       this.events = this.events.map((iEvent) => {
         if (iEvent === event) { return { ...event, start: newStart, end: newEnd, }; }
         return iEvent;
@@ -261,7 +256,8 @@ export class DashboardComponent implements OnInit {
   }
 
   handleHourClick(date: Date): void{
-    if (isValidDate(date, this.timeTable) === true) { this.newReservation(date); }
+    if (itsGone(date)) { this.toastr.error('Non puoi inserire un evento nel passato', 'Ops!'); }
+    else if (isValidDate(date, this.timeTable) === true) { this.newReservation(date); }
   }
 
   beforeWeekViewRender(renderEvent: CalendarWeekViewBeforeRenderEvent): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState, selectBusinessState } from '../../../store/app.state';
 
@@ -10,36 +10,19 @@ import {
   CalendarEventAction,
   CalendarEventTimesChangedEvent,
   CalendarView,
-  CalendarMonthViewBeforeRenderEvent,
   CalendarWeekViewBeforeRenderEvent,
   CalendarDayViewBeforeRenderEvent,
 } from 'angular-calendar';
 
 import {
-  startOfDay,
-  endOfDay,
-  subDays,
-  addDays,
-  endOfMonth,
   isSameDay,
   isSameMonth,
-  isSameWeek,
-  addHours,
-  endOfWeek,
-  addMinutes,
-  getHours,
-  set
 } from 'date-fns';
 
 import getUnixTime from 'date-fns/getUnixTime';
 import isWithinRange from 'date-fns/isWithinInterval';
-import isBefore from 'date-fns/isBefore';
 
 import { Subject } from 'rxjs';
-
-import { WeekViewHourSegment } from 'calendar-utils';
-import { fromEvent } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
 
 import {
   Get as GetReservations,
@@ -55,25 +38,22 @@ import { Service } from '../../../models/service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../../common/modals/reservation/reservation.component';
 
-import { customDateParser, isValidDate, dateToString, changeState, itsGone, getDayStartEnd, showItemInList } from '../../../common/utils';
+import {
+  customDateParser,
+  isValidDate,
+  dateToString,
+  changeState,
+  itsGone,
+  getDayStartEnd,
+  showItemInList,
+  colors
+} from '../../../common/utils';
 import { ToastrService } from 'ngx-toastr';
 
 import { CustomEventTitleFormatter } from '../../../common/injectable';
+import { Business } from '../../../models/business';
 
-const colors: any = {
-  red: {
-    primary: '#ad2121',
-    secondary: '#fae3e3',
-  },
-  blue: {
-    primary: '#1e90ff',
-    secondary: '#d1e8ff',
-  },
-  green: {
-    primary: '#21ad28',
-    secondary: '#e3fae5',
-  },
-};
+
 
 @Component({
   selector: 'app-admin-plans',
@@ -115,6 +95,7 @@ export class AdminPlansComponent implements OnInit {
   dayStartHour = 6;
   dayEndHour = 22;
 
+  business: Business;
   timeTable: any[] = [];
   todayIsClose = false;
   services: Service[] = [];
@@ -148,10 +129,14 @@ export class AdminPlansComponent implements OnInit {
         }
       }
 
-      if (state.business?.timeTable){ this.timeTable = state.business.timeTable ; }  // Local reference please :)
+      if (state.business?.timeTable){
+        this.business = state.business;
+        this.timeTable = state.business.timeTable;
+      }  // Local reference please :)
       if (state.services) { this.services = state.services; }  // Local reference please :)
       if (state.reservations){
         this.events = state.reservations?.map((reservation: Reservation) => {
+            const isPending = reservation.isApproved === false && reservation.isReject === false;
             const editable = !itsGone(reservation.start);
             return {
               start: new Date(reservation.start),
@@ -159,7 +144,7 @@ export class AdminPlansComponent implements OnInit {
               title: this.joinServices(reservation.services) +
                 ' Cliente: ' + reservation.customer.fullName +
                 ( reservation.note ? ' Note: ' + reservation.note : ''),
-              color: reservation.isApproved === true ? colors.green : colors.blue,
+              color: isPending ? colors.yellow : ( reservation.isApproved === true ? colors.green : colors.red ),
               actions: [],
               allDay: false,
               resizable: { beforeStart: editable, afterEnd: editable },
@@ -168,6 +153,8 @@ export class AdminPlansComponent implements OnInit {
             };
         });
         if (this.activeTab === 2) { this.events = this.events.filter(event => showItemInList(this.view, this.viewDate, event.start)); }
+        // Hide the events in calendar if are rejected
+        else { this.events = this.events.filter(event => event.meta.isReject === false); }
         this.recalculateStoreOpenClose(this.view === 'week' ? false : true);
      }
     });
@@ -202,7 +189,7 @@ export class AdminPlansComponent implements OnInit {
     const modalRef = this.modalService.open(ModalReservationComponent, { size: 'md', centered: false });
     modalRef.componentInstance.date = date;
     modalRef.componentInstance.services = this.services;
-    modalRef.componentInstance.timeTable = this.timeTable;
+    modalRef.componentInstance.business = this.business;
     modalRef.componentInstance.isAdmin = true;
     modalRef.result.then((result) => {
       if (result instanceof Reservation) { this.store.dispatch(new InsertReservation(result)); }
@@ -211,9 +198,9 @@ export class AdminPlansComponent implements OnInit {
 
   editReservation(reservation: Reservation): void{
     const modalRef = this.modalService.open(ModalReservationComponent, { size: 'md', centered: false });
-    modalRef.componentInstance.reservation = reservation;
+    modalRef.componentInstance.reservation = {... reservation};
     modalRef.componentInstance.services = this.services;
-    modalRef.componentInstance.timeTable = this.timeTable;
+    modalRef.componentInstance.business = this.business;
     modalRef.componentInstance.isAdmin = true;
     modalRef.result.then((result) => {
       if (result instanceof Reservation || typeof(result) === 'object') { this.store.dispatch(new UpdateReservation(result)); }

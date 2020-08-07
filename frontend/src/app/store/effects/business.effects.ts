@@ -41,7 +41,7 @@ export class BusinessEffects {
         switchMap((payload =>
             this.businessService.update(payload).pipe(
                 map( (result: any) => {
-                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!');
+                    this.toastr.success('Aggiornamento completato con successo', 'Evviva!', { timeOut: 3000 });
                     return new BusinessActions.UpdateSuccess(result);
                 } ),
                 catchError( error => of( new BusinessActions.UpdateFailed(error) ) )

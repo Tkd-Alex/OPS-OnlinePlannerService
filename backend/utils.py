@@ -35,9 +35,9 @@ def services_upsert(args, current_user, action="update"):
                 update["updated_date"] = datetime.datetime.now()
                 update["updated_by"] = current_user["user_id"]
 
-                service = Service.get_or_none((Service.service_id == int(args["id"])) & (Service.business == int(args["business_id"])))
-                service = model_to_dict(service, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table])
-                return service, 200
+            service = Service.get_or_none((Service.service_id == int(args["id"])) & (Service.business == int(args["business_id"])))
+            service = model_to_dict(service, recurse=True, backrefs=True, max_depth=1, exclude=[User.password, Business.time_table])
+            return service, 200
         else:
             update["created_by_id"] = current_user["user_id"]
             update["updated_by_id"] = current_user["user_id"]
@@ -90,3 +90,10 @@ def hideinfo(item, current_user):
         if item['customer']['user_id'] != current_user:
             item['customer'][key] = "" if type(item['customer'][key]) == str else -1  # "*" * (len(str(item['customer'][key])) // 2)
     return item
+
+
+def safe_data(dict, key, _type='string'):
+    try:
+        return dict[key]
+    except Exception:
+        return 0 if _type == 'number' else ''

@@ -43,7 +43,7 @@ export class RegisterComponent implements OnInit {
     }
     else {
       this.response = null;
-      this.store.dispatch(new Register(this.form));
+      this.store.dispatch(new Register({... this.form}));
     }
   }
 

@@ -34,7 +34,7 @@ export class AdminBusinessComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.business) { this.store.dispatch(new GetBusiness()) };
+    if (!this.business) { this.store.dispatch(new GetBusiness()); }
 
     this.currentState$.subscribe((state) => {
       this.business = { ... state.business};
@@ -42,8 +42,20 @@ export class AdminBusinessComponent implements OnInit {
     });
   }
 
-  save(): any{
+  save(): void{
     this.store.dispatch(new UpdateBusiness({ ... this.business, timeTable: this.timeTable }));
+  }
+
+  pinTime(type: string, when: string): void {
+    let value = null;
+    for (const day of Object.keys(this.timeTable)){
+      if (this.timeTable[day][when][type] !== null && value === null) { value = this.timeTable[day][when][type]; break; }
+    }
+    if (value !== null) {
+      for (const day of Object.keys(this.timeTable)){
+        this.timeTable[day][when][type] = value;
+      }
+    }
   }
 
 }
