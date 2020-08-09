@@ -55,6 +55,7 @@ import { AdminServicesComponent } from './pages/admin/admin-services/services.co
 import { AdminCustomersComponent } from './pages/admin/admin-customers/customers.component';
 
 import { ModalReservationComponent } from './common/modals/reservation/reservation.component';
+import { ModalUpdateComponent } from './common/modals/update/update.component';
 
 import { registerLocaleData } from '@angular/common';
 import localeIta from '@angular/common/locales/it';
@@ -76,6 +77,7 @@ registerLocaleData(localeIta);
     AdminServicesComponent,
     AdminCustomersComponent,
     ModalReservationComponent,
+    ModalUpdateComponent,
     AdminSidebarComponent
   ],
   imports: [

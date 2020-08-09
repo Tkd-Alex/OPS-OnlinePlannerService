@@ -16,8 +16,17 @@
           <!-- <a target="_blank" href="https://www.google.com/maps?q={{ ( this.currentState$ | async )?.business?.address }}">{{ ( this.currentState$ | async )?.business?.address }}</a> -->
         </div>
         <div class="col-md-4 text-right align-self-center">
-          <button type="button" (click)="logout()" class="btn btn-small btn-outline-primary border-0 text-center"><i class="fa fa-sign-out"></i></button>
-          <button type="button" (click)="logout()" class="btn btn-small btn-outline-primary border-0 text-center"><i class="fa fa-user"></i></button>
+          <!-- <button type="button" (click)="logout()" class="btn btn-small btn-outline-primary border-0 text-center"><i class="fa fa-sign-out"></i></button> -->
+
+          <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-small btn-outline-primary border-0 text-center" id="dropdownBasic1" ngbDropdownToggle><i class="fa fa-user"></i></button>
+            <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+              <button (click)="updateUser('email')" ngbDropdownItem>Cambia email</button>
+              <button (click)="updateUser('password')" ngbDropdownItem>Cambia password</button>
+              <button (click)="logout()" ngbDropdownItem>Logout</button>
+            </div>
+          </div>
+
         </div>
       </div>
 

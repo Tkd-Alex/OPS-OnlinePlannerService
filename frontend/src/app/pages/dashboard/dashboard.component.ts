@@ -29,8 +29,10 @@ import { Get as GetServices } from '../../store/actions/services.actions';
 
 import { Reservation } from '../../models/reservation';
 import { Service } from '../../models/service';
+
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalReservationComponent } from '../../common/modals/reservation/reservation.component';
+import { ModalUpdateComponent } from '../../common/modals/update/update.component';
 
 import {
   customDateParser,
@@ -44,7 +46,7 @@ import {
 import { ToastrService } from 'ngx-toastr';
 
 import { User } from 'src/app/models/user';
-import { Status, Logout } from '../../store/actions/auth.actions';
+import { Status, Logout, Update as UpdateUser } from '../../store/actions/auth.actions';
 import { Business } from '../../models/business';
 
 @Component({
@@ -83,6 +85,8 @@ export class DashboardComponent implements OnInit {
   currentUser: User = null;
 
   activeTab = 1;
+
+  form: any;
 
   constructor(
     private store: Store<AppState>,
@@ -270,6 +274,14 @@ export class DashboardComponent implements OnInit {
 
   logout(): void {
     this.store.dispatch(new Logout());
+  }
+
+  updateUser(action: string): void{
+    const modalRef = this.modalService.open(ModalUpdateComponent, { size: 'md', centered: false });
+    modalRef.componentInstance.action = action;
+    modalRef.result.then((result) => {
+      if (typeof(result) === 'object') { this.store.dispatch(new UpdateUser({... result, action})); }
+    }).catch((error: any) => { console.log(error); });
   }
 
 }

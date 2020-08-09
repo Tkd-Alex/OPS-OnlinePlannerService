@@ -11,6 +11,7 @@ import { AuthService } from '../../providers/http-api/auth.service';
 import { Reset } from '../actions/business.actions';
 import * as AuthActions from '../actions/auth.actions';
 import { AppState } from '../app.state';
+import { ToastrService } from 'ngx-toastr';
 
 
 @Injectable()
@@ -20,7 +21,8 @@ export class AuthEffects {
         private actions$: Actions,
         private authService: AuthService,
         private router: Router,
-        private store: Store<AppState>
+        private store: Store<AppState>,
+        private toastr: ToastrService
     ) {}
 
     @Effect()
@@ -113,8 +115,18 @@ export class AuthEffects {
     );
 
     @Effect({ dispatch: false })
+    UpdateSuccess: Observable<any> = this.actions$.pipe(
+        ofType(AuthActions.UPDATE_SUCCESS),
+        tap((payload) => {
+            this.toastr.success(
+                payload.payload.message ? payload.payload.message : 'Aggiornamento completato con successo', 'Evviva!', { timeOut: 3000 }
+            );
+        })
+    );
+
+    @Effect({ dispatch: false })
     RegisterSuccess: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.REGISTER_SUCCESS, AuthActions.UPDATE_SUCCESS, AuthActions.PASSWORD_SUCCESS)
+        ofType(AuthActions.REGISTER_SUCCESS, AuthActions.PASSWORD_SUCCESS)
     );
 
     @Effect({ dispatch: false })

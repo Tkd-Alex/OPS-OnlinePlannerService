@@ -156,8 +156,6 @@ class UserPassword(Resource):
         text = "Ciao {fullname}, la tua password e' state resettata. Accedi con: {new_password}".format(**data)
         html = "Ciao <b>{fullname}</b>, la tua password e' state resettata. Accedi con: <b>{new_password}</b>".format(**data)
 
-        print(data)
-
         html = mailer.build_html_mail(title, html)
         if SEND_EMAIL is True:
             mailer.send_mail(user.email, user.username, text, title, html=html)
@@ -204,7 +202,7 @@ class UserEndpoint(Resource):
             if re.search(utils.regex_email, args["email"]) is None:
                 return {"message": "La mail inserita non sembra essere valida"}, 400
 
-            data = {"fullname": user.fullname, "email": user.mail}
+            data = {"fullname": user.fullname, "email": user.email}
             title = "Email aggiornata!"
             text = "Ciao {fullname}, qualcuno ha modificato la tua email attuale con la seguente: {email}. Se non sei stato tu contattaci".format(**data)
             html = "Ciao <b>{fullname}</b>, qualcuno ha modificato la tua email attuale con la seguente: <b>{email}</b>. Se non sei stato tu contattaci".format(**data)
