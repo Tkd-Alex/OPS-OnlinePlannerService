@@ -70,7 +70,6 @@ export class ModalReservationComponent implements OnInit{
 
   ngOnInit(): void{
     this.timeTable = JSON.parse(JSON.stringify(this.business.timeTable)) ;
-
     if (!this.reservation){
       this.reservation = new Reservation();
       this.reservation.services = [];
@@ -84,6 +83,7 @@ export class ModalReservationComponent implements OnInit{
         hour: this.date.getHours(),
         minute: this.date.getMinutes()
       };
+      this.loadCustomers();
     }else {
       this.isNew = false;
       this.isEditable = !itsGone(this.reservation.start);
@@ -100,8 +100,6 @@ export class ModalReservationComponent implements OnInit{
       this.reservationServices = this.reservation.services.map((service: Service) => (({ ... service, id: service.serviceId })));
       this.updateTotal();
     }
-
-    this.loadCustomers();
 
     /*
     $(document).ready(() => {

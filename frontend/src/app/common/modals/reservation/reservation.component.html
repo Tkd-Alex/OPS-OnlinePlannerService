@@ -25,7 +25,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="form-group mb-3" *ngIf="isAdmin">
-          <label for="services">Cliente</label>
+          <label for="customer">Cliente</label>
           <ng-select [items]="people$ | async"
             bindLabel="fullname"
             [hideSelected]="true"
@@ -35,12 +35,13 @@
             typeToSearchText="Per farvore inserisci almeno 2 caratteri"
             [typeahead]="customersInput$"
             [(ngModel)]="reservation.customer"
-            [disabled]="!isEditable || !isNew"
+            *ngIf="isNew"
           >
           <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
               <div><span [ngOptionHighlight]="search">{{ item.fullname }} <i>({{ item.username }})</i>  </span></div>
           </ng-template>
           </ng-select>
+          <input *ngIf="!isNew" [(ngModel)]="reservation.customer.fullName" readonly name="customer" type="text" class="form-control">
         </div>
 
         <div class="form-group mb-3">
