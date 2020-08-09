@@ -5,6 +5,14 @@ import re
 from playhouse.shortcuts import model_to_dict
 from database import User, Business, Service, OwnerBusiness, Reservation, ReservationService
 
+"""
+- Should have at least one number.
+- Should have at least one uppercase and one lowercase character.
+- Should have at least one special symbol.
+- Should be between 6 to 20 characters long.
+"""
+regex_passw = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$'
+regex_email = '[\w\.-]+@[\w\.-]+(\.[\w]+)+'
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):

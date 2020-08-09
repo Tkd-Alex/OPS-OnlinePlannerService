@@ -7,6 +7,7 @@ import re
 import bcrypt
 import time
 import code
+import random
 
 import utils
 
@@ -94,19 +95,10 @@ class UserRegistration(Resource):
         if args['password1'] != args['password2']:
             return {"message": "Le password inserite non coincidono"}, 400
 
-        regex_passw = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$'
-        regex_email = '[\w\.-]+@[\w\.-]+(\.[\w]+)+'
-
-        """
-        - Should have at least one number.
-        - Should have at least one uppercase and one lowercase character.
-        - Should have at least one special symbol.
-        - Should be between 6 to 20 characters long.
-        """
-        # if re.search(regex_passw, args["password1"]) is None:
+        # if re.search(utils.regex_passw, args["password1"]) is None:
         #     return {"message": "La password deve contenere almeno un numero, un carattere speciale, caratteri misti (upper, lower) e deve comprendere tra i 6 e i 20 caratteri"}, 400
 
-        if re.search(regex_email, args["email"]) is None:
+        if re.search(utils.regex_email, args["email"]) is None:
             return {"message": "La mail inserita non sembra essere valida"}, 400
 
         if User.get_or_none(User.username == args["username"]) is not None:
@@ -145,6 +137,32 @@ class UserLogin(Resource):
             return {'message': 'Credenziali errata. Assicurati che username e password siano corretti'}, 400
 
 
+class UserPassword(Resource):
+    def post(self):
+        args = request.get_json()
+
+        user = User.get_or_none(User.username == args["username"])
+        if user is None:
+            return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+
+        new_password = "".join([random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") for i in range(12)])
+
+        hashed = bcrypt.hashpw(new_password.encode("utf-8"), SALT)
+        user.password = hashed
+        user.save()
+
+        data = {"fullname": user.fullname, "new_password": new_password}
+        title = "Password resettata!"
+        text = "Ciao {fullname}, la tua password e' state resettata. Accedi con: {new_password}".format(**data)
+        html = "Ciao <b>{fullname}</b>, la tua password e' state resettata. Accedi con: <b>{new_password}</b>".format(**data)
+
+        html = mailer.build_html_mail(title, html)
+        if SEND_EMAIL is True:
+            mailer.send_mail(user.email, user.username, text, title, html=html)
+
+        return {"message": "Password resettata. E' stata inviata una mail contenente la nuova password"}, 200
+
+
 class UserEndpoint(Resource):
     @jwt_required
     def get(self):
@@ -162,6 +180,66 @@ class UserEndpoint(Resource):
         current_user = json.loads(current_user)
         user = User.get_or_none(User.username == current_user["username"] and User.user_id == int(current_user["user_id"]))
     """
+
+    @jwt_required
+    def put(self):
+        current_user = get_jwt_identity()
+        current_user = json.loads(current_user)
+
+        user = User.get_or_none(User.user_id == current_user["user_id"])
+        if user is None:
+            return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+
+        args = request.get_json()
+
+        if "action" not in args or args["action"] not in ["email", "password"]:
+            return {'message': "Inserisci un azione tra: email, password"}, 400
+
+        if args["action"] == "email":
+            if user.email == args["email"]:
+                return {'message': "Impossibile proseguire, la nuova email deve essere diversa da quella corrente"}, 400
+
+            if re.search(utils.regex_email, args["email"]) is None:
+                return {"message": "La mail inserita non sembra essere valida"}, 400
+
+            data = {"fullname": user.fullname, "email": user.mail}
+            title = "Email aggiornata!"
+            text = "Ciao {fullname}, qualcuno ha modificato la tua email attuale con la seguente: {email}. Se non sei stato tu contattaci".format(**data)
+            html = "Ciao <b>{fullname}</b>, qualcuno ha modificato la tua email attuale con la seguente: <b>{email}</b>. Se non sei stato tu contattaci".format(**data)
+
+            html = mailer.build_html_mail(title, html)
+            if SEND_EMAIL is True:
+                mailer.send_mail(user.email, user.username, text, title, html=html)
+
+            user.email = args["email"]
+            user.save()
+
+            message = "Email aggiornata con successo"
+        elif args["action"] == "password":
+            hashed = bcrypt.hashpw(args["password"].encode("utf-8"), SALT)
+            if safe_str_cmp(user.password, hashed) is False:
+                return {'message': "La password inserita non corrisponde a quella attuale. Se hai dimenticato la password chiedi un reset"}, 400
+
+            if safe_str_cmp(args["password1"], args["password2"]):
+                return {'message': "Le due password inserite non coincidono"}, 400
+
+            if re.search(utils.regex_passw, args["password1"]) is None:
+                return {"message": "La password deve contenere almeno un numero, un carattere speciale, caratteri misti (upper, lower) e deve comprendere tra i 6 e i 20 caratteri"}, 400
+
+            hashed = bcrypt.hashpw(args["password1"].encode("utf-8"), SALT)
+            user.password = hashed
+            user.save()
+
+            title = "Password aggiornata!"
+            text = "Ciao {}, qualcuno ha modificato la tua password. Se non sei stato tu contattaci".format(user.fullname)
+            html = "Ciao <b>{}</b>, qualcuno ha modificato la tua password. Se non sei stato tu contattaci".format(user.fullname)
+
+            html = mailer.build_html_mail(title, html)
+            if SEND_EMAIL is True:
+                mailer.send_mail(user.email, user.username, text, title, html=html)
+            message = "Password aggiornata con successo"
+
+        return {'message': message, 'user': model_to_dict(user, recurse=False, backrefs=False, exclude=[User.password])}, 200
 
     @jwt_required
     def delete(self):
@@ -574,6 +652,7 @@ class CustomersEndpoint(Resource):
 api.add_resource(UserRegistration, '/user/register')
 api.add_resource(UserLogin, '/user/login')
 api.add_resource(UserEndpoint, '/user')
+api.add_resource(UserPassword, '/user/password')
 api.add_resource(BusinessEndpoint, '/business')
 api.add_resource(ServiceEndpoint, '/services')
 api.add_resource(ReservationEndpoint, '/reservations')

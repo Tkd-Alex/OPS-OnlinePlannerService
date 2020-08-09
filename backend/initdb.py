@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import bcrypt
-import re
 import json
 
 from database import db, User, Business, Service, OwnerBusiness, Reservation, ReservationService
