@@ -37,6 +37,7 @@
                                         <div *ngFor="let number of [0,1,2,3,4,5]" class="mx-2 spinner-grow-sm spinner-grow text-primary" role="status"><span class="sr-only"></span></div>
                                     </div>
 
+                                    <div class="text-center pb-1"><i><a [routerLink]="" (click)="password()" >Hai dimenticato la password?</a></i></div>
                                     <button type="submit" class="btn btn-primary btn-block text-uppercase mb-2 ">Accedi</button>
                                 </form>
                                 <button [routerLink]="'/register'" type="button" class="btn btn-primary btn-block text-uppercase mb-2 ">Registrati</button>

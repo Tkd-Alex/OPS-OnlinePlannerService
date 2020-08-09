@@ -16,6 +16,14 @@ export const LOGOUT_START        = '[Auth] Logout Start';
 export const LOGOUT_SUCCESS      = '[Auth] Logout Success';
 export const LOGOUT_FAILED       = '[Auth] Logout Failed';
 
+export const UPDATE_START        = '[Auth] Update Start';
+export const UPDATE_SUCCESS      = '[Auth] Update Success';
+export const UPDATE_FAILED       = '[Auth] Update Failed';
+
+export const PASSWORD_START        = '[Auth] Password Start';
+export const PASSWORD_SUCCESS      = '[Auth] Password Success';
+export const PASSWORD_FAILED       = '[Auth] Password Failed';
+
 export class Register implements Action {
     readonly type = REGISTER_START;
     constructor(public payload: any) {}
@@ -76,6 +84,36 @@ export class LogoutFailed implements Action {
     constructor(public payload: any) {}
 }
 
+export class Update implements Action {
+    readonly type = UPDATE_START;
+    constructor(public payload: any) {}
+}
+
+export class UpdateSuccess implements Action {
+    readonly type = UPDATE_SUCCESS;
+    constructor(public payload: any) {}
+}
+
+export class UpdateFailed implements Action {
+    readonly type = UPDATE_FAILED;
+    constructor(public payload: any) {}
+}
+
+export class Password implements Action {
+    readonly type = PASSWORD_START;
+    constructor(public payload: any) {}
+}
+
+export class PasswordSuccess implements Action {
+    readonly type = PASSWORD_SUCCESS;
+    constructor(public payload: any) {}
+}
+
+export class PasswordFailed implements Action {
+    readonly type = PASSWORD_FAILED;
+    constructor(public payload: any) {}
+}
+
 export type All =
     | Register
     | RegisterSuccess
@@ -91,6 +129,14 @@ export type All =
 
     | Logout
     | LogoutSuccess
-    | LogoutFailed;
+    | LogoutFailed
+
+    | Update
+    | UpdateSuccess
+    | UpdateFailed
+
+    | Password
+    | PasswordSuccess
+    | PasswordFailed;
 
 

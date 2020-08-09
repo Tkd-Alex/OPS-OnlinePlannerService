@@ -74,7 +74,6 @@ export class AuthEffects {
         ofType(AuthActions.LOGIN_SUCCESS),
         tap((payload) => {
             localStorage.setItem('token', payload.payload.token);
-            // is_admin == isAdmin (not already builded here)
             this.router.navigateByUrl(payload.payload.user.is_admin === false ? '/dashboard' : '/admin');
         })
     );
@@ -89,14 +88,38 @@ export class AuthEffects {
         })
     );
 
+    @Effect()
+    Update: Observable<any> = this.actions$.pipe(
+        ofType(AuthActions.UPDATE_START),
+        map((action: AuthActions.Update) => action.payload),
+        switchMap((payload =>
+            this.authService.update(payload).pipe(
+                map( (result: any) => new AuthActions.UpdateSuccess(result) ),
+                catchError( error => of( new AuthActions.UpdateFailed(error) ) )
+            ))
+        )
+    );
+
+    @Effect()
+    Password: Observable<any> = this.actions$.pipe(
+        ofType(AuthActions.PASSWORD_START),
+        map((action: AuthActions.Password) => action.payload),
+        switchMap((payload =>
+            this.authService.password(payload).pipe(
+                map( (result: any) => new AuthActions.PasswordSuccess(result) ),
+                catchError( error => of( new AuthActions.PasswordFailed(error) ) )
+            ))
+        )
+    );
+
     @Effect({ dispatch: false })
     RegisterSuccess: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.REGISTER_SUCCESS)
+        ofType(AuthActions.REGISTER_SUCCESS, AuthActions.UPDATE_SUCCESS, AuthActions.PASSWORD_SUCCESS)
     );
 
     @Effect({ dispatch: false })
     Failed: Observable<any> = this.actions$.pipe(
-        ofType(AuthActions.LOGIN_FAILED, AuthActions.REGISTER_FAILED)
+        ofType(AuthActions.LOGIN_FAILED, AuthActions.REGISTER_FAILED, AuthActions.UPDATE_FAILED, AuthActions.PASSWORD_FAILED)
     );
 
 }

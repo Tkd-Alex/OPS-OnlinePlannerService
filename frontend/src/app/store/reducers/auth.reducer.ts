@@ -21,6 +21,8 @@ export const initialState: State = {
 
 export function reducer(state = initialState, action: AuthAction.All): State {
     switch (action.type) {
+        case AuthAction.PASSWORD_START:
+        case AuthAction.UPDATE_START:
         case AuthAction.LOGOUT_START:
         case AuthAction.STATUS_START:
         case AuthAction.REGISTER_START:
@@ -65,6 +67,23 @@ export function reducer(state = initialState, action: AuthAction.All): State {
         case AuthAction.LOGOUT_SUCCESS: {
             return initialState;
         }
+        case AuthAction.PASSWORD_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                response: { error: false, message: action.payload.message}
+            };
+        }
+        case AuthAction.UPDATE_SUCCESS: {
+            return {
+                ...state,
+                isLoading: false,
+                user: buildUser(action.payload.user),
+                response: { error: false, message: action.payload.message }
+            };
+        }
+        case AuthAction.PASSWORD_FAILED:
+        case AuthAction.UPDATE_FAILED:
         case AuthAction.LOGOUT_FAILED:
         case AuthAction.STATUS_FAILED:
         case AuthAction.REGISTER_FAILED:

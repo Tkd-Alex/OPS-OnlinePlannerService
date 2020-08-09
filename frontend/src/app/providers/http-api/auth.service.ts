@@ -30,6 +30,16 @@ export class AuthService {
     return this.http.get<User>(url);
   }
 
+  update(payload: any): Observable<User> {
+    const url = `${Constant.API_ENDPOINT}/user`;
+    return this.http.put<User>(url, payload);
+  }
+
+  password(payload: any): Observable<User> {
+    const url = `${Constant.API_ENDPOINT}/user/password`;
+    return this.http.post<User>(url, payload);
+  }
+
   logout(): Observable<User> {
     const url = `${Constant.API_ENDPOINT}/user`;
     return this.http.delete<User>(url);

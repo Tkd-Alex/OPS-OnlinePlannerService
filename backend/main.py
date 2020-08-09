@@ -143,7 +143,7 @@ class UserPassword(Resource):
 
         user = User.get_or_none(User.username == args["username"])
         if user is None:
-            return {'message': "Impossibile eseguire, sei sicuro di avere i permessi per eseguire queta operazione?"}, 400
+            return {'message': "Impossibile eseguire, username non trovato"}, 400
 
         new_password = "".join([random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") for i in range(12)])
 
@@ -155,6 +155,8 @@ class UserPassword(Resource):
         title = "Password resettata!"
         text = "Ciao {fullname}, la tua password e' state resettata. Accedi con: {new_password}".format(**data)
         html = "Ciao <b>{fullname}</b>, la tua password e' state resettata. Accedi con: <b>{new_password}</b>".format(**data)
+
+        print(data)
 
         html = mailer.build_html_mail(title, html)
         if SEND_EMAIL is True:
