@@ -1,6 +1,5 @@
-# OPS - Online Planner Service
+# :date: OPS - Online Planner Service
 
-## Setup
 ### Backend
 
 **[Important!] Make sure to have a mysql database property setup and a empty database**
@@ -20,7 +19,7 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 ```
 2. Copy the .dist setting to settings.json `cp settings.json.dist settings.json`
 3. Edit the settings.json file like this example:
-```json
+```js
 {
 	"EMAIL": {
 		"SMTP": "smtp.gmail.com",
@@ -28,10 +27,10 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 		"EMAIL": "youbestemail@gmail.com",
 		"PASSWORD": "youbestpassword (i hope)"
 	},
-    "SALT": "$2b$10$5Ij/lH/3/NcJSPMkf.AKPe",
-    /* Copy only the string and not the bytes char (b) */
-    "JWT_SECRET_KEY": "lxVYbvu7ZwFNlt1gkx9K",
-    /* You can generate a random password here: https://passwordsgenerator.net */
+    	"SALT": "$2b$10$5Ij/lH/3/NcJSPMkf.AKPe",
+    	/* Copy only the string and not the bytes char (b) */
+    	"JWT_SECRET_KEY": "lxVYbvu7ZwFNlt1gkx9K",
+    	/* You can generate a random password here: https://passwordsgenerator.net */
 	"DATABASE": {
 		"NAME": "ops",
 		"USER": "root",
@@ -61,18 +60,22 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 ### Admin
 
 Here the admin can set up a general info for business activity and set the timetable of the store.
+
 ![business_home](./images/business_home.png)
 ![business_timetable](./images/business_timetable.png)
 
 ___
 
-In this page the admin can create/edit/delete the services offered by the business.
+In this page the admin can create/edit/delete the services offered by the business.\
 Each service must have a name and can have description, duration and price.
+
 ![services](./images/services.png)
 
 ___
 
-The core of the project. The calendar where the admin can see all reservation and create a new one or edit a existing reservation. With the edit option obviously the admin can approve or reject the reservation.
+The core of the project. The calendar where the admin can see all reservation and create a new one or edit a existing reservation.\ 
+With the edit option obviously the admin can approve or reject the reservation.
+
 ![plans1](./images/plans1.png)
 ![plans2](./images/plans2.png)
 ![plans3](./images/plans3.png)
@@ -81,10 +84,12 @@ The core of the project. The calendar where the admin can see all reservation an
 ___
 
 In this page the admin can search for a customer, see the related info and the reservation history.
+
 ![customers](./images/customers.png)
 
 ___
 
 ### User
 The user dashboard is a small version of plans page for admin, obviously with less privileges.
+
 ![dashboard](./images/dashboard.png)
