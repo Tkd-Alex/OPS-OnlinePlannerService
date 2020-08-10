@@ -40,7 +40,8 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 	}
 }
 ```
-4. Start the service (with venv activate): `python main.py`
+4. Create the first business and admin just execute the `python initdb.py` and follow the steps
+5. Start the service (with venv activate): `python main.py`
 
 
 ### Frontend
