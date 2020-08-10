@@ -73,7 +73,7 @@ Each service must have a name and can have description, duration and price.
 
 ___
 
-The core of the project. The calendar where the admin can see all reservation and create a new one or edit a existing reservation.\ 
+The core of the project. The calendar where the admin can see all reservation and create a new one or edit a existing reservation.\
 With the edit option obviously the admin can approve or reject the reservation.
 
 ![plans1](./images/plans1.png)
