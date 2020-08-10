@@ -1,7 +1,17 @@
 import datetime
+import json
 from peewee import MySQLDatabase, Model, CharField, AutoField, DateTimeField, TextField, IntegerField, BooleanField, ForeignKeyField, DoubleField, CompositeKey
 
-db = MySQLDatabase('ops', user='root', password='root', host='127.0.0.1', port=3306)
+with open("./settings.json") as f:
+    settings = json.load(f)
+
+db = MySQLDatabase(
+    settings["DATABASE"]["NAME"],
+    user=settings["DATABASE"]["USER"],
+    password=settings["DATABASE"]["PASSWORD"],
+    host=settings["DATABASE"]["HOST"],
+    port=settings["DATABASE"]["PORT"]
+)
 
 
 class BaseModel(Model):

@@ -44,7 +44,7 @@ mailer = Mailer(
     html_template="./",
 )
 
-app.config['JWT_SECRET_KEY'] = 'lxVYbvu7ZwFNlt1gkx9K'
+app.config['JWT_SECRET_KEY'] = settings["JWT_SECRET_KEY"]
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
