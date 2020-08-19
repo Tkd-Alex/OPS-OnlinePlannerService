@@ -113,6 +113,7 @@ In this page the admin can search for a customer, see the related info and the r
 
 <details>
 <summary><b style="font-size: 18px">User</b>: </summary>
+
 The user dashboard is a small version of plans page for admin, obviously with less privileges.
 
 ![dashboard](./images/dashboard.png)
