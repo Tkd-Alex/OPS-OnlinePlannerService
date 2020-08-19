@@ -1,5 +1,19 @@
 # OPS - Online Planner Service
 
+This web application was developed for help the commercial business to manage their reservations. The owner must be follow the setup section and deploy on own server. After that the admins can be manage all the reservations and the customers can create a new user and ask for new / manage appointment. Contributes are welcome 😄
+
+Some of the technologies used
+
+- https://github.com/pallets/flask
+- https://github.com/coleifer/peewee
+- https://github.com/angular/angular
+___
+- https://github.com/mattlewis92/angular-calendar
+- https://github.com/vimalloc/flask-jwt-extended
+- https://github.com/flask-restful/flask-restful
+- https://github.com/ColorlibHQ/AdminLTE
+
+
 ## Setup
 ### Backend
 
@@ -51,14 +65,21 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 3. If you are out of localhost edit the *API_ENDPOINT* variable located at: `src/app/common/constants.ts`
 4. Start the service: `ng service --open`
 
+## Database schema
+![schema](./images/dbschema.png)
+
 ## Screenshot and description
-### Common area
+
+<details>
+<summary><b style="font-size: 18px">Common area</b>: </summary>
 
 ![homepage](./images/homepage.png)
 ![login](./images/login.png)
 ![register](./images/register.png)
+</details>
 
-### Admin
+<details>
+<summary><b style="font-size: 18px">Admin</b>: </summary>
 
 Here the admin can set up a general info for business activity and set the timetable of the store.
 ![business_home](./images/business_home.png)
@@ -82,9 +103,12 @@ ___
 
 In this page the admin can search for a customer, see the related info and the reservation history.
 ![customers](./images/customers.png)
+</details>
 
-___
-
-### User
+<details>
+<summary><b style="font-size: 18px">User</b>: </summary>
 The user dashboard is a small version of plans page for admin, obviously with less privileges.
+
 ![dashboard](./images/dashboard.png)
+</details>
+
