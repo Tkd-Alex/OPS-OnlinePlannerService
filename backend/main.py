@@ -35,7 +35,7 @@ api = Api(app, prefix="/api/v1")
 with open("./settings.json") as f:
     settings = json.load(f)
 
-SEND_EMAIL = False
+SEND_EMAIL = True
 mailer = Mailer(
     smtp=settings["EMAIL"]["SMTP"],
     port=settings["EMAIL"]["PORT"],
@@ -54,9 +54,9 @@ blacklist = set()
 SALT = settings["SALT"].encode("utf-8")
 
 
-# @app.errorhandler(Exception)
-# def handle_error(e):
-#     return {"message": "Exception raised: {}".format(e)}, 500
+@app.errorhandler(Exception)
+def handle_error(e):
+    return {"message": "Exception raised: {}".format(e)}, 500
 
 
 @api.representation('application/json')
