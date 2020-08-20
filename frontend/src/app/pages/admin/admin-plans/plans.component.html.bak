@@ -104,7 +104,7 @@
                                 <i class="fa fa-thumbs-down"></i>
                               </button>
                               <button type="button" alt="Modifica" (click)="editReservation(event.meta)"
-                                class="btn btn-primary"><i class="fa fa-{{ !event.draggable ? 'info-circle' : 'pencil'}}"></i></button>
+                                class="btn btn-primary"><i class="fa fa-{{ !event.draggable ? 'info-circle' : 'edit'}}"></i></button>
                             </div>
                           </div>
                         </div>

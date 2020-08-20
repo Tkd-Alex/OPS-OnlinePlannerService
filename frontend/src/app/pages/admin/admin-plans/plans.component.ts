@@ -64,7 +64,7 @@ import { Business } from '../../../models/business';
 export class AdminPlansComponent implements OnInit {
 
   refresh: Subject<any> = new Subject();
-  view: CalendarView = CalendarView.Month;
+  view: CalendarView = CalendarView.Day;
   viewDate: Date = new Date();
 
   clickedDate: Date;
@@ -106,7 +106,7 @@ export class AdminPlansComponent implements OnInit {
   isLoading: boolean;
   dispose: any;
 
-  activeTab = 1;
+  activeTab = 2;
 
   constructor(
     private store: Store<AppState>,

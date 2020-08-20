@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'home', component: HomeComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'admin',  redirectTo: '/admin/business', pathMatch: 'full' },
+  { path: 'admin',  redirectTo: '/admin/plans', pathMatch: 'full' },
   { path: 'admin/business', component: AdminBusinessComponent, canActivate: [AuthAdminGuard] },
   { path: 'admin/plans', component: AdminPlansComponent, canActivate: [AuthAdminGuard] },
   { path: 'admin/services', component: AdminServicesComponent, canActivate: [AuthAdminGuard] },
