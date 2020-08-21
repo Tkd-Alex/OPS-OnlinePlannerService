@@ -1,106 +1,159 @@
-<!doctype html>
-<html lang="it">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<div class="wrapper">
 
-    <title>Dashboard</title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="row pt-2">
-        <div class="col-md-8">
-          <h3>{{ ( this.currentState$ | async )?.business?.name }}</h3>
-          <p>{{ ( this.currentState$ | async )?.business?.description }} </p>
-          <!-- <a target="_blank" href="https://www.google.com/maps?q={{ ( this.currentState$ | async )?.business?.address }}">{{ ( this.currentState$ | async )?.business?.address }}</a> -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <div class="sidebar">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <img
+            src="https://eu.ui-avatars.com/api/?name={{ ( this.authState$ | async )?.user?.fullName }}&?rounded=true&bold=true&size=512"
+            class="img-circle elevation-2" alt="User Image">
         </div>
-        <div class="col-md-4 text-right align-self-center">
-          <!-- <button type="button" (click)="logout()" class="btn btn-small btn-outline-primary border-0 text-center"><i class="fa fa-sign-out"></i></button> -->
-
-          <div ngbDropdown class="d-inline-block">
-            <button class="btn btn-small btn-outline-primary border-0 text-center" id="dropdownBasic1" ngbDropdownToggle><i class="fa fa-user"></i></button>
-            <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-              <button (click)="updateUser('email')" ngbDropdownItem>Cambia email</button>
-              <button (click)="updateUser('password')" ngbDropdownItem>Cambia password</button>
-              <button (click)="logout()" ngbDropdownItem>Logout</button>
-            </div>
-          </div>
-
+        <div class="info">
+          <a href="#" class="d-block">{{ ( this.authState$ | async )?.user?.fullName }}</a>
         </div>
       </div>
 
-      <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()" (viewChange)="fetchReservation()"></app-calendar-header>
-      <hr>
-
-
-      <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
-        <li [ngbNavItem]="1" (click)="fetchReservation()">
-          <a ngbNavLink>Calendario</a>
-          <ng-template ngbNavContent>
-
-            <div class="row">
-              <div class="col-md-12">
-              <div *ngIf="isLoading === false && events !== []; else loading">
-                <div [ngSwitch]="view">
-
-                  <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events" [weekStartsOn]="weekStartsOn"
-                    (dayClicked)="dayClicked($event.day)"
-                    (eventClicked)="handleEvent('Clicked', $event.event)"
-                    (eventTimesChanged)="eventTimesChanged($event)">
-                  </mwl-calendar-month-view>
-
-                  <mwl-calendar-week-view *ngSwitchCase="'week'" [events]="events" [viewDate]="viewDate"
-                    [weekStartsOn]="weekStartsOn" (eventClicked)="handleEvent('Clicked', $event.event)"
-                    (eventTimesChanged)="eventTimesChanged($event)"
-                    (hourSegmentClicked)="handleHourClick($event.date)"
-                    (beforeViewRender)="beforeWeekViewRender($event)"
-                    [hourSegmentTemplate]="weekViewHourSegmentTemplate"
-                    (dayHeaderClicked)="dayClicked($event.day)"
-                    [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
-                    [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
-                  </mwl-calendar-week-view>
-
-                  <mwl-calendar-day-view *ngSwitchCase="'day'" [events]="events" [viewDate]="viewDate"
-                    (eventClicked)="handleEvent('Clicked', $event.event)"
-                    (eventTimesChanged)="eventTimesChanged($event)"
-                    (hourSegmentClicked)="handleHourClick($event.date)"
-                    (beforeViewRender)="beforeDayViewRender($event)"
-                    [hourSegmentTemplate]="weekViewHourSegmentTemplate"
-                    [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
-                    [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
-                  </mwl-calendar-day-view>
-
-                </div>
-              </div>
-              <div *ngIf="isLoading === false && todayIsClose === true" class="text-center pt-4" >
-                <h1>Oggi il negozio e' chiuso</h1>
-                <img width="40%" src="../../../assets/img/we-are-closed.gif">
-              </div>
-              </div>
-            </div>
-          </ng-template>
-        </li>
-        <li [ngbNavItem]="2" (click)="fetchReservation()">
-          <a ngbNavLink>I miei appuntamenti</a>
-          <ng-template ngbNavContent>
-            <div class="row">
-              <div class="col-md-12">
-                <div *ngIf="(currentState$ | async).isLoading == false && reservations" class="scrollabe-div">
-                  <app-user-reversations-table [reservations]="reservations"></app-user-reversations-table>
-                </div>
-              </div>
-            </div>
-          </ng-template>
-        </li>
-      </ul>
-
-      <div [ngbNavOutlet]="nav" class="mt-2"></div>
-      <br><br><br>
-
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item">
+            <a class="nav-link active" [routerLink]="'/dashboard'">
+              <i class="nav-icon far fa-sticky-note"></i>
+              <p>Appuntamenti</p>
+            </a>
+          </li>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-user-tag"></i>
+              <p>Profilo<i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <li class="nav-item">
+                <a (click)="updateUser('email')" class="nav-link" style="cursor: pointer;">
+                  <i class="nav-icon fas fa-at"></i>
+                  <p>Cambia email</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a (click)="updateUser('password')" class="nav-link" style="cursor: pointer;">
+                  <i class="nav-icon fas fa-key"></i>
+                  <p>Cambia password</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a (click)="logout()" class="nav-link" style="cursor: pointer;">
+                  <i class="nav-icon fas fa-door-open"></i>
+                  <p>Disconnetti</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
     </div>
-  </body>
-</html>
+  </aside>
+
+
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-12">
+            <h1 class="m-0 text-dark">
+              <a class="sidebar-toggle" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+              {{ ( this.currentState$ | async )?.business?.name }}
+              <a class="sidebar-toggle" target="_blank" href="https://www.google.com/maps?q={{ ( this.currentState$ | async )?.business?.address }}"><i class="fas fa-map-marked-alt pl-3"></i></a>
+            </h1>
+            <p class="mb-0 pb-0">{{ ( this.currentState$ | async )?.business?.description }} </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-body">
+                <app-calendar-header [(view)]="view" [(viewDate)]="viewDate" (viewDateChange)="fetchReservation()"
+                  (viewChange)="fetchReservation()"></app-calendar-header>
+                <hr>
+
+
+                <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+                  <li [ngbNavItem]="1" (click)="fetchReservation()">
+                    <a ngbNavLink>Calendario</a>
+                    <ng-template ngbNavContent>
+
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div *ngIf="isLoading === false && events !== []; else loading">
+                            <div [ngSwitch]="view">
+
+                              <mwl-calendar-month-view *ngSwitchCase="'month'" [viewDate]="viewDate" [events]="events"
+                                [weekStartsOn]="weekStartsOn" (dayClicked)="dayClicked($event.day)"
+                                (eventClicked)="handleEvent('Clicked', $event.event)"
+                                (eventTimesChanged)="eventTimesChanged($event)">
+                              </mwl-calendar-month-view>
+
+                              <mwl-calendar-week-view *ngSwitchCase="'week'" [events]="events" [viewDate]="viewDate"
+                                [weekStartsOn]="weekStartsOn" (eventClicked)="handleEvent('Clicked', $event.event)"
+                                (eventTimesChanged)="eventTimesChanged($event)"
+                                (hourSegmentClicked)="handleHourClick($event.date)"
+                                (beforeViewRender)="beforeWeekViewRender($event)"
+                                [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+                                (dayHeaderClicked)="dayClicked($event.day)"
+                                [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
+                                [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
+                              </mwl-calendar-week-view>
+
+                              <mwl-calendar-day-view *ngSwitchCase="'day'" [events]="events" [viewDate]="viewDate"
+                                (eventClicked)="handleEvent('Clicked', $event.event)"
+                                (eventTimesChanged)="eventTimesChanged($event)"
+                                (hourSegmentClicked)="handleHourClick($event.date)"
+                                (beforeViewRender)="beforeDayViewRender($event)"
+                                [hourSegmentTemplate]="weekViewHourSegmentTemplate"
+                                [currentTimeMarkerTemplate]="currentTimeMarkerTemplate" [dayStartHour]="dayStartHour"
+                                [dayEndHour]="dayEndHour" [hourSegments]="4" [refresh]="refresh">
+                              </mwl-calendar-day-view>
+
+                            </div>
+                          </div>
+                          <div *ngIf="isLoading === false && todayIsClose === true" class="text-center pt-4">
+                            <h1>Oggi il negozio e' chiuso</h1>
+                            <img width="40%" src="../../../assets/img/we-are-closed.gif">
+                          </div>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </li>
+                  <li [ngbNavItem]="2" (click)="fetchReservation()">
+                    <a ngbNavLink>I miei appuntamenti</a>
+                    <ng-template ngbNavContent>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div *ngIf="(currentState$ | async).isLoading == false && reservations" class="scrollabe-div">
+                            <app-user-reversations-table [reservations]="reservations"></app-user-reversations-table>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </li>
+                </ul>
+
+                <div [ngbNavOutlet]="nav" class="mt-2"></div>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+</div>
 
 <ng-template #currentTimeMarkerTemplate let-dayStartHour="dayStartHour" let-dayEndHour="dayEndHour"></ng-template>
 
