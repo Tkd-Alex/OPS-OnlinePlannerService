@@ -16,7 +16,7 @@ import {
 
 import {
   isSameDay,
-  isSameMonth,
+  isSameMonth
 } from 'date-fns';
 
 import getUnixTime from 'date-fns/getUnixTime';
@@ -108,6 +108,13 @@ export class AdminPlansComponent implements OnInit {
 
   activeTab = 2;
 
+  counters = {
+    total: 0,
+    approved: 0,
+    pending: 0,
+    rejected: 0
+  };
+
   constructor(
     private store: Store<AppState>,
     private modalService: NgbModal,
@@ -152,12 +159,31 @@ export class AdminPlansComponent implements OnInit {
               meta: reservation
             };
         });
+
+        this.reloadCounters();
+
         if (this.activeTab === 2) { this.events = this.events.filter(event => showItemInList(this.view, this.viewDate, event.start)); }
         // Hide the events in calendar if are rejected
         else { this.events = this.events.filter(event => event.meta.isReject === false); }
         this.recalculateStoreOpenClose(this.view === 'week' ? false : true);
      }
     });
+  }
+
+  reloadCounters(): void{
+    this.counters.total = this.counters.approved = this.events.filter(
+      event => showItemInList(this.view, this.viewDate, event.start)
+    ).length;
+    this.counters.approved = this.events.filter(
+      event =>
+        (event.meta.isApproved === true && event.meta.isReject === false) && showItemInList(this.view, this.viewDate, event.start)
+    ).length;
+    this.counters.pending = this.events.filter(
+      event => (event.meta.isApproved === false && event.meta.isReject === false) && showItemInList(this.view, this.viewDate, event.start)
+    ).length;
+    this.counters.rejected = this.events.filter(
+      event => (event.meta.isApproved === false && event.meta.isReject === true) && showItemInList(this.view, this.viewDate, event.start)
+    ).length;
   }
 
   joinServices(services: Service[]): string {
