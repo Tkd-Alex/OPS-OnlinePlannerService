@@ -6,8 +6,8 @@
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
-          <div class="col-sm-12">
-            <h1 class="m-0 text-dark">Servizi</h1>
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark"><a class="sidebar-toggle" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a> Servizi</h1>
           </div>
         </div>
       </div>
@@ -19,8 +19,10 @@
         <div class="row">
           <div class="col-md-4">
             <div class="card card-widget widget-user">
-              <div class="widget-user-header text-white service-image"></div>
-              <div class="card-body align-self-center">
+              <div class="widget-user-header text-white service-image">
+                <!-- <h3 class="widget-user-username text-right">{{ selected.id !== null ? 'Modifica il servizio' : 'Crea un nuovo servizio' }}</h3> -->
+              </div>
+              <div class="card-body">
                 <div class="form-group input-group">
                   <input type="text" class="form-control" name="name" [(ngModel)]="selected.name"
                     placeholder="Inserisci il nome del servizio che offri">

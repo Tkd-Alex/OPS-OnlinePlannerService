@@ -33,7 +33,6 @@
               "node_modules/ionicons/css/ionicons.min.css",
               "node_modules/admin-lte/plugins/fontawesome-free/css/all.min.css",
               "node_modules/admin-lte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css",
-              "node_modules/admin-lte/plugins/icheck-bootstrap/icheck-bootstrap.min.css",
               "node_modules/admin-lte/dist/css/adminlte.min.css",
               "src/styles.css"
             ],
@@ -42,9 +41,7 @@
               "node_modules/jqueryui/jquery-ui.js",
               "node_modules/aos/dist/aos.js",
               "node_modules/admin-lte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js",
-              "node_modules/admin-lte/dist/js/adminlte.js",
-              "node_modules/admin-lte/dist/js/pages/dashboard.js",
-              "node_modules/admin-lte/dist/js/demo.js"
+              "node_modules/admin-lte/dist/js/adminlte.js"
             ]
           },
           "configurations": {
