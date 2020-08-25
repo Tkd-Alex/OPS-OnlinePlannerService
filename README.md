@@ -77,6 +77,7 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 ![homepage](./images/homepage.png)
 ![login](./images/login.png)
 ![register](./images/register.png)
+
 </details>
 
 <details>
@@ -84,36 +85,66 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 
 Here the admin can set up a general info for business activity and set the timetable of the store.
 
+<details>
+<summary>Screenshot</summary>
+
 ![business](./images/business.png)
 
+</details>
+
 ___
+
 
 In this page the admin can create/edit/delete the services offered by the business.\
 Each service must have a name and can have description, duration and price.
 
+<details>
+<summary>Screenshot</summary>
+
 ![services](./images/services.png)
+
+</details>
 
 ___
 
-The core of the project. The calendar where the admin can see all reservation and create a new one or edit a existing reservation.\
+
+The core of the project. \
+The calendar where the admin can see all reservation and create a new one or edit a existing reservation. \
 With the edit option obviously the admin can approve or reject the reservation.
+
+<details>
+<summary>Screenshot</summary>
 
 ![plans1](./images/plans1.png)
 ![plans2](./images/plans2.png)
 ![plans3](./images/plans3.png)
 ![plans4](./images/plans4.png)
 
+</details>
+
 ___
+
 
 In this page the admin can search for a customer, see the related info and the reservation history.
 
+<details>
+<summary>Screenshot</summary>
+
 ![customers](./images/customers.png)
+
+</details>
 </details>
 
 <details>
 <summary><b style="font-size: 18px">User</b>: </summary>
+
 The user dashboard is a small version of plans page for admin, obviously with less privileges.
 
+<details>
+<summary>Screenshot</summary>
+
 ![dashboard](./images/dashboard.png)
+
 </details>
 
+</details>
