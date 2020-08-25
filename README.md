@@ -84,8 +84,7 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 
 Here the admin can set up a general info for business activity and set the timetable of the store.
 
-![business_home](./images/business_home.png)
-![business_timetable](./images/business_timetable.png)
+![business](./images/business.png)
 
 ___
 
