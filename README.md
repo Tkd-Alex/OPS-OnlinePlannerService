@@ -64,7 +64,7 @@ b'$2b$10$5Ij/lH/3/NcJSPMkf.AKPe'  # Example ...
 1. Navigate to folder: `cd frontend`
 2. Install all node_mdoules: `npm i`
 3. If you are out of localhost edit the *API_ENDPOINT* variable located at: `src/app/common/constants.ts`
-4. Start the service: `ng service --open`
+4. Start the service: `ng serve --open` or build the project and host on a web server
 
 ## Database schema
 ![schema](./images/dbschema.png)
