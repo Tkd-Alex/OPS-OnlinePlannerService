@@ -15,7 +15,7 @@ peewee==3.13.3
 pycodestyle==2.6.0
 pycparser==2.20
 pyflakes==2.2.0
-PyJWT==1.7.1
+PyJWT==2.4.0
 PyMySQL==0.10.0
 pytz==2020.1
 six==1.15.0
